@@ -51,8 +51,13 @@ const PositioningControls = ({
   };
 
   return (
-    <ScrollView className="flex-1" showsVerticalScrollIndicator={true} alwaysBounceVertical={true}>
-      <View className="py-2 space-y-3">
+    <ScrollView 
+      className="flex-1" 
+      showsVerticalScrollIndicator={true} 
+      bounces={true}
+      contentContainerStyle={{ paddingBottom: 20 }}  // Add padding at bottom
+    >
+      <View className="py-2 space-y-2.5">
         {/* View Selection */}
         <View className="mb-3">
           <Text className="text-xs font-satoshi-medium text-text-400 mb-2">

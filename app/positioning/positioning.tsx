@@ -143,9 +143,17 @@ const Positioning = () => {
     };
   });
 
-  // Calculate panel height - limit to 40% of screen height but ensure minimum height
-  const maxPanelHeight = Dimensions.get('window').height * 0.4;
-  const minPanelHeight = 250; // Minimum height to ensure controls are visible
+  // Calculate panel dimensions based on screen size - more responsive
+  const screenHeight = Dimensions.get('window').height;
+  const maxPanelHeight = Math.min(screenHeight * 0.45, 350); // Cap at 350 or 45% of screen
+  const minPanelHeight = Math.min(screenHeight * 0.25, 180); // Minimum height
+
+  // Add this function in your component to handle manual panel expansion
+  const [isPanelExpanded, setIsPanelExpanded] = useState(false);
+
+  const togglePanelExpansion = () => {
+    setIsPanelExpanded(!isPanelExpanded);
+  };
 
   return (
     <View className="flex-1 bg-background-950">
@@ -225,11 +233,18 @@ const Positioning = () => {
         style={[
           panelAnimStyle, 
           { 
-            minHeight: minPanelHeight,
-            maxHeight: maxPanelHeight,
+            height: isPanelExpanded ? maxPanelHeight : minPanelHeight,
           }
         ]}
       >
+        {/* Panel handle for manual expansion */}
+        <TouchableOpacity 
+          className="w-full items-center py-1" 
+          onPress={togglePanelExpansion}
+        >
+          <View className="w-10 h-1 bg-background-200/50 rounded-full" />
+        </TouchableOpacity>
+
         {/* Tabs */}
         <View className="flex-row border-b border-background-200/20">
           <TouchableOpacity
@@ -268,7 +283,7 @@ const Positioning = () => {
         </View>
         
         {/* Tab content */}
-        <View className="flex-1 p-4 overflow-hidden">
+        <View className="flex-1 overflow-hidden">
           {activeTab === 'controls' ? (
             <PositioningControls
               rotationX={rotationX}

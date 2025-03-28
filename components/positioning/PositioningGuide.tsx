@@ -71,8 +71,13 @@ const PositioningGuide = ({ viewType }: PositioningGuideProps) => {
   const guideContent = getGuideContent();
 
   return (
-    <ScrollView className="flex-1" showsVerticalScrollIndicator={true} alwaysBounceVertical={true}>
-      <View className="pb-4">
+    <ScrollView 
+      className="flex-1" 
+      showsVerticalScrollIndicator={true}
+      bounces={true}
+      contentContainerStyle={{ paddingBottom: 20 }}  // Add padding at bottom
+    >
+      <View className="py-2">
         <View className="bg-primary-900/50 rounded-lg p-3 mb-3">
           <Text className="text-sm font-chillax-medium text-primary-500 mb-1">
             {guideContent.title}

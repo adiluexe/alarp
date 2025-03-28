@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { View, PanResponder, GestureResponderEvent, TouchableOpacity, Text } from 'react-native';
 import { GLView } from 'expo-gl';
 import { Renderer, loadObjAsync, loadMtlAsync } from 'expo-three';
@@ -45,6 +45,7 @@ export default function ModelViewer({
   const requestId = useRef<number | null>(null);
   const modelRef = useRef<THREE.Group | null>(null);
   const beamRef = useRef<THREE.Group | null>(null);
+  const glRef = useRef<ExpoGLRenderingContext | null>(null);
   
   // Track touch handling
   const lastTouchX = useRef(0);
@@ -66,7 +67,6 @@ export default function ModelViewer({
         
         if (interactionMode === 'model') {
           // Adjust model rotation based on touch movement
-          // Fix: Call setRotation with the new value directly, not a callback function
           setRotationY(rotationY + deltaX * 0.5);
           setRotationX(rotationX - deltaY * 0.5);
         } else {
@@ -87,19 +87,19 @@ export default function ModelViewer({
   // Setup the scene once
   useEffect(() => {
     // Add lights
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
     scene.add(ambientLight);
     
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    directionalLight.position.set(0, 5, 5); // Light from above and slightly in front
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.9);
+    directionalLight.position.set(0, 10, 5); // More overhead light
     scene.add(directionalLight);
     
-    // Set camera position for better viewing angle
-    camera.position.set(0, 0, 3);
+    // Set camera position for true bird's eye view
+    camera.position.set(0, 0, 4); // Move camera higher up
     camera.lookAt(0, 0, 0);
     
     // Add a grid for reference - smaller and positioned properly
-    const gridHelper = new THREE.GridHelper(1.5, 15, 0x888888, 0xcccccc);
+    const gridHelper = new THREE.GridHelper(2, 10, 0x888888, 0xcccccc);
     gridHelper.rotation.x = Math.PI / 2; // Rotate grid to be horizontal for top view
     scene.add(gridHelper);
     
@@ -192,12 +192,13 @@ export default function ModelViewer({
         object.position.set(-center.x, -center.y, -center.z);
         object.scale.setScalar(scale);
         
-        // Properly position and rotate the model to be visible in the center
+        // For a true bird's eye view:
         object.position.y = 0;
+        object.position.z = 0; // Ensure it's at the origin
         
-        // Set initial rotation - rotate to lie flat for top-down view but keep visible
-        object.rotation.x = Math.PI / 2;
-        object.rotation.z = Math.PI; // This helps orient the arm properly
+        // Rotate for top-down view
+        object.rotation.x = Math.PI / 2; // This puts it flat
+        object.rotation.z = Math.PI; // This orients it correctly
         
         scene.add(object);
         modelRef.current = object;
@@ -209,8 +210,55 @@ export default function ModelViewer({
     loadModel();
   }, []);
   
+  // Create a render function that depends on state values
+  const render = useCallback(() => {
+    if (!renderer || !glRef.current) return;
+    
+    if (modelRef.current) {
+      // Apply rotation from controls - keep the X rotation offset to maintain visibility
+      modelRef.current.rotation.x = Math.PI / 2 + THREE.MathUtils.degToRad(rotationX);
+      modelRef.current.rotation.z = Math.PI + THREE.MathUtils.degToRad(rotationY);
+    }
+    
+    if (beamRef.current) {
+      // Convert from percentage (0-100) to position in scene
+      const x = (beamCenterX / 50 - 1) * 0.75; // Scale to fit better
+      const y = (1 - beamCenterY / 50) * 0.75; // Scale to fit better
+      
+      beamRef.current.position.x = x;
+      beamRef.current.position.y = y;
+      beamRef.current.rotation.z = THREE.MathUtils.degToRad(beamAngle);
+    }
+    
+    renderer.render(scene, camera);
+    
+    // Safely call Expo's endFrameEXP method
+    if (glRef.current.endFrameEXP) {
+      glRef.current.endFrameEXP();
+    }
+  }, [renderer, rotationX, rotationY, beamCenterX, beamCenterY, beamAngle]);
+  
+  // Set up the animation loop
+  useEffect(() => {
+    if (!renderer) return;
+    
+    const animate = () => {
+      render();
+      requestId.current = requestAnimationFrame(animate);
+    };
+    
+    requestId.current = requestAnimationFrame(animate);
+    
+    return () => {
+      if (requestId.current) {
+        cancelAnimationFrame(requestId.current);
+      }
+    };
+  }, [renderer, render]);
+  
   // Handle context creation for GL View
-  const onContextCreate = async (gl: ExpoGLRenderingContext) => {
+  const onContextCreate = (gl: ExpoGLRenderingContext) => {
+    glRef.current = gl;
     const { drawingBufferWidth: width, drawingBufferHeight: height } = gl;
     
     // Create a new renderer
@@ -222,36 +270,6 @@ export default function ModelViewer({
     // Set correct camera aspect ratio
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
-    
-    // Start render loop
-    const render = () => {
-      if (modelRef.current) {
-        // Apply rotation from controls - keep the X rotation offset to maintain visibility
-        modelRef.current.rotation.x = Math.PI / 2 + THREE.MathUtils.degToRad(rotationX);
-        modelRef.current.rotation.z = Math.PI + THREE.MathUtils.degToRad(rotationY);
-      }
-      
-      if (beamRef.current) {
-        // Convert from percentage (0-100) to position in scene
-        const x = (beamCenterX / 50 - 1) * 0.75; // Scale to fit better
-        const y = (1 - beamCenterY / 50) * 0.75; // Scale to fit better
-        
-        beamRef.current.position.x = x;
-        beamRef.current.position.y = y;
-        beamRef.current.rotation.z = THREE.MathUtils.degToRad(beamAngle);
-      }
-      
-      renderer.render(scene, camera);
-      
-      // Safely call Expo's endFrameEXP method
-      if (gl.endFrameEXP) {
-        gl.endFrameEXP();
-      }
-      
-      requestId.current = requestAnimationFrame(render);
-    };
-    
-    render();
   };
   
   // Toggle between model and beam control modes
