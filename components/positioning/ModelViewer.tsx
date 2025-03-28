@@ -11,6 +11,8 @@ type ModelViewerProps = {
   setRotationX: (value: number) => void;
   rotationY: number;
   setRotationY: (value: number) => void;
+  rotationZ: number;
+  setRotationZ: (value: number) => void;
   beamCenterX: number;
   setBeamCenterX: (value: number) => void;
   beamCenterY: number;
@@ -27,6 +29,7 @@ interface ExpoGLRenderingContext extends WebGLRenderingContext {
 export default function ModelViewer({ 
   rotationX, setRotationX,
   rotationY, setRotationY,
+  rotationZ, setRotationZ,
   beamCenterX, setBeamCenterX,
   beamCenterY, setBeamCenterY,
   beamAngle, setBeamAngle
@@ -34,8 +37,8 @@ export default function ModelViewer({
   const [renderer, setRenderer] = useState<Renderer | null>(null);
   const [scene] = useState(() => new THREE.Scene());
   const [camera] = useState(() => 
-    // Create camera with better positioning for a top-down view
-    new THREE.PerspectiveCamera(60, 1, 0.1, 1000)
+    // Adjust camera FOV and positioning for better view
+    new THREE.PerspectiveCamera(55, 1, 0.1, 1000)
   );
   
   // Track interaction mode
@@ -56,7 +59,6 @@ export default function ModelViewer({
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onPanResponderGrant: (evt: GestureResponderEvent) => {
-        // Store initial touch position
         lastTouchX.current = evt.nativeEvent.locationX;
         lastTouchY.current = evt.nativeEvent.locationY;
       },
@@ -66,18 +68,23 @@ export default function ModelViewer({
         const deltaY = locationY - lastTouchY.current;
         
         if (interactionMode === 'model') {
-          // Adjust model rotation based on touch movement
-          setRotationY(rotationY + deltaX * 0.5);
-          setRotationX(rotationX - deltaY * 0.5);
+          // For model rotation, use two fingers (check touches length)
+          if (evt.nativeEvent.touches.length > 1) {
+            // Two finger gesture - use for Z-axis rotation
+            setRotationZ(rotationZ + deltaX * 0.5);
+          } else {
+            // Single finger gesture - use for X and Y rotation
+            setRotationY(rotationY + deltaX * 0.5);
+            setRotationX(rotationX - deltaY * 0.5);
+          }
         } else {
-          // Adjust beam position based on touch movement
-          const newBeamX = Math.max(0, Math.min(100, beamCenterX + deltaX * 0.5));
-          const newBeamY = Math.max(0, Math.min(100, beamCenterY + deltaY * 0.5));
+          // Beam positioning - more sensitive for precise control
+          const newBeamX = Math.max(0, Math.min(100, beamCenterX + deltaX * 0.3));
+          const newBeamY = Math.max(0, Math.min(100, beamCenterY + deltaY * 0.3));
           setBeamCenterX(newBeamX);
           setBeamCenterY(newBeamY);
         }
         
-        // Update last touch position
         lastTouchX.current = locationX;
         lastTouchY.current = locationY;
       },
@@ -90,30 +97,37 @@ export default function ModelViewer({
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
     scene.add(ambientLight);
     
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.9);
-    directionalLight.position.set(0, 10, 5); // More overhead light
+    // Add strong directional light from top for better visibility
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
+    directionalLight.position.set(0, 5, 2);
     scene.add(directionalLight);
     
-    // Set camera position for true bird's eye view
-    camera.position.set(0, 0, 4); // Move camera higher up
+    // Add a softer fill light from the side
+    const fillLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    fillLight.position.set(2, 2, 5);
+    scene.add(fillLight);
+    
+    // Set camera position for a better view - higher up and angled down
+    camera.position.set(0, 0, 2.5); // Closer to the model (zoom effect)
     camera.lookAt(0, 0, 0);
     
     // Add a grid for reference - smaller and positioned properly
-    const gridHelper = new THREE.GridHelper(2, 10, 0x888888, 0xcccccc);
+    const gridHelper = new THREE.GridHelper(1.5, 15, 0x888888, 0xcccccc);
     gridHelper.rotation.x = Math.PI / 2; // Rotate grid to be horizontal for top view
+    gridHelper.position.y = -0.3; // Move grid down slightly
     scene.add(gridHelper);
     
-    // Create beam indicator
+    // Create beam indicator - make it more visible
     const beamGroup = new THREE.Group();
     
     // Beam center dot
-    const dotGeometry = new THREE.SphereGeometry(0.03, 16, 16);
+    const dotGeometry = new THREE.SphereGeometry(0.04, 16, 16);
     const dotMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
     const dot = new THREE.Mesh(dotGeometry, dotMaterial);
     beamGroup.add(dot);
     
     // Beam ring
-    const ringGeometry = new THREE.RingGeometry(0.05, 0.07, 32);
+    const ringGeometry = new THREE.RingGeometry(0.06, 0.08, 32);
     const ringMaterial = new THREE.MeshBasicMaterial({ 
       color: 0xff0000,
       side: THREE.DoubleSide // Make visible from both sides
@@ -126,14 +140,14 @@ export default function ModelViewer({
     const lineMaterial = new THREE.MeshBasicMaterial({ 
       color: 0xff0000,
       transparent: true,
-      opacity: 0.6
+      opacity: 0.7
     });
     const line = new THREE.Mesh(lineGeometry, lineMaterial);
     line.position.z = -0.5;
     line.rotation.x = Math.PI / 2;
     beamGroup.add(line);
     
-    beamGroup.position.z = 0.01; // Slightly above the model to ensure visibility
+    beamGroup.position.z = 0.03; // Place slightly above the model
     scene.add(beamGroup);
     beamRef.current = beamGroup;
 
@@ -152,7 +166,6 @@ export default function ModelViewer({
         const mtlAsset = Asset.fromModule(require('../../assets/models/skeletonarm.mtl'));
         await mtlAsset.downloadAsync();
         
-        // Type assertion to make TypeScript happy with the onAssetRequested parameter
         const materialsParams = {
           asset: mtlAsset,
           onAssetRequested: (assetName: string) => {
@@ -168,7 +181,6 @@ export default function ModelViewer({
         const objAsset = Asset.fromModule(require('../../assets/models/skeletonarm.obj'));
         await objAsset.downloadAsync();
         
-        // Type assertion for loadObjAsync parameters
         const objParams = {
           asset: objAsset,
           materials,
@@ -186,19 +198,22 @@ export default function ModelViewer({
         const size = box.getSize(new THREE.Vector3());
         
         const maxDim = Math.max(size.x, size.y, size.z);
-        const scale = 0.8 / maxDim; // Slightly smaller scale to fit better in view
         
-        // Center the model and position it in the center of the screen
+        // Scale the model larger for better visibility (zoom in)
+        const scale = 1.2 / maxDim;
+        
+        // Center the model properly
         object.position.set(-center.x, -center.y, -center.z);
         object.scale.setScalar(scale);
         
-        // For a true bird's eye view:
-        object.position.y = 0;
-        object.position.z = 0; // Ensure it's at the origin
+        // Initial positioning for forearm
+        object.rotation.x = Math.PI / 2; // Put it flat (bird's eye view)
         
-        // Rotate for top-down view
-        object.rotation.x = Math.PI / 2; // This puts it flat
-        object.rotation.z = Math.PI; // This orients it correctly
+        // Apply a small initial Y rotation to show the forearm better
+        object.rotation.y = 0;
+        
+        // Raise the model so it's above the grid
+        object.position.y = 0;
         
         scene.add(object);
         modelRef.current = object;
@@ -215,15 +230,30 @@ export default function ModelViewer({
     if (!renderer || !glRef.current) return;
     
     if (modelRef.current) {
-      // Apply rotation from controls - keep the X rotation offset to maintain visibility
-      modelRef.current.rotation.x = Math.PI / 2 + THREE.MathUtils.degToRad(rotationX);
-      modelRef.current.rotation.z = Math.PI + THREE.MathUtils.degToRad(rotationY);
+      // Reset the rotation to avoid cumulative effects
+      modelRef.current.rotation.set(0, 0, 0);
+      
+      // Apply all rotations in sequence for correct orientation
+      // Important: Order matters for rotations
+      
+      // First make it flat (this establishes our primary viewing plane)
+      modelRef.current.rotateX(Math.PI / 2);
+      
+      // Apply X rotation (tilt forward/backward)
+      modelRef.current.rotateY(THREE.MathUtils.degToRad(rotationX));
+      
+      // Apply Y rotation (rotate left/right on the horizontal plane)
+      modelRef.current.rotateZ(THREE.MathUtils.degToRad(rotationY));
+      
+      // Apply Z rotation (roll around the main axis)
+      modelRef.current.rotateX(THREE.MathUtils.degToRad(rotationZ));
     }
     
     if (beamRef.current) {
       // Convert from percentage (0-100) to position in scene
-      const x = (beamCenterX / 50 - 1) * 0.75; // Scale to fit better
-      const y = (1 - beamCenterY / 50) * 0.75; // Scale to fit better
+      // Scale down the movement range to fit model better
+      const x = (beamCenterX / 50 - 1) * 0.6;
+      const y = (1 - beamCenterY / 50) * 0.6;
       
       beamRef.current.position.x = x;
       beamRef.current.position.y = y;
@@ -236,7 +266,7 @@ export default function ModelViewer({
     if (glRef.current.endFrameEXP) {
       glRef.current.endFrameEXP();
     }
-  }, [renderer, rotationX, rotationY, beamCenterX, beamCenterY, beamAngle]);
+  }, [renderer, rotationX, rotationY, rotationZ, beamCenterX, beamCenterY, beamAngle]);
   
   // Set up the animation loop
   useEffect(() => {
@@ -279,7 +309,7 @@ export default function ModelViewer({
   
   return (
     <View className="flex-1 bg-background-950 relative">
-      <View className="absolute top-4 right-4 z-10 bg-white/80 rounded-full px-3 py-1.5">
+      <View className="absolute top-4 right-4 z-10 bg-white/90 rounded-full px-3 py-1.5">
         <Text className="text-xs font-satoshi-medium text-primary-500">
           {interactionMode === 'model' ? 'Model Control' : 'Beam Control'}
         </Text>

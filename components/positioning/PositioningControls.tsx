@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
 import Slider from '@react-native-community/slider';
 import { SolarIcon } from 'react-native-solar-icons';
 
@@ -9,6 +8,8 @@ type PositioningControlsProps = {
   setRotationX: (value: number) => void;
   rotationY: number;
   setRotationY: (value: number) => void;
+  rotationZ: number;
+  setRotationZ: (value: number) => void;
   beamCenterX: number;
   setBeamCenterX: (value: number) => void;
   beamCenterY: number;
@@ -25,6 +26,8 @@ const PositioningControls = ({
   setRotationX,
   rotationY,
   setRotationY,
+  rotationZ,
+  setRotationZ,
   beamCenterX,
   setBeamCenterX,
   beamCenterY,
@@ -39,6 +42,7 @@ const PositioningControls = ({
   const handleReset = () => {
     setRotationX(0);
     setRotationY(0);
+    setRotationZ(0);
     setBeamAngle(0);
     setBeamCenterX(50);
     setBeamCenterY(50);
@@ -61,19 +65,76 @@ const PositioningControls = ({
         {/* View Selection */}
         <View className="mb-3">
           <Text className="text-xs font-satoshi-medium text-text-400 mb-2">
-            View Type
+            Standard Views
           </Text>
-          <View className="border border-background-200/20 rounded-md bg-white">
-            <Picker
-              selectedValue={viewType}
-              onValueChange={(itemValue) => setViewType(itemValue)}
-              style={{ height: 40 }}
+          <View className="flex-row flex-wrap justify-between">
+            <TouchableOpacity 
+              className={`py-2 px-3 rounded-md mb-2 ${viewType === 'anterior' ? 'bg-primary-500' : 'bg-white border border-background-200/20'}`}
+              onPress={() => {
+                setViewType('anterior');
+                setRotationX(0);
+                setRotationY(0);
+                setRotationZ(0);
+                setBeamCenterX(50);
+                setBeamCenterY(50);
+                setBeamAngle(0);
+              }}
             >
-              <Picker.Item label="Anterior" value="anterior" />
-              <Picker.Item label="Posterior" value="posterior" />
-              <Picker.Item label="Lateral" value="lateral" />
-              <Picker.Item label="Oblique" value="oblique" />
-            </Picker>
+              <Text className={`text-xs font-satoshi-medium ${viewType === 'anterior' ? 'text-white' : 'text-text-400'}`}>
+                Anterior
+              </Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              className={`py-2 px-3 rounded-md mb-2 ${viewType === 'posterior' ? 'bg-primary-500' : 'bg-white border border-background-200/20'}`}
+              onPress={() => {
+                setViewType('posterior');
+                setRotationX(0);
+                setRotationY(0);
+                setRotationZ(0);
+                setBeamCenterX(50);
+                setBeamCenterY(50);
+                setBeamAngle(0);
+              }}
+            >
+              <Text className={`text-xs font-satoshi-medium ${viewType === 'posterior' ? 'text-white' : 'text-text-400'}`}>
+                Posterior
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              className={`py-2 px-3 rounded-md mb-2 ${viewType === 'lateral' ? 'bg-primary-500' : 'bg-white border border-background-200/20'}`}
+              onPress={() => {
+                setViewType('lateral');
+                setRotationX(0);
+                setRotationY(0);
+                setRotationZ(0);
+                setBeamCenterX(50);
+                setBeamCenterY(50);
+                setBeamAngle(0);
+              }}
+            >
+              <Text className={`text-xs font-satoshi-medium ${viewType === 'lateral' ? 'text-white' : 'text-text-400'}`}>
+                Lateral
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              className={`py-2 px-3 rounded-md mb-2 ${viewType === 'oblique' ? 'bg-primary-500' : 'bg-white border border-background-200/20'}`}
+              onPress={() => {
+                setViewType('oblique');
+                setRotationX(0);
+                setRotationY(0);
+                setRotationZ(0);
+                setBeamCenterX(50);
+                setBeamCenterY(50);
+                setBeamAngle(0);
+              }}
+            >
+              <Text className={`text-xs font-satoshi-medium ${viewType === 'oblique' ? 'text-white' : 'text-text-400'}`}>
+                Oblique
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
         
@@ -106,6 +167,24 @@ const PositioningControls = ({
             maximumValue={45}
             step={1}
             onValueChange={setRotationY}
+            minimumTrackTintColor="#4478bb"
+            maximumTrackTintColor="#e0e0e0"
+            thumbTintColor="#4478bb"
+            style={{ height: 40 }}
+          />
+        </View>
+
+        {/* Patient Rotation Z */}
+        <View className="mb-3">
+          <Text className="text-xs font-satoshi-medium text-text-400 mb-2">
+            Patient Rotation Z-Axis (Roll): {rotationZ}°
+          </Text>
+          <Slider
+            value={rotationZ}
+            minimumValue={-180}
+            maximumValue={180}
+            step={1}
+            onValueChange={setRotationZ}
             minimumTrackTintColor="#4478bb"
             maximumTrackTintColor="#e0e0e0"
             thumbTintColor="#4478bb"

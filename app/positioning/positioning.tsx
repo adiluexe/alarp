@@ -18,6 +18,7 @@ const Positioning = () => {
   // State for precise controls
   const [rotationX, setRotationX] = useState(0);
   const [rotationY, setRotationY] = useState(0);
+  const [rotationZ, setRotationZ] = useState(0);
   const [beamCenterX, setBeamCenterX] = useState(50);
   const [beamCenterY, setBeamCenterY] = useState(50);
   const [beamAngle, setBeamAngle] = useState(0);
@@ -145,15 +146,7 @@ const Positioning = () => {
 
   // Calculate panel dimensions based on screen size - more responsive
   const screenHeight = Dimensions.get('window').height;
-  const maxPanelHeight = Math.min(screenHeight * 0.45, 350); // Cap at 350 or 45% of screen
-  const minPanelHeight = Math.min(screenHeight * 0.25, 180); // Minimum height
-
-  // Add this function in your component to handle manual panel expansion
-  const [isPanelExpanded, setIsPanelExpanded] = useState(false);
-
-  const togglePanelExpansion = () => {
-    setIsPanelExpanded(!isPanelExpanded);
-  };
+  const controlPanelHeight = screenHeight * 0.4; // Make it exactly 40% of screen height
 
   return (
     <View className="flex-1 bg-background-950">
@@ -198,8 +191,10 @@ const Positioning = () => {
             <ModelViewer
               rotationX={rotationX}
               setRotationX={setRotationX}
-              rotationY={rotationY}
-              setRotationY={setRotationY}
+              rotationY={rotationZ}
+              setRotationY={setRotationZ}
+              rotationZ={rotationY}
+              setRotationZ={setRotationY}
               beamCenterX={beamCenterX}
               setBeamCenterX={setBeamCenterX}
               beamCenterY={beamCenterY}
@@ -233,18 +228,11 @@ const Positioning = () => {
         style={[
           panelAnimStyle, 
           { 
-            height: isPanelExpanded ? maxPanelHeight : minPanelHeight,
+            height: controlPanelHeight,
+            maxHeight: controlPanelHeight,
           }
         ]}
       >
-        {/* Panel handle for manual expansion */}
-        <TouchableOpacity 
-          className="w-full items-center py-1" 
-          onPress={togglePanelExpansion}
-        >
-          <View className="w-10 h-1 bg-background-200/50 rounded-full" />
-        </TouchableOpacity>
-
         {/* Tabs */}
         <View className="flex-row border-b border-background-200/20">
           <TouchableOpacity
@@ -261,6 +249,7 @@ const Positioning = () => {
                 : 'text-text-400'
             }`}>
               Controls
+              
             </Text>
           </TouchableOpacity>
           
@@ -290,6 +279,8 @@ const Positioning = () => {
               setRotationX={setRotationX}
               rotationY={rotationY}
               setRotationY={setRotationY}
+              rotationZ={rotationZ}
+              setRotationZ={setRotationZ}
               beamCenterX={beamCenterX}
               setBeamCenterX={setBeamCenterX}
               beamCenterY={beamCenterY}
