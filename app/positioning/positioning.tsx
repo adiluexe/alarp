@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, ActivityIndicator, ScrollView, Dimensions } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { SolarIcon } from 'react-native-solar-icons';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, withSequence, withDelay } from 'react-native-reanimated';
@@ -143,6 +143,10 @@ const Positioning = () => {
     };
   });
 
+  // Calculate panel height - limit to 40% of screen height but ensure minimum height
+  const maxPanelHeight = Dimensions.get('window').height * 0.4;
+  const minPanelHeight = 250; // Minimum height to ensure controls are visible
+
   return (
     <View className="flex-1 bg-background-950">
       {/* Top navigation bar */}
@@ -185,10 +189,15 @@ const Positioning = () => {
           >
             <ModelViewer
               rotationX={rotationX}
+              setRotationX={setRotationX}
               rotationY={rotationY}
+              setRotationY={setRotationY}
               beamCenterX={beamCenterX}
+              setBeamCenterX={setBeamCenterX}
               beamCenterY={beamCenterY}
+              setBeamCenterY={setBeamCenterY}
               beamAngle={beamAngle}
+              setBeamAngle={setBeamAngle}
             />
           </Animated.View>
         )}
@@ -213,7 +222,13 @@ const Positioning = () => {
       {/* Controls panel */}
       <Animated.View 
         className="bg-white border-t border-background-200/20 shadow-sm"
-        style={panelAnimStyle}
+        style={[
+          panelAnimStyle, 
+          { 
+            minHeight: minPanelHeight,
+            maxHeight: maxPanelHeight,
+          }
+        ]}
       >
         {/* Tabs */}
         <View className="flex-row border-b border-background-200/20">
@@ -253,7 +268,7 @@ const Positioning = () => {
         </View>
         
         {/* Tab content */}
-        <View className="p-4 max-h-96">
+        <View className="flex-1 p-4 overflow-hidden">
           {activeTab === 'controls' ? (
             <PositioningControls
               rotationX={rotationX}

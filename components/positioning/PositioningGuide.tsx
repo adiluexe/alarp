@@ -71,59 +71,61 @@ const PositioningGuide = ({ viewType }: PositioningGuideProps) => {
   const guideContent = getGuideContent();
 
   return (
-    <ScrollView className="flex-1">
-      <View className="bg-primary-900/50 rounded-lg p-3 mb-3">
-        <Text className="text-sm font-chillax-medium text-primary-500 mb-1">
-          {guideContent.title}
-        </Text>
-        <Text className="text-xs text-text-300 font-satoshi">
-          {guideContent.description}
-        </Text>
-      </View>
-      
-      <View className="mb-3">
-        <Text className="text-sm font-chillax-medium text-text-400 mb-1.5">
-          Key Points
-        </Text>
-        {guideContent.keyPoints.map((point, index) => (
-          <View key={index} className="flex-row items-start mb-1.5">
-            <View className="w-4 h-4 rounded-full bg-primary-500 justify-center items-center mr-2 mt-0.5">
-              <Text className="text-white text-[10px] font-satoshi-medium">
-                {index + 1}
+    <ScrollView className="flex-1" showsVerticalScrollIndicator={true} alwaysBounceVertical={true}>
+      <View className="pb-4">
+        <View className="bg-primary-900/50 rounded-lg p-3 mb-3">
+          <Text className="text-sm font-chillax-medium text-primary-500 mb-1">
+            {guideContent.title}
+          </Text>
+          <Text className="text-xs text-text-300 font-satoshi">
+            {guideContent.description}
+          </Text>
+        </View>
+        
+        <View className="mb-3">
+          <Text className="text-sm font-chillax-medium text-text-400 mb-1.5">
+            Key Points
+          </Text>
+          {guideContent.keyPoints.map((point, index) => (
+            <View key={index} className="flex-row items-start mb-1.5">
+              <View className="w-4 h-4 rounded-full bg-primary-500 justify-center items-center mr-2 mt-0.5">
+                <Text className="text-white text-[10px] font-satoshi-medium">
+                  {index + 1}
+                </Text>
+              </View>
+              <Text className="text-xs text-text-300 font-satoshi flex-1">
+                {point}
               </Text>
             </View>
-            <Text className="text-xs text-text-300 font-satoshi flex-1">
-              {point}
-            </Text>
-          </View>
-        ))}
-      </View>
-      
-      <View>
-        <Text className="text-sm font-chillax-medium text-text-400 mb-1.5">
-          ALARP Principle
-        </Text>
-        <Text className="text-xs text-text-300 font-satoshi">
-          Remember to keep radiation exposure As Low As Reasonably Practicable (ALARP):
-        </Text>
-        <View className="mt-1">
-          <View className="flex-row items-start mb-1">
-            <Text className="text-primary-500 mr-1 text-xs">•</Text>
-            <Text className="text-xs text-text-300 font-satoshi flex-1">
-              Precise positioning reduces repeat exposures
-            </Text>
-          </View>
-          <View className="flex-row items-start mb-1">
-            <Text className="text-primary-500 mr-1 text-xs">•</Text>
-            <Text className="text-xs text-text-300 font-satoshi flex-1">
-              Proper collimation to limit beam area
-            </Text>
-          </View>
-          <View className="flex-row items-start">
-            <Text className="text-primary-500 mr-1 text-xs">•</Text>
-            <Text className="text-xs text-text-300 font-satoshi flex-1">
-              Correct exposure factors for patient size
-            </Text>
+          ))}
+        </View>
+        
+        <View>
+          <Text className="text-sm font-chillax-medium text-text-400 mb-1.5">
+            ALARP Principle
+          </Text>
+          <Text className="text-xs text-text-300 font-satoshi">
+            Remember to keep radiation exposure As Low As Reasonably Practicable (ALARP):
+          </Text>
+          <View className="mt-1">
+            <View className="flex-row items-start mb-1">
+              <Text className="text-primary-500 mr-1 text-xs">•</Text>
+              <Text className="text-xs text-text-300 font-satoshi flex-1">
+                Precise positioning reduces repeat exposures
+              </Text>
+            </View>
+            <View className="flex-row items-start mb-1">
+              <Text className="text-primary-500 mr-1 text-xs">•</Text>
+              <Text className="text-xs text-text-300 font-satoshi flex-1">
+                Proper collimation to limit beam area
+              </Text>
+            </View>
+            <View className="flex-row items-start">
+              <Text className="text-primary-500 mr-1 text-xs">•</Text>
+              <Text className="text-xs text-text-300 font-satoshi flex-1">
+                Correct exposure factors for patient size
+              </Text>
+            </View>
           </View>
         </View>
       </View>
