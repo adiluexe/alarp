@@ -34,6 +34,7 @@ export default function RootLayout() {
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="splash" options={{ headerShown: false }} />
       <Stack.Screen name="learn/[id]" options={{ headerShown: false }} />
+      <Stack.Screen name="positioning/positioning" options={{ headerShown: false }}  />
     </Stack>
   );
 }
