@@ -27,9 +27,12 @@ export default function RootLayout() {
   if (!fontsLoaded && !fontError) {
     return null;
   }
+  
   return (
     <Stack>
+      <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="splash" options={{ headerShown: false }} />
       <Stack.Screen name="learn/[id]" options={{ headerShown: false }} />
     </Stack>
   );
