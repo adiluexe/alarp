@@ -4,6 +4,15 @@ module.exports = {
   presets: [require("nativewind/preset")],
   theme: {
     extend: {
+      fontFamily: {
+        'chillax': ['Chillax-Regular'],
+        'chillax-medium': ['Chillax-Medium'],
+        'chillax-semibold': ['Chillax-Semibold'],
+        'chillax-bold': ['Chillax-Bold'],
+        'satoshi': ['Satoshi-Regular'],
+        'satoshi-medium': ['Satoshi-Medium'],
+        'satoshi-bold': ['Satoshi-Bold'],
+      },
       colors: {
         'text': {
           50: '#070b13',
