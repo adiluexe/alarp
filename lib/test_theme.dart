@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
 import 'core/theme/app_theme.dart';
 
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class TestTheme extends StatelessWidget {
+  const TestTheme({super.key});
 
   @override
   Widget build(BuildContext context) {
