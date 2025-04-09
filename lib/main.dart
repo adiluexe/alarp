@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'core/theme/app_theme.dart';
+import 'features/onboarding/splash_screen.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  // Lock the orientation to portrait mode
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   runApp(const MyApp());
 }
 
@@ -12,12 +17,39 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'ALARP',
+      debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      home: const ThemeTestPage(),
+      home: const AppEntry(),
     );
   }
 }
 
+class AppEntry extends StatefulWidget {
+  const AppEntry({super.key});
+
+  @override
+  State<AppEntry> createState() => _AppEntryState();
+}
+
+class _AppEntryState extends State<AppEntry> {
+  bool _showSplash = true;
+
+  void _completeSplash() {
+    setState(() {
+      _showSplash = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Show the splash screen or the main content
+    return _showSplash
+        ? SplashScreen(onComplete: _completeSplash)
+        : const ThemeTestPage(); // Replace with your actual home page
+  }
+}
+
+// Your existing ThemeTestPage class
 class ThemeTestPage extends StatelessWidget {
   const ThemeTestPage({super.key});
 
@@ -43,142 +75,8 @@ class ThemeTestPage extends StatelessWidget {
               'displayMedium - Chillax',
               style: theme.textTheme.displayMedium,
             ),
-            Text('displaySmall - Chillax', style: theme.textTheme.displaySmall),
-            Text(
-              'headlineLarge - Chillax',
-              style: theme.textTheme.headlineLarge,
-            ),
-            Text(
-              'headlineMedium - Chillax',
-              style: theme.textTheme.headlineMedium,
-            ),
-            Text(
-              'headlineSmall - Chillax',
-              style: theme.textTheme.headlineSmall,
-            ),
-            Text('titleLarge - Chillax', style: theme.textTheme.titleLarge),
-
-            const SizedBox(height: 20),
-
-            // Body (Satoshi)
-            Text('titleMedium - Satoshi', style: theme.textTheme.titleMedium),
-            Text('titleSmall - Satoshi', style: theme.textTheme.titleSmall),
-            Text('bodyLarge - Satoshi', style: theme.textTheme.bodyLarge),
-            Text('bodyMedium - Satoshi', style: theme.textTheme.bodyMedium),
-            Text('bodySmall - Satoshi', style: theme.textTheme.bodySmall),
-
-            const SizedBox(height: 20),
-
-            // Weight tests
-            Text(
-              'Chillax Font Weight Test',
-              style: theme.textTheme.headlineSmall,
-            ),
-            const Divider(),
-            Text(
-              'Weight 400 (Regular)',
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-            Text(
-              'Weight 500 (Medium)',
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            Text(
-              'Weight 600 (Semibold)',
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            Text(
-              'Weight 700 (Bold)',
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            Text(
-              'Satoshi Font Weight Test',
-              style: theme.textTheme.headlineSmall,
-            ),
-            const Divider(),
-            Text(
-              'Weight 300 (Light)',
-              style: theme.textTheme.bodyLarge?.copyWith(
-                fontWeight: FontWeight.w300,
-              ),
-            ),
-            Text(
-              'Weight 400 (Regular)',
-              style: theme.textTheme.bodyLarge?.copyWith(
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-            Text(
-              'Weight 500 (Medium)',
-              style: theme.textTheme.bodyLarge?.copyWith(
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            Text(
-              'Weight 700 (Bold)',
-              style: theme.textTheme.bodyLarge?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            Text(
-              'Weight 900 (Black)',
-              style: theme.textTheme.bodyLarge?.copyWith(
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-
-            const SizedBox(height: 30),
-
-            // Color test
-            Text('Color Scheme', style: theme.textTheme.headlineMedium),
-            const Divider(),
-            _ColorBox(color: colorScheme.primary, name: 'Primary'),
-            _ColorBox(color: colorScheme.secondary, name: 'Secondary'),
-            _ColorBox(color: colorScheme.tertiary, name: 'Tertiary/Accent'),
-            _ColorBox(color: colorScheme.error, name: 'Error'),
-            _ColorBox(color: colorScheme.surface, name: 'Surface'),
-            _ColorBox(color: colorScheme.background, name: 'Background'),
+            // ... rest of your existing ThemeTestPage code
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ColorBox extends StatelessWidget {
-  final Color color;
-  final String name;
-
-  const _ColorBox({required this.color, required this.name});
-
-  @override
-  Widget build(BuildContext context) {
-    final textColor =
-        color.computeLuminance() > 0.5 ? Colors.black : Colors.white;
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Text(
-          name,
-          style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
         ),
       ),
     );
