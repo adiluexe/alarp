@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'core/theme/app_theme.dart';
 import 'features/onboarding/splash_screen.dart';
+import 'core/navigation/navigation.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -42,43 +43,9 @@ class _AppEntryState extends State<AppEntry> {
 
   @override
   Widget build(BuildContext context) {
-    // Show the splash screen or the main content
+    // Show the splash screen or the main navigation
     return _showSplash
         ? SplashScreen(onComplete: _completeSplash)
-        : const ThemeTestPage(); // Replace with your actual home page
-  }
-}
-
-// Your existing ThemeTestPage class
-class ThemeTestPage extends StatelessWidget {
-  const ThemeTestPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Scaffold(
-      appBar: AppBar(title: const Text('Theme Test')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Typography test
-            Text('Typography', style: theme.textTheme.headlineMedium),
-            const Divider(),
-
-            // Headers (Chillax)
-            Text('displayLarge - Chillax', style: theme.textTheme.displayLarge),
-            Text(
-              'displayMedium - Chillax',
-              style: theme.textTheme.displayMedium,
-            ),
-            // ... rest of your existing ThemeTestPage code
-          ],
-        ),
-      ),
-    );
+        : const Navigation();
   }
 }
