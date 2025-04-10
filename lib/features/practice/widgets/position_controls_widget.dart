@@ -18,6 +18,7 @@ class PositionControlsWidget extends StatelessWidget {
       color: Colors.white,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             'Adjust Body Position',
@@ -28,75 +29,89 @@ class PositionControlsWidget extends StatelessWidget {
 
           const SizedBox(height: 16),
 
-          // Rotation X (sagittal plane)
-          _buildSliderControl(
-            context,
-            label: 'Sagittal Rotation (X)',
-            value: posState.rotationX,
-            min: -90,
-            max: 90,
-            onChanged: (value) {
-              posState.updateRotation(x: value);
-            },
-          ),
+          // Wrap sliders in Expanded to avoid overflow
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Rotation X (sagittal plane)
+                  _buildSliderControl(
+                    context,
+                    label: 'Sagittal Rotation (X)',
+                    value: posState.rotationX,
+                    min: -90,
+                    max: 90,
+                    onChanged: (value) {
+                      posState.updateRotation(x: value);
+                    },
+                  ),
 
-          // Rotation Y (coronal plane)
-          _buildSliderControl(
-            context,
-            label: 'Coronal Rotation (Y)',
-            value: posState.rotationY,
-            min: -90,
-            max: 90,
-            onChanged: (value) {
-              posState.updateRotation(y: value);
-            },
-          ),
+                  // Rotation Y (coronal plane)
+                  _buildSliderControl(
+                    context,
+                    label: 'Coronal Rotation (Y)',
+                    value: posState.rotationY,
+                    min: -90,
+                    max: 90,
+                    onChanged: (value) {
+                      posState.updateRotation(y: value);
+                    },
+                  ),
 
-          // Rotation Z (transverse plane)
-          _buildSliderControl(
-            context,
-            label: 'Transverse Rotation (Z)',
-            value: posState.rotationZ,
-            min: -90,
-            max: 90,
-            onChanged: (value) {
-              posState.updateRotation(z: value);
-            },
+                  // Rotation Z (transverse plane)
+                  _buildSliderControl(
+                    context,
+                    label: 'Transverse Rotation (Z)',
+                    value: posState.rotationZ,
+                    min: -90,
+                    max: 90,
+                    onChanged: (value) {
+                      posState.updateRotation(z: value);
+                    },
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Accuracy indicator
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Positioning Accuracy:',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: _getAccuracyColor(
+                            controller.positioningAccuracy,
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Text(
+                          '${controller.positioningAccuracy.toStringAsFixed(1)}%',
+                          style: Theme.of(
+                            context,
+                          ).textTheme.labelMedium?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           ),
 
           const SizedBox(height: 16),
 
-          // Accuracy indicator
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Positioning Accuracy:',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: _getAccuracyColor(controller.positioningAccuracy),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Text(
-                  '${controller.positioningAccuracy.toStringAsFixed(1)}%',
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
-          ),
-
-          const Spacer(),
-
-          // Reset button
+          // Reset button outside scrolling area
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(

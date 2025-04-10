@@ -16,8 +16,11 @@ class CollimationControlsWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       color: Colors.white,
+      // Use a Column with defined constraints instead of SingleChildScrollView
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize:
+            MainAxisSize.min, // Important: this fixes unbounded height
         children: [
           Text(
             'Adjust Collimation Field',
@@ -28,87 +31,101 @@ class CollimationControlsWidget extends StatelessWidget {
 
           const SizedBox(height: 16),
 
-          // Width adjustment
-          _buildSliderControl(
-            context,
-            label: 'Field Width',
-            value: colState.width,
-            min: 0.2,
-            max: 1.0,
-            onChanged: (value) {
-              colState.updateSize(newWidth: value);
-            },
-          ),
+          // Wrap the sliders in an Expanded + SingleChildScrollView
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Width adjustment
+                  _buildSliderControl(
+                    context,
+                    label: 'Field Width',
+                    value: colState.width,
+                    min: 0.2,
+                    max: 1.0,
+                    onChanged: (value) {
+                      colState.updateSize(newWidth: value);
+                    },
+                  ),
 
-          // Height adjustment
-          _buildSliderControl(
-            context,
-            label: 'Field Height',
-            value: colState.height,
-            min: 0.2,
-            max: 1.0,
-            onChanged: (value) {
-              colState.updateSize(newHeight: value);
-            },
-          ),
+                  // Height adjustment
+                  _buildSliderControl(
+                    context,
+                    label: 'Field Height',
+                    value: colState.height,
+                    min: 0.2,
+                    max: 1.0,
+                    onChanged: (value) {
+                      colState.updateSize(newHeight: value);
+                    },
+                  ),
 
-          // Cross position X
-          _buildSliderControl(
-            context,
-            label: 'Horizontal Centering',
-            value: colState.centerX,
-            min: -1.0,
-            max: 1.0,
-            onChanged: (value) {
-              colState.updateCrossPosition(x: value);
-            },
-          ),
+                  // Cross position X
+                  _buildSliderControl(
+                    context,
+                    label: 'Horizontal Centering',
+                    value: colState.centerX,
+                    min: -1.0,
+                    max: 1.0,
+                    onChanged: (value) {
+                      colState.updateCrossPosition(x: value);
+                    },
+                  ),
 
-          // Cross position Y
-          _buildSliderControl(
-            context,
-            label: 'Vertical Centering',
-            value: colState.centerY,
-            min: -1.0,
-            max: 1.0,
-            onChanged: (value) {
-              colState.updateCrossPosition(y: value);
-            },
+                  // Cross position Y
+                  _buildSliderControl(
+                    context,
+                    label: 'Vertical Centering',
+                    value: colState.centerY,
+                    min: -1.0,
+                    max: 1.0,
+                    onChanged: (value) {
+                      colState.updateCrossPosition(y: value);
+                    },
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Accuracy indicator
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Collimation Accuracy:',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: _getAccuracyColor(
+                            controller.collimationAccuracy,
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Text(
+                          '${controller.collimationAccuracy.toStringAsFixed(1)}%',
+                          style: Theme.of(
+                            context,
+                          ).textTheme.labelMedium?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           ),
 
           const SizedBox(height: 16),
 
-          // Accuracy indicator
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Collimation Accuracy:',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: _getAccuracyColor(controller.collimationAccuracy),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Text(
-                  '${controller.collimationAccuracy.toStringAsFixed(1)}%',
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
-          ),
-
-          const Spacer(),
-
-          // Reset button
+          // Reset button - outside of the scrolling area
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(

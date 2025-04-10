@@ -16,6 +16,8 @@ class _ModelViewerWidgetState extends State<ModelViewerWidget> {
   // Controller reference
   Flutter3DController? controller;
   bool isInitialized = false;
+  bool hasError = false;
+  String errorMessage = '';
 
   @override
   Widget build(BuildContext context) {
@@ -38,27 +40,34 @@ class _ModelViewerWidgetState extends State<ModelViewerWidget> {
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(16),
-            child: Flutter3DViewer(
-              src: 'assets/models/test.glb', // Correct parameter name is 'src'
-              enableTouch: true, // Instead of cameraControls
-              controller: controller, // Pass the controller
-              activeGestureInterceptor: true,
-              progressBarColor: AppTheme.primaryColor,
-              onLoad: (String modelAddress) {
-                debugPrint('Model loaded: $modelAddress');
-                setState(() {
-                  isInitialized = true;
-                });
-                _updateModelTransform(posState);
-              },
-              onProgress: (double progress) {
-                debugPrint('Loading progress: $progress');
-              },
-              onError: (error) {
-                debugPrint('Error loading model: $error');
-                // You could show an error message to the user here
-              },
-            ),
+            child:
+                hasError
+                    ? _buildErrorView()
+                    : Flutter3DViewer(
+                      src:
+                          'assets/models/test.glb', // Make sure this file exists in your assets
+                      enableTouch: true,
+                      controller: controller,
+                      activeGestureInterceptor: true,
+                      progressBarColor: AppTheme.primaryColor,
+                      onLoad: (String modelAddress) {
+                        debugPrint('Model loaded: $modelAddress');
+                        setState(() {
+                          isInitialized = true;
+                        });
+                        _updateModelTransform(posState);
+                      },
+                      onProgress: (double progress) {
+                        debugPrint('Loading progress: $progress');
+                      },
+                      onError: (error) {
+                        debugPrint('Error loading model: $error');
+                        setState(() {
+                          hasError = true;
+                          errorMessage = error;
+                        });
+                      },
+                    ),
           ),
         ),
 
@@ -79,27 +88,51 @@ class _ModelViewerWidgetState extends State<ModelViewerWidget> {
     );
   }
 
+  Widget _buildErrorView() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.error_outline, size: 48, color: Colors.red.shade300),
+          const SizedBox(height: 16),
+          Text(
+            'Could not load 3D model',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Text(
+              'Using placeholder view. The interactive model could not be loaded.',
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   // Update model transform based on positioning state
   void _updateModelTransform(PositioningState state) {
     if (!isInitialized || controller == null) return;
 
-    // Convert rotation to orbit
-    // For camera orbital control (using actual API methods)
-    controller!.setCameraOrbit(
-      state.rotationX,
-      state.rotationY,
-      10 + state.positionZ, // Use Z position to control zoom
-    );
+    try {
+      // Convert rotation to orbit
+      controller!.setCameraOrbit(
+        state.rotationX,
+        state.rotationY,
+        10 + state.positionZ, // Use Z position to control zoom
+      );
 
-    // For target position
-    controller!.setCameraTarget(
-      state.positionX,
-      state.positionY,
-      0, // Keep Z at 0 for target
-    );
-
-    // Note: There's no direct setScale method in the API
-    // If needed, use setCameraOrbit's third parameter to control zoom
+      // For target position
+      controller!.setCameraTarget(
+        state.positionX,
+        state.positionY,
+        0, // Keep Z at 0 for target
+      );
+    } catch (e) {
+      debugPrint('Error updating model transform: $e');
+    }
   }
 }
 

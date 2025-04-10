@@ -1,4 +1,5 @@
 // positioning_practice_screen.dart
+import 'package:alarp/features/practice/widgets/simple_model_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:solar_icons/solar_icons.dart';
@@ -79,7 +80,10 @@ class PositioningPracticeScreen extends StatelessWidget {
                 // Top part - 3D model viewer
                 Padding(
                   padding: const EdgeInsets.all(16),
-                  child: ModelViewerWidget(),
+                  // Use the fallback if you're having issues with Flutter3DViewer
+                  // child: ModelViewerWidget(),
+                  child:
+                      SimpleModelViewer(), // Uncomment this and comment out the line above
                 ),
 
                 // Bottom part - Control panels
