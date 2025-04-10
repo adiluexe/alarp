@@ -34,10 +34,10 @@ class SimpleModelViewer extends StatelessWidget {
                       ..scale(posState.scale),
                 alignment: Alignment.center,
                 child: Container(
-                  width: 200,
+                  width: 100,
                   height: 100,
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryColor,
+                    color: AppTheme.accentColor,
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(

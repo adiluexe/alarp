@@ -81,9 +81,9 @@ class PositioningPracticeScreen extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(16),
                   // Use the fallback if you're having issues with Flutter3DViewer
-                  // child: ModelViewerWidget(),
-                  child:
-                      SimpleModelViewer(), // Uncomment this and comment out the line above
+                  child: ModelViewerWidget(),
+                  // child:
+                  //     SimpleModelViewer(), // Uncomment this and comment out the line above
                 ),
 
                 // Bottom part - Control panels
