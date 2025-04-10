@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:alarp/features/practice/views/region_detail_screen.dart';
+import 'package:alarp/features/practice/models/body_region.dart';
 
 class RegionCarouselCard extends StatelessWidget {
   final String title;
@@ -99,11 +101,22 @@ class RegionCarouselCard extends StatelessWidget {
                     color: Colors.white.withOpacity(0.8),
                   ),
                 ),
-                const SizedBox(height: 16), // Increased from 12 to 16
+                const SizedBox(height: 16),
                 SizedBox(
                   height: 36,
+                  width: double.infinity,
                   child: ElevatedButton.icon(
-                    onPressed: onStartPressed,
+                    onPressed: () {
+                      // Find matching region from our defined regions
+                      final matchingRegion = _findMatchingRegion();
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder:
+                              (context) =>
+                                  RegionDetailScreen(region: matchingRegion),
+                        ),
+                      );
+                    },
                     icon: const Icon(Icons.play_arrow_rounded, size: 18),
                     label: const Text('Start Practice'),
                     style: ElevatedButton.styleFrom(
@@ -114,7 +127,7 @@ class RegionCarouselCard extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 8,
-                      ), // Adjusted padding
+                      ),
                     ),
                   ),
                 ),
@@ -124,5 +137,14 @@ class RegionCarouselCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  BodyRegion _findMatchingRegion() {
+    // This is a simple matching logic - in a real app, you'd have a more robust identifier system
+    String regionId = title
+        .toLowerCase()
+        .replaceAll(' & ', '_')
+        .replaceAll(' ', '_');
+    return BodyRegions.getRegionById(regionId);
   }
 }

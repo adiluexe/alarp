@@ -134,7 +134,7 @@ class PracticeScreen extends StatelessWidget {
                     ),
                     RegionCarouselCard(
                       title: 'Abdomen & Pelvis',
-                      emoji: '🧍‍♂️',
+                      emoji: '🫃',
                       positionCount: 15,
                       backgroundColor: Color(0xFF53C892),
                     ),
