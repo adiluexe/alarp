@@ -36,6 +36,12 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter_launcher_icons: ^0.14.3
   solar_icons: ^0.0.5
+  flutter_cube: ^0.1.1
+  provider: ^6.1.4
+  tab_indicator_styler: ^2.0.0
+  vector_math: ^2.1.4
+  model_viewer_plus: ^1.9.3
+  flutter_3d_controller: ^2.2.0
 
 dev_dependencies:
   flutter_test:
@@ -63,6 +69,7 @@ flutter:
   assets:
     - assets/images/
     - assets/fonts/
+    - assets/models/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

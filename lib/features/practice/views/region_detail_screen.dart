@@ -4,6 +4,7 @@ import 'package:solar_icons/solar_icons.dart';
 import 'package:alarp/features/practice/models/body_region.dart';
 import 'package:alarp/features/practice/models/body_part.dart';
 import 'package:alarp/features/practice/widgets/body_part_card.dart';
+import 'package:alarp/features/practice/views/positioning_practice_screen.dart';
 
 class RegionDetailScreen extends StatelessWidget {
   final BodyRegion region;
@@ -141,37 +142,12 @@ class RegionDetailScreen extends StatelessWidget {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder:
-            (context) => Scaffold(
-              appBar: AppBar(title: Text('${bodyPart.title} Practice')),
-              body: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Interactive Positioning Practice',
-                      style: Theme.of(context).textTheme.headlineSmall,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'This screen will contain the interactive 3D practice environment for ${bodyPart.title}',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    const SizedBox(height: 32),
-                    Text(
-                      'Available projections:',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: 8),
-                    ...bodyPart.projections.map(
-                      (projection) => Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        child: Text(projection),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            (context) => PositioningPracticeScreen(
+              bodyPart: bodyPart.title,
+              projectionName:
+                  bodyPart
+                      .projections
+                      .first, // For example, taking the first projection
             ),
       ),
     );
