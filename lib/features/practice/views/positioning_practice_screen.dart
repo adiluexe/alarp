@@ -1,14 +1,15 @@
 // positioning_practice_screen.dart
-import 'package:alarp/features/practice/widgets/simple_model_viewer.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart'; // Add riverpod import
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart'; // Import GoRouter
 import 'package:solar_icons/solar_icons.dart';
 import '../../../core/theme/app_theme.dart';
-import '../models/positioning_state.dart';
 import '../models/collimation_state.dart';
 import '../controllers/positioning_controller.dart';
-import '../widgets/model_viewer_widget.dart';
-import '../widgets/control_panel_widget.dart';
+import '../widgets/collimation_controls_widget.dart';
+import '../widgets/model_viewer_widget.dart' show CollimationPainter;
+import '../models/body_part.dart'; // Import BodyPart to find image
+import '../models/body_region.dart'; // Import BodyRegions to find BodyPart
 
 class PositioningPracticeScreen extends ConsumerWidget {
   final String bodyPart;
@@ -28,6 +29,11 @@ class PositioningPracticeScreen extends ConsumerWidget {
       backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
         title: Text('$bodyPart: $projectionName'),
+        leading: IconButton(
+          icon: const Icon(SolarIconsOutline.altArrowLeft),
+          onPressed: () => context.pop(),
+          tooltip: 'Back',
+        ),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16),
@@ -44,9 +50,9 @@ class PositioningPracticeScreen extends ConsumerWidget {
         children: [
           Padding(
             padding: const EdgeInsets.all(16),
-            child: ModelViewerWidget(),
+            // child: ModelViewerWidget(),
           ),
-          const Expanded(child: ControlPanelWidget()),
+          // const Expanded(child: ControlPanelWidget()),
         ],
       ),
     );

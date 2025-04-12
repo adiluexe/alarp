@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart'; // Import GoRouter
+import 'package:solar_icons/solar_icons.dart'; // Import Solar Icons
 import 'package:alarp/core/theme/app_theme.dart';
-import 'package:solar_icons/solar_icons.dart';
 import 'package:alarp/features/practice/models/body_region.dart';
 import 'package:alarp/features/practice/models/body_part.dart';
 import 'package:alarp/features/practice/widgets/body_part_card.dart';
 import 'package:alarp/features/practice/views/positioning_practice_screen.dart';
+import 'package:alarp/core/navigation/app_router.dart'; // Import AppRoutes
 
 class RegionDetailScreen extends StatelessWidget {
   final BodyRegion region;
@@ -19,6 +21,13 @@ class RegionDetailScreen extends StatelessWidget {
         title: Text(region.title),
         backgroundColor: region.backgroundColor,
         foregroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          // Custom back button
+          icon: const Icon(SolarIconsOutline.altArrowLeft), // Changed icon
+          onPressed: () => context.pop(), // Use context.pop()
+          tooltip: 'Back',
+        ),
       ),
       body: CustomScrollView(
         slivers: [
@@ -31,12 +40,21 @@ class RegionDetailScreen extends StatelessWidget {
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate((context, index) {
                 final bodyPart = region.bodyParts[index];
-                return BodyPartCard(
-                  bodyPart: bodyPart,
-                  onTap: () {
-                    // Navigate to positioning practice screen
-                    _navigateToPositioningPractice(context, bodyPart);
-                  },
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12.0),
+                  child: BodyPartCard(
+                    bodyPart: bodyPart,
+                    onTap: () {
+                      // Navigate relatively using GoRouter
+                      final projectionName =
+                          bodyPart.projections.isNotEmpty
+                              ? bodyPart.projections.first
+                              : 'default';
+                      context.go(
+                        './${AppRoutes.practicePositioning.replaceFirst(':regionId', region.id).replaceFirst(':bodyPartId', bodyPart.id).replaceFirst(':projectionName', projectionName)}',
+                      );
+                    },
+                  ),
                 );
               }, childCount: region.bodyParts.length),
             ),
@@ -134,21 +152,6 @@ class RegionDetailScreen extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  void _navigateToPositioningPractice(BuildContext context, BodyPart bodyPart) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder:
-            (context) => PositioningPracticeScreen(
-              bodyPart: bodyPart.title,
-              projectionName:
-                  bodyPart
-                      .projections
-                      .first, // For example, taking the first projection
-            ),
       ),
     );
   }

@@ -6,7 +6,8 @@ import 'package:alarp/features/learn/views/learn_region_detail_screen.dart';
 import 'package:alarp/features/learn/views/learn_lesson_screen.dart'; // Ensure this points to the updated screen
 import 'package:alarp/features/practice/views/practice_screen.dart';
 import 'package:alarp/features/practice/views/region_detail_screen.dart';
-import 'package:alarp/features/practice/views/positioning_practice_screen.dart';
+// Import the renamed screen
+import 'package:alarp/features/practice/views/collimation_practice_screen.dart';
 import 'package:alarp/features/home/views/home_screen.dart';
 import 'package:alarp/features/challenge/views/challenge_screen.dart';
 import 'package:alarp/features/profile/views/profile_screen.dart';
@@ -23,8 +24,9 @@ class AppRoutes {
   static const practice = '/practice';
   static const practiceRegionDetail =
       'region/:regionId'; // Relative to /practice
+  // Keep the same route structure, just update the screen it points to
   static const practicePositioning =
-      'region/:regionId/part/:bodyPartId/projection/:projectionName'; // Relative to /practice
+      'part/:bodyPartId/projection/:projectionName'; // Relative to practiceRegionDetail
   static const challenge = '/challenge';
   static const profile = '/profile';
 }
@@ -113,21 +115,21 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                 },
                 routes: [
                   GoRoute(
-                    path:
-                        AppRoutes
-                            .practicePositioning, // e.g., /practice/region/upper_extremity/part/shoulder/projection/AP
+                    // Path remains relative: part/:bodyPartId/projection/:projectionName
+                    path: AppRoutes.practicePositioning,
                     builder: (context, state) {
-                      final bodyPartId =
-                          state
-                              .pathParameters['bodyPartId']!; // You'll need to fetch BodyPart based on this
+                      // Get all parameters needed
+                      final regionId = state.pathParameters['regionId']!;
+                      final bodyPartId = state.pathParameters['bodyPartId']!;
                       final projectionName =
                           state.pathParameters['projectionName']!;
-                      // Fetching the actual BodyPart might require more logic or passing data
-                      // For now, just passing names
-                      return PositioningPracticeScreen(
-                        bodyPart:
-                            bodyPartId, // Placeholder, ideally fetch the title
-                        projectionName: projectionName,
+
+                      // Use the renamed screen and pass all IDs
+                      return CollimationPracticeScreen(
+                        regionId: regionId,
+                        bodyPartId: bodyPartId,
+                        initialProjectionName:
+                            projectionName, // Corrected parameter name
                       );
                     },
                   ),

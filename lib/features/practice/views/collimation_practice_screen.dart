@@ -1,0 +1,405 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:solar_icons/solar_icons.dart';
+import '../../../core/theme/app_theme.dart';
+import '../models/collimation_state.dart';
+import '../controllers/collimation_controller.dart';
+import '../widgets/collimation_controls_widget.dart';
+import '../widgets/collimation_painter.dart';
+import '../models/body_part.dart';
+import '../models/body_region.dart';
+
+// Helper function to find BodyPart (replace with better state management/repository later)
+BodyPart? _findBodyPart(String regionId, String bodyPartId) {
+  try {
+    final region = BodyRegions.getRegionById(regionId);
+    return region.bodyParts.firstWhere((part) => part.id == bodyPartId);
+  } catch (e) {
+    return null; // Not found
+  }
+}
+
+// Helper function to find BodyRegion
+BodyRegion? _findBodyRegion(String regionId) {
+  try {
+    return BodyRegions.getRegionById(regionId);
+  } catch (e) {
+    return null; // Not found
+  }
+}
+
+// Convert to ConsumerStatefulWidget
+class CollimationPracticeScreen extends ConsumerStatefulWidget {
+  final String regionId;
+  final String bodyPartId;
+  final String initialProjectionName; // Renamed for clarity
+
+  const CollimationPracticeScreen({
+    Key? key,
+    required this.regionId,
+    required this.bodyPartId,
+    required this.initialProjectionName,
+  }) : super(key: key);
+
+  @override
+  ConsumerState<CollimationPracticeScreen> createState() =>
+      _CollimationPracticeScreenState();
+}
+
+class _CollimationPracticeScreenState
+    extends ConsumerState<CollimationPracticeScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  late String _selectedProjectionName;
+  BodyPart? _bodyPartData;
+  BodyRegion? _bodyRegionData; // Add state variable for region data
+  List<String> _availableProjections = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+    _selectedProjectionName = widget.initialProjectionName;
+    // Fetch both body part and body region data
+    _bodyPartData = _findBodyPart(widget.regionId, widget.bodyPartId);
+    _bodyRegionData = _findBodyRegion(widget.regionId); // Fetch region data
+    _availableProjections =
+        _bodyPartData?.projections ?? [_selectedProjectionName];
+    // Ensure initial projection is valid, fallback if needed
+    if (!_availableProjections.contains(_selectedProjectionName)) {
+      _selectedProjectionName =
+          _availableProjections.isNotEmpty
+              ? _availableProjections.first
+              : 'N/A';
+    }
+
+    // Reset collimation state when screen initializes or projection changes significantly
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _resetCollimationState();
+    });
+  }
+
+  // Helper to reset state, call when projection changes
+  void _resetCollimationState() {
+    ref.read(collimationStateProvider.notifier).reset();
+    // Potentially trigger controller recalculation if needed, though watching should handle it
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Watch state needed for UI updates
+    final colState = ref.watch(collimationStateProvider);
+    // Pass selected projection to the controller provider
+    final controller = ref.watch(
+      collimationControllerProvider(_selectedProjectionName),
+    );
+
+    // Determine image asset (could be projection specific later)
+    final imageAsset =
+        _bodyPartData?.imageAsset ?? 'assets/images/placeholder.png';
+    // Use body region's background color
+    final appBarColor =
+        _bodyRegionData?.backgroundColor ?? AppTheme.primaryColor;
+
+    return Scaffold(
+      backgroundColor: AppTheme.backgroundColor,
+      appBar: AppBar(
+        title: Text('${_bodyPartData?.title ?? widget.bodyPartId}: Practice'),
+        backgroundColor: appBarColor, // Use correct color variable
+        foregroundColor: Colors.white,
+        leading: IconButton(
+          icon: const Icon(SolarIconsOutline.altArrowLeft),
+          onPressed: () => context.pop(),
+          tooltip: 'Back',
+        ),
+        actions: [
+          // Check Accuracy Button
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: IconButton(
+              icon: const Icon(SolarIconsOutline.checkCircle),
+              tooltip: 'Check Accuracy',
+              onPressed: () {
+                // Pass the controller instance with the current projection
+                _showResultDialog(context, controller);
+              },
+            ),
+          ),
+        ],
+        // Update TabBar appearance
+        bottom: TabBar(
+          controller: _tabController,
+          indicatorColor: Colors.white,
+          labelColor: Colors.white,
+          unselectedLabelColor: Colors.white.withOpacity(0.7),
+          dividerColor: Colors.transparent,
+          tabs: const [Tab(text: 'Practice'), Tab(text: 'Guide')],
+        ),
+      ),
+      body: Column(
+        children: [
+          // Add Projection Selector below AppBar
+          if (_availableProjections.length > 1)
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 12.0,
+              ),
+              color: appBarColor.withOpacity(0.1), // Use correct color variable
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Selected Projection:',
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium?.copyWith(color: AppTheme.textColor),
+                  ),
+                  DropdownButton<String>(
+                    value: _selectedProjectionName,
+                    icon: Icon(
+                      SolarIconsOutline.altArrowDown,
+                      size: 20,
+                      color: AppTheme.primaryColor,
+                    ),
+                    elevation: 2,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: AppTheme.primaryColor,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    underline: Container(height: 0, color: Colors.transparent),
+                    onChanged: (String? newValue) {
+                      if (newValue != null &&
+                          newValue != _selectedProjectionName) {
+                        setState(() {
+                          _selectedProjectionName = newValue;
+                        });
+                        _resetCollimationState();
+                      }
+                    },
+                    items:
+                        _availableProjections.map<DropdownMenuItem<String>>((
+                          String value,
+                        ) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                  ),
+                ],
+              ),
+            ),
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                // Practice Tab Content
+                Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+                      child: AspectRatio(
+                        aspectRatio: 1.0,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                Image.asset(
+                                  imageAsset,
+                                  fit: BoxFit.contain,
+                                  errorBuilder:
+                                      (context, error, stackTrace) =>
+                                          const Center(
+                                            child: Icon(
+                                              Icons.broken_image,
+                                              size: 60,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                ),
+                                Positioned.fill(
+                                  child: IgnorePointer(
+                                    child: CustomPaint(
+                                      painter: CollimationPainter(
+                                        width: colState.width,
+                                        height: colState.height,
+                                        centerX: colState.centerX,
+                                        centerY: colState.centerY,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: CollimationControlsWidget(
+                        projectionName: _selectedProjectionName,
+                      ),
+                    ),
+                  ],
+                ),
+                // Guide Tab Content (Placeholder)
+                ListView(
+                  padding: const EdgeInsets.all(16.0),
+                  children: [
+                    Text(
+                      'Reference Guide: $_selectedProjectionName',
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(fontFamily: 'Chillax'),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'This section will contain helpful information and reference images for the $_selectedProjectionName projection of the ${_bodyPartData?.title ?? widget.bodyPartId}.',
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      'Key Considerations:',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 8),
+                    const ListTile(
+                      leading: Icon(SolarIconsOutline.ruler),
+                      title: Text('Ensure correct SID.'),
+                    ),
+                    const ListTile(
+                      leading: Icon(SolarIconsOutline.alignVerticalSpacing),
+                      title: Text('Align central ray properly.'),
+                    ),
+                    const ListTile(
+                      leading: Icon(SolarIconsOutline.fullScreen),
+                      title: Text('Collimate tightly to the area of interest.'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Update _showResultDialog to accept the controller directly
+  void _showResultDialog(
+    BuildContext context,
+    CollimationController controller,
+  ) {
+    final isCorrect = controller.isCorrect;
+
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: Text(
+              isCorrect ? 'Correctly Collimated!' : 'Not Quite Right',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                color: isCorrect ? Colors.green : Colors.orange,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  isCorrect
+                      ? SolarIconsBold.checkCircle
+                      : SolarIconsBold.infoCircle,
+                  color: isCorrect ? Colors.green : Colors.orange,
+                  size: 48,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  isCorrect
+                      ? 'Great job! Your collimation is correct.'
+                      : 'Your collimation needs some adjustments.',
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                _buildAccuracyRow(
+                  context,
+                  label: 'Collimation Accuracy',
+                  value: controller.collimationAccuracy,
+                ),
+                const Divider(height: 24),
+                _buildAccuracyRow(
+                  context,
+                  label: 'Overall Accuracy',
+                  value: controller.overallAccuracy,
+                  isTotal: true,
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text(isCorrect ? 'Continue' : 'Try Again'),
+              ),
+            ],
+          ),
+    );
+  }
+
+  // _buildAccuracyRow remains the same
+  Widget _buildAccuracyRow(
+    BuildContext context, {
+    required String label,
+    required double value,
+    bool isTotal = false,
+  }) {
+    Color color;
+    if (value >= 90) {
+      color = Colors.green;
+    } else if (value >= 70) {
+      color = Colors.orange;
+    } else {
+      color = Colors.red;
+    }
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            fontWeight: isTotal ? FontWeight.w600 : null,
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Text(
+            '${value.toStringAsFixed(1)}%',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: color,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}

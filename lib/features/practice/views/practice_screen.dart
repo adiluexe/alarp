@@ -4,6 +4,7 @@ import 'package:solar_icons/solar_icons.dart';
 import 'package:alarp/features/practice/widgets/recent_practice_item.dart';
 import 'package:alarp/features/practice/widgets/region_carousel_card.dart';
 import 'package:alarp/features/practice/widgets/difficulty_card.dart';
+import 'package:alarp/features/practice/models/body_region.dart'; // Import BodyRegions
 
 class PracticeScreen extends StatelessWidget {
   const PracticeScreen({super.key});
@@ -116,47 +117,21 @@ class PracticeScreen extends StatelessWidget {
             SliverToBoxAdapter(
               child: SizedBox(
                 height: 220,
-                child: ListView(
+                // Use ListView.builder for dynamic data
+                child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  children: const [
-                    RegionCarouselCard(
-                      title: 'Head & Neck',
-                      emoji: '🧠',
-                      positionCount: 18,
-                      backgroundColor: Color(0xFFEB6B9D),
-                    ),
-                    RegionCarouselCard(
-                      title: 'Thorax',
-                      emoji: '🫁',
-                      positionCount: 12,
-                      backgroundColor: Color(0xFF5B93EB),
-                    ),
-                    RegionCarouselCard(
-                      title: 'Abdomen & Pelvis',
-                      emoji: '🫃',
-                      positionCount: 15,
-                      backgroundColor: Color(0xFF53C892),
-                    ),
-                    RegionCarouselCard(
-                      title: 'Upper Extremity',
-                      emoji: '💪',
-                      positionCount: 20,
-                      backgroundColor: Color(0xFFFFAA33),
-                    ),
-                    RegionCarouselCard(
-                      title: 'Lower Extremity',
-                      emoji: '🦵',
-                      positionCount: 22,
-                      backgroundColor: Color(0xFF9474DE),
-                    ),
-                    RegionCarouselCard(
-                      title: 'Spine',
-                      emoji: '🦴',
-                      positionCount: 14,
-                      backgroundColor: Color(0xFF4BC8EB),
-                    ),
-                  ],
+                  itemCount: BodyRegions.allRegions.length,
+                  itemBuilder: (context, index) {
+                    final region = BodyRegions.allRegions[index];
+                    return RegionCarouselCard(
+                      regionId: region.id, // Pass the actual ID
+                      title: region.title,
+                      emoji: region.emoji,
+                      positionCount: region.positionCount,
+                      backgroundColor: region.backgroundColor,
+                    );
+                  },
                 ),
               ),
             ),

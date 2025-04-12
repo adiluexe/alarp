@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:alarp/features/practice/views/region_detail_screen.dart';
-import 'package:alarp/features/practice/models/body_region.dart';
+import 'package:go_router/go_router.dart'; // Import GoRouter
+import 'package:alarp/core/navigation/app_router.dart'; // Import AppRoutes
 
 class RegionCarouselCard extends StatelessWidget {
+  final String regionId; // Add regionId
   final String title;
   final String emoji;
   final int positionCount;
   final Color backgroundColor;
-  final VoidCallback? onStartPressed;
 
   const RegionCarouselCard({
     Key? key,
+    required this.regionId, // Add required regionId
     required this.title,
     required this.emoji,
     required this.positionCount,
     required this.backgroundColor,
-    this.onStartPressed,
   }) : super(key: key);
 
   @override
@@ -107,14 +107,9 @@ class RegionCarouselCard extends StatelessWidget {
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     onPressed: () {
-                      // Find matching region from our defined regions
-                      final matchingRegion = _findMatchingRegion();
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder:
-                              (context) =>
-                                  RegionDetailScreen(region: matchingRegion),
-                        ),
+                      // Use GoRouter to navigate
+                      context.go(
+                        '${AppRoutes.practice}/${AppRoutes.practiceRegionDetail.replaceFirst(':regionId', regionId)}',
                       );
                     },
                     icon: const Icon(Icons.play_arrow_rounded, size: 18),
@@ -137,14 +132,5 @@ class RegionCarouselCard extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  BodyRegion _findMatchingRegion() {
-    // This is a simple matching logic - in a real app, you'd have a more robust identifier system
-    String regionId = title
-        .toLowerCase()
-        .replaceAll(' & ', '_')
-        .replaceAll(' ', '_');
-    return BodyRegions.getRegionById(regionId);
   }
 }
