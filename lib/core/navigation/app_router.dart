@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart'; // Import Riverpod
 import 'package:alarp/features/learn/views/learn_screen.dart';
 import 'package:alarp/features/learn/views/learn_region_detail_screen.dart';
-import 'package:alarp/features/learn/views/learn_lesson_screen.dart';
+import 'package:alarp/features/learn/views/learn_lesson_screen.dart'; // Ensure this points to the updated screen
 import 'package:alarp/features/practice/views/practice_screen.dart';
 import 'package:alarp/features/practice/views/region_detail_screen.dart';
 import 'package:alarp/features/practice/views/positioning_practice_screen.dart';
@@ -19,7 +19,7 @@ class AppRoutes {
   static const learn = '/learn';
   static const learnRegionDetail = 'region/:regionId'; // Relative to /learn
   static const learnLesson =
-      'region/:regionId/part/:bodyPartId'; // Relative to /learn
+      'part/:bodyPartId'; // Corrected relative path to parent
   static const practice = '/practice';
   static const practiceRegionDetail =
       'region/:regionId'; // Relative to /practice
@@ -81,14 +81,13 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path:
                         AppRoutes
-                            .learnLesson, // e.g., /learn/region/upper_extremity/part/shoulder
+                            .learnLesson, // Corrected relative path: part/:bodyPartId
                     builder: (context, state) {
-                      final regionId = state.pathParameters['regionId']!;
-                      final bodyPartId = state.pathParameters['bodyPartId']!;
-                      // You might pass projection later if needed
+                      final lessonId =
+                          state
+                              .pathParameters['bodyPartId']!; // Use bodyPartId as lessonId
                       return LearnLessonScreen(
-                        regionId: regionId,
-                        bodyPartId: bodyPartId,
+                        lessonId: lessonId, // Pass the ID here
                       );
                     },
                   ),
@@ -161,4 +160,4 @@ final goRouterProvider = Provider<GoRouter>((ref) {
 });
 
 // You'll also need to update main.dart to use this router provider
-// and potentially modify the Navigation widget to accept the child parameter.
+// and potentially modify the Navigation widget to accept the child parameter

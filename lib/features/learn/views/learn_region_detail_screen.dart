@@ -91,11 +91,9 @@ class LearnRegionDetailScreen extends ConsumerWidget {
                   child: BodyPartCard(
                     bodyPart: bodyPart,
                     onTap: () {
-                      // Navigate to LearnLessonScreen
-                      final path = '${AppRoutes.learn}/${AppRoutes.learnLesson}'
-                          .replaceFirst(':regionId', regionId)
-                          .replaceFirst(':bodyPartId', bodyPart.id);
-                      context.go(path);
+                      // Navigate relatively using the bodyPart.id
+                      // GoRouter constructs the full path: /learn/region/{regionId}/part/{bodyPart.id}
+                      context.go('./part/${bodyPart.id}');
                     },
                     // Optional: Add different styling/info for learn context
                     // e.g., show number of steps instead of projections
