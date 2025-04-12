@@ -1,3 +1,9 @@
 {
-    "java.configuration.updateBuildConfiguration": "interactive"
+    "java.configuration.updateBuildConfiguration": "interactive",
+    "github.copilot.chat.codeGeneration.instructions": [
+        {
+            "file": "docs/custom-instructions.md"
+        },
+    ]
 }
+
