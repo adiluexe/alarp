@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:go_router/go_router.dart'; // Import go_router for context.pop()
 import 'package:solar_icons/solar_icons.dart'; // Import icons
 import 'package:alarp/core/theme/app_theme.dart';
 import 'package:alarp/features/learn/controllers/learn_providers.dart';
 import 'package:alarp/features/learn/models/lesson.dart';
-// Import ModelViewerWidget if you intend to use it
-// import 'package:alarp/features/practice/widgets/model_viewer_widget.dart';
+import 'package:alarp/features/learn/widgets/learn_model_viewer.dart';
+// Import the region provider and model to get the color
+import 'package:alarp/features/learn/views/learn_region_detail_screen.dart'
+    show learnRegionProvider;
+import 'package:alarp/features/practice/models/body_region.dart';
 
 class LearnLessonScreen extends ConsumerWidget {
   final String lessonId;
@@ -24,6 +28,11 @@ class LearnLessonScreen extends ConsumerWidget {
       );
     }
 
+    // Fetch the region data based on the lesson's bodyRegion string
+    // Note: This assumes lesson.bodyRegion matches a valid regionId used by learnRegionProvider
+    // Add error handling or default color if region lookup fails
+    final BodyRegion region = ref.watch(learnRegionProvider(lesson.bodyRegion));
+
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
 
@@ -31,72 +40,59 @@ class LearnLessonScreen extends ConsumerWidget {
       backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
         title: Text(lesson.title),
-        backgroundColor: Colors.white,
-        foregroundColor: AppTheme.textColor,
-        elevation: 1,
+        // Use the region's background color
+        backgroundColor: region.backgroundColor,
+        // Use white for text/icons on colored background
+        foregroundColor: Colors.white,
+        elevation: 0, // Match region detail screen elevation
+        leading: IconButton(
+          icon: const Icon(SolarIconsOutline.altArrowLeft),
+          // Use context.pop() for GoRouter navigation
+          onPressed: () => context.pop(),
+          tooltip: 'Back',
+        ),
       ),
-      // Use ListView for better structure than SingleChildScrollView + Column
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
-          // Lesson Title Header (optional, as it's in AppBar)
-          // Text(
-          //   lesson.title,
-          //   style: textTheme.headlineMedium?.copyWith(
-          //     fontFamily: 'Chillax',
-          //     fontWeight: FontWeight.w700,
-          //     color: AppTheme.primaryColor,
-          //   ),
-          // ),
-          // const SizedBox(height: 16),
-
-          // Optional: Display Image with styling
-          if (lesson.imageUrl != null)
-            _buildMediaContainer(
-              context,
-              child: Image.asset(
-                lesson.imageUrl!,
-                fit: BoxFit.cover,
-                errorBuilder:
-                    (context, error, stackTrace) =>
-                        const Center(child: Icon(Icons.broken_image, size: 48)),
-              ),
-            ),
-
-          // Optional: Display 3D Model Viewer
+          // 1. Display 3D Model Viewer First (if available)
           if (lesson.modelPath != null)
             _buildMediaContainer(
               context,
-              child: Container(
-                // Placeholder for ModelViewerWidget
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.05),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Center(
-                  child: Text(
-                    '3D Model Placeholder\n(${lesson.modelPath})',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.grey[600]),
-                  ),
-                ),
-                // TODO: Replace with actual ModelViewerWidget(src: lesson.modelPath!)
-              ),
-              aspectRatio: 16 / 9, // Adjust aspect ratio if needed
+              child: LearnModelViewer(src: lesson.modelPath!),
+              // Make model viewer larger, adjust aspect ratio as needed (e.g., 1:1 or 4:3)
+              aspectRatio: 1.0, // Changed aspect ratio
             ),
 
-          // Display Markdown Content with improved styling
+          // 2. Display Markdown Content
           Padding(
-            padding: const EdgeInsets.only(
-              top: 8.0,
-            ), // Add space above markdown if media exists
+            padding: const EdgeInsets.only(top: 8.0),
             child: MarkdownBody(
               data: lesson.content,
               styleSheet: _buildMarkdownStyleSheet(theme, textTheme),
-              // Add custom builders for specific tags if needed
-              // e.g., to style bullet points or blockquotes differently
             ),
           ),
+
+          // 3. Display Image Last (if available)
+          if (lesson.imageUrl != null)
+            Padding(
+              // Add some space before the image if markdown is present
+              padding: const EdgeInsets.only(top: 24.0),
+              child: _buildMediaContainer(
+                context,
+                child: Image.asset(
+                  lesson.imageUrl!,
+                  fit: BoxFit.contain, // Use contain to see the whole image
+                  errorBuilder:
+                      (context, error, stackTrace) => const Center(
+                        child: Icon(Icons.broken_image, size: 48),
+                      ),
+                ),
+                // Keep image aspect ratio or adjust as needed
+                aspectRatio: 16 / 9,
+              ),
+            ),
+
           const SizedBox(height: 24), // Padding at the bottom
         ],
       ),
@@ -116,7 +112,8 @@ class LearnLessonScreen extends ConsumerWidget {
         child: AspectRatio(
           aspectRatio: aspectRatio,
           child: Container(
-            color: Colors.grey[200], // Background for loading/error states
+            // Use a slightly lighter background for the container
+            color: Colors.grey[100], // Changed background color
             child: child,
           ),
         ),

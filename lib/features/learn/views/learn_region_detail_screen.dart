@@ -37,7 +37,7 @@ class LearnRegionDetailScreen extends ConsumerWidget {
         elevation: 0, // Match practice screen's elevation
         leading: IconButton(
           // Custom back button
-          icon: const Icon(SolarIconsOutline.arrowLeft),
+          icon: const Icon(SolarIconsOutline.altArrowLeft), // Changed icon
           onPressed: () => context.pop(),
           tooltip: 'Back',
         ),
