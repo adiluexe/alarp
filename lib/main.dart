@@ -1,55 +1,35 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart'; // Import riverpod
-import 'core/theme/app_theme.dart';
-import 'features/onboarding/splash_screen.dart';
-import 'core/navigation/navigation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:alarp/core/navigation/app_router.dart'; // Import the router provider
+import 'package:alarp/core/theme/app_theme.dart'; // Import your theme
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  // Lock the orientation to portrait mode
-  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   runApp(
-    // Wrap the entire app in a ProviderScope
-    const ProviderScope(child: MyApp()),
+    const ProviderScope(
+      // Ensure ProviderScope is at the root
+      child: MyApp(),
+    ),
   );
 }
 
-class MyApp extends StatelessWidget {
+// Make MyApp a ConsumerWidget to access the router provider
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Read the GoRouter instance from the provider
+    final router = ref.watch(goRouterProvider);
+
+    // Use MaterialApp.router
+    return MaterialApp.router(
       title: 'ALARP',
+      theme: AppTheme.lightTheme, // Apply your theme
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      home: const AppEntry(),
+      // Configure the router
+      routerDelegate: router.routerDelegate,
+      routeInformationParser: router.routeInformationParser,
+      routeInformationProvider: router.routeInformationProvider,
     );
-  }
-}
-
-class AppEntry extends StatefulWidget {
-  const AppEntry({super.key});
-
-  @override
-  State<AppEntry> createState() => _AppEntryState();
-}
-
-class _AppEntryState extends State<AppEntry> {
-  bool _showSplash = true;
-
-  void _completeSplash() {
-    setState(() {
-      _showSplash = false;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // Show the splash screen or the main navigation
-    return _showSplash
-        ? SplashScreen(onComplete: _completeSplash)
-        : const Navigation();
   }
 }

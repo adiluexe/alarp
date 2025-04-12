@@ -1,24 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:solar_icons/solar_icons.dart';
+import 'package:alarp/core/theme/app_theme.dart';
 
 class AppBottomNavigation extends StatelessWidget {
   final int currentIndex;
-  final Function(int) onTabTapped;
+  final ValueChanged<int> onTabTapped; // Ensure this signature
 
   const AppBottomNavigation({
-    super.key,
+    Key? key,
     required this.currentIndex,
     required this.onTabTapped,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
-      type: BottomNavigationBarType.fixed,
       currentIndex: currentIndex,
-      onTap: onTabTapped,
-      selectedItemColor: Theme.of(context).colorScheme.primary,
-      unselectedItemColor: Colors.grey,
+      onTap: onTabTapped, // This should correctly pass the index
+      type: BottomNavigationBarType.fixed, // Ensures all items are visible
+      backgroundColor: Colors.white,
+      selectedItemColor: AppTheme.primaryColor,
+      unselectedItemColor: AppTheme.textColor.withOpacity(0.6),
+      selectedLabelStyle: const TextStyle(
+        fontWeight: FontWeight.w600,
+        fontSize: 12,
+      ),
+      unselectedLabelStyle: const TextStyle(fontSize: 12),
+      elevation: 8.0,
       items: const [
         BottomNavigationBarItem(
           icon: Icon(SolarIconsOutline.home),
@@ -26,18 +34,18 @@ class AppBottomNavigation extends StatelessWidget {
           label: 'Home',
         ),
         BottomNavigationBarItem(
-          icon: Icon(SolarIconsOutline.bookBookmark),
-          activeIcon: Icon(SolarIconsBold.bookBookmark),
+          icon: Icon(SolarIconsOutline.notebook),
+          activeIcon: Icon(SolarIconsBold.notebook),
           label: 'Learn',
         ),
         BottomNavigationBarItem(
-          icon: Icon(SolarIconsOutline.compassSquare),
-          activeIcon: Icon(SolarIconsBold.compassSquare),
+          icon: Icon(SolarIconsOutline.box),
+          activeIcon: Icon(SolarIconsBold.box),
           label: 'Practice',
         ),
         BottomNavigationBarItem(
-          icon: Icon(SolarIconsOutline.medalStar),
-          activeIcon: Icon(SolarIconsBold.medalStar),
+          icon: Icon(SolarIconsOutline.cupStar),
+          activeIcon: Icon(SolarIconsBold.cupStar),
           label: 'Challenge',
         ),
         BottomNavigationBarItem(

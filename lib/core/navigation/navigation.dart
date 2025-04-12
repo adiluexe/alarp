@@ -1,30 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart'; // Import GoRouter
 import 'package:alarp/core/navigation/app_bottom_navigation.dart';
-import 'package:alarp/features/challenge/views/challenge_screen.dart';
-import 'package:alarp/features/home/views/home_screen.dart';
-import 'package:alarp/features/learn/views/learn_screen.dart';
-import 'package:alarp/features/practice/views/practice_screen.dart';
-import 'package:alarp/features/profile/views/profile_screen.dart';
+import 'package:alarp/core/navigation/app_router.dart'; // Import AppRoutes
 
-class Navigation extends StatefulWidget {
-  const Navigation({super.key});
+// Modify to accept currentIndex and child
+class Navigation extends StatelessWidget {
+  final int currentIndex;
+  final Widget child; // The screen content provided by GoRouter
 
-  @override
-  State<Navigation> createState() => _NavigationState();
-}
+  const Navigation({
+    required this.currentIndex,
+    required this.child,
+    super.key,
+  });
 
-class _NavigationState extends State<Navigation> {
-  int _currentIndex = 0;
-
-  final List<Widget> _screens = [
-    const HomeScreen(),
-    const LearnScreen(),
-    const PracticeScreen(),
-    const ChallengeScreen(),
-    const ProfileScreen(),
-  ];
-
-  final List<String> _titles = [
+  // Titles corresponding to the bottom nav indices
+  static const List<String> _titles = [
     'ALARP',
     'Learn',
     'Practice',
@@ -32,20 +23,31 @@ class _NavigationState extends State<Navigation> {
     'Profile',
   ];
 
-  void _onTabTapped(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
+  // Routes corresponding to the bottom nav indices
+  static const List<String> _routes = [
+    AppRoutes.home,
+    AppRoutes.learn,
+    AppRoutes.practice,
+    AppRoutes.challenge,
+    AppRoutes.profile,
+  ];
+
+  void _onTabTapped(BuildContext context, int index) {
+    // Use GoRouter to navigate to the corresponding route
+    if (index != currentIndex) {
+      context.go(_routes[index]);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(_titles[_currentIndex]), elevation: 0),
-      body: _screens[_currentIndex],
+      // AppBar might be better handled within individual screens or conditionally shown
+      // appBar: AppBar(title: Text(_titles[currentIndex]), elevation: 0),
+      body: child, // Display the child screen passed by GoRouter
       bottomNavigationBar: AppBottomNavigation(
-        currentIndex: _currentIndex,
-        onTabTapped: _onTabTapped,
+        currentIndex: currentIndex,
+        onTabTapped: (index) => _onTabTapped(context, index), // Pass context
       ),
     );
   }

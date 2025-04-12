@@ -1,11 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart'; // Import GoRouter
 import 'package:alarp/core/theme/app_theme.dart';
+import 'package:alarp/features/practice/models/body_region.dart'; // Assuming models are shared or moved to core
+import 'package:alarp/core/navigation/app_router.dart'; // Import AppRoutes
 
 class LearnScreen extends StatelessWidget {
   const LearnScreen({super.key});
 
+  // Helper function to get BodyRegion data (replace with provider later)
+  BodyRegion _getRegionData(String title) {
+    // This is temporary; ideally fetch from a provider based on title/id
+    return BodyRegions.allRegions.firstWhere(
+      (r) => r.title == title,
+      orElse: () => BodyRegions.headAndNeck, // Default fallback
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Use the actual BodyRegions data if available
+    final regions = BodyRegions.allRegions;
+
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       body: SafeArea(
@@ -40,7 +55,7 @@ class LearnScreen extends StatelessWidget {
               ),
             ),
 
-            // Body regions grid
+            // Body regions grid using actual data
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               sliver: SliverGrid(
@@ -50,56 +65,17 @@ class LearnScreen extends StatelessWidget {
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
                 ),
-                delegate: SliverChildListDelegate([
-                  _buildBodyRegionCard(
+                // Use map to generate cards from regions list
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  final region = regions[index];
+                  // Pass the actual region data to the card builder
+                  return _buildBodyRegionCard(
                     context,
-                    title: 'Head & Neck',
-                    emoji: '🧠',
-                    totalPositions: 18,
-                    completedPositions: 5,
-                    color: const Color(0xFFEB6B9D),
-                  ),
-                  _buildBodyRegionCard(
-                    context,
-                    title: 'Thorax',
-                    emoji: '🫁',
-                    totalPositions: 12,
+                    region: region,
+                    // Example progress data (replace with actual data later)
                     completedPositions: 0,
-                    color: const Color(0xFF5B93EB),
-                  ),
-                  _buildBodyRegionCard(
-                    context,
-                    title: 'Abdomen & Pelvis',
-                    emoji: '🧍‍♂️',
-                    totalPositions: 15,
-                    completedPositions: 0,
-                    color: const Color(0xFF53C892),
-                  ),
-                  _buildBodyRegionCard(
-                    context,
-                    title: 'Upper Extremity',
-                    emoji: '💪',
-                    totalPositions: 20,
-                    completedPositions: 0,
-                    color: const Color(0xFFFFAA33),
-                  ),
-                  _buildBodyRegionCard(
-                    context,
-                    title: 'Lower Extremity',
-                    emoji: '🦵',
-                    totalPositions: 22,
-                    completedPositions: 0,
-                    color: const Color(0xFF9474DE),
-                  ),
-                  _buildBodyRegionCard(
-                    context,
-                    title: 'Spine',
-                    emoji: '🦴',
-                    totalPositions: 14,
-                    completedPositions: 0,
-                    color: const Color(0xFF4BC8EB),
-                  ),
-                ]),
+                  );
+                }, childCount: regions.length),
               ),
             ),
 
@@ -111,20 +87,23 @@ class LearnScreen extends StatelessWidget {
     );
   }
 
+  // Update card builder to accept BodyRegion and use its data
   Widget _buildBodyRegionCard(
     BuildContext context, {
-    required String title,
-    required String emoji,
-    required int totalPositions,
-    required int completedPositions,
-    required Color color,
+    required BodyRegion region,
+    required int completedPositions, // Keep progress separate for now
   }) {
     final progress =
-        totalPositions > 0 ? completedPositions / totalPositions : 0.0;
+        region.positionCount > 0
+            ? completedPositions / region.positionCount
+            : 0.0;
 
     return InkWell(
       onTap: () {
-        // Navigate to region detail screen
+        // Navigate using GoRouter with the region's ID
+        context.go(
+          '${AppRoutes.learn}/${AppRoutes.learnRegionDetail.replaceFirst(':regionId', region.id)}',
+        );
       },
       borderRadius: BorderRadius.circular(16),
       child: Container(
@@ -143,34 +122,36 @@ class LearnScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Emoji with colored background
+            // Emoji with colored background using region color
             Container(
               width: 52,
               height: 52,
               decoration: BoxDecoration(
-                color: color.withOpacity(0.15),
+                color: region.backgroundColor.withOpacity(0.15),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Center(
-                child: Text(emoji, style: const TextStyle(fontSize: 28)),
+                child: Text(region.emoji, style: const TextStyle(fontSize: 28)),
               ),
             ),
 
             const Spacer(),
 
-            // Title
+            // Title from region data
             Text(
-              title,
+              region.title,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
                 fontFamily: 'Chillax',
               ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 4),
 
-            // Positions count
+            // Positions count from region data
             Text(
-              '$completedPositions of $totalPositions positions',
+              '$completedPositions of ${region.positionCount} positions',
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 8),
@@ -178,39 +159,13 @@ class LearnScreen extends StatelessWidget {
             // Progress bar
             LinearProgressIndicator(
               value: progress,
-              backgroundColor: color.withOpacity(0.1),
-              valueColor: AlwaysStoppedAnimation<Color>(color),
+              backgroundColor: region.backgroundColor.withOpacity(0.1),
+              valueColor: AlwaysStoppedAnimation<Color>(region.backgroundColor),
               borderRadius: BorderRadius.circular(4),
               minHeight: 6,
             ),
 
             const SizedBox(height: 12),
-
-            // Action button
-            Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    decoration: BoxDecoration(
-                      color: color.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Center(
-                      child: Text(
-                        completedPositions > 0 ? 'Continue' : 'Start Learning',
-                        style: Theme.of(
-                          context,
-                        ).textTheme.labelMedium?.copyWith(
-                          color: color,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
           ],
         ),
       ),
