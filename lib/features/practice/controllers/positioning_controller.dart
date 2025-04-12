@@ -1,87 +1,75 @@
-import 'package:flutter/material.dart';
+import 'dart:math';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/positioning_state.dart';
 import '../models/collimation_state.dart';
 
-class PositioningController with ChangeNotifier {
-  final PositioningState positioningState;
-  final CollimationState collimationState;
+// Define target values (replace with actual logic later)
+const _targetRotationX = 10.0;
+const _targetRotationY = 0.0;
+const _targetRotationZ = 0.0;
+const _targetCollimationWidth = 0.6;
+const _targetCollimationHeight = 0.7;
+const _targetCollimationCenterX = 0.1;
+const _targetCollimationCenterY = -0.1;
 
-  // Target values for correct positioning
-  final double targetRotationX;
-  final double targetRotationY;
-  final double targetRotationZ;
-  final double targetWidth;
-  final double targetHeight;
+class PositioningController {
+  final Ref ref;
 
-  // Acceptable margin of error
-  final double positioningTolerance = 5.0; // degrees
-  final double collimationTolerance = 0.05; // percentage points
+  PositioningController(this.ref);
 
-  PositioningController({
-    required this.positioningState,
-    required this.collimationState,
-    this.targetRotationX = 0,
-    this.targetRotationY = 0,
-    this.targetRotationZ = 0,
-    this.targetWidth = 0.6,
-    this.targetHeight = 0.6,
-  }) {
-    // Add listeners to update when the underlying states change
-    positioningState.addListener(notifyListeners);
-    collimationState.addListener(notifyListeners);
-  }
+  // Read the current state from providers
+  PositioningStateData get _positioningState =>
+      ref.read(positioningStateProvider);
+  CollimationStateData get _collimationState =>
+      ref.read(collimationStateProvider);
 
-  @override
-  void dispose() {
-    // Remove listeners to avoid memory leaks
-    positioningState.removeListener(notifyListeners);
-    collimationState.removeListener(notifyListeners);
-    super.dispose();
-  }
-
-  // All other methods remain the same
-  // Check if positioning is correct
-  bool get isPositioningCorrect {
-    return (positioningState.rotationX - targetRotationX).abs() <=
-            positioningTolerance &&
-        (positioningState.rotationY - targetRotationY).abs() <=
-            positioningTolerance &&
-        (positioningState.rotationZ - targetRotationZ).abs() <=
-            positioningTolerance;
-  }
-
-  // Check if collimation is correct
-  bool get isCollimationCorrect {
-    return (collimationState.width - targetWidth).abs() <=
-            collimationTolerance &&
-        (collimationState.height - targetHeight).abs() <= collimationTolerance;
-  }
-
-  // Overall correctness
-  bool get isCorrect => isPositioningCorrect && isCollimationCorrect;
-
-  // Calculate positioning accuracy percentage
+  // Calculate positioning accuracy
   double get positioningAccuracy {
-    double xDiff =
-        1.0 - ((positioningState.rotationX - targetRotationX).abs() / 180);
-    double yDiff =
-        1.0 - ((positioningState.rotationY - targetRotationY).abs() / 180);
-    double zDiff =
-        1.0 - ((positioningState.rotationZ - targetRotationZ).abs() / 180);
+    final rotXDiff = (_positioningState.rotationX - _targetRotationX).abs();
+    final rotYDiff = (_positioningState.rotationY - _targetRotationY).abs();
+    final rotZDiff = (_positioningState.rotationZ - _targetRotationZ).abs();
 
-    return (xDiff + yDiff + zDiff) / 3 * 100;
+    // Simple average difference, scaled to percentage (lower diff = higher accuracy)
+    // Max possible diff per axis is 180. Total max diff = 540.
+    final totalDiff = rotXDiff + rotYDiff + rotZDiff;
+    final maxDiff = 180.0 * 3; // Max diff for 3 axes
+    final accuracy = max(0.0, 100.0 * (1.0 - (totalDiff / maxDiff)));
+    return accuracy;
   }
 
-  // Calculate collimation accuracy percentage
+  // Calculate collimation accuracy
   double get collimationAccuracy {
-    double widthDiff = 1.0 - ((collimationState.width - targetWidth).abs());
-    double heightDiff = 1.0 - ((collimationState.height - targetHeight).abs());
+    final widthDiff = (_collimationState.width - _targetCollimationWidth).abs();
+    final heightDiff =
+        (_collimationState.height - _targetCollimationHeight).abs();
+    final centerXDiff =
+        (_collimationState.centerX - _targetCollimationCenterX).abs();
+    final centerYDiff =
+        (_collimationState.centerY - _targetCollimationCenterY).abs();
 
-    return (widthDiff + heightDiff) / 2 * 100;
+    // Max diff for width/height is ~1.0, for center is ~2.0. Total max ~6.0
+    final totalDiff = widthDiff + heightDiff + centerXDiff + centerYDiff;
+    final maxDiff =
+        (1.0 - 0.2) +
+        (1.0 - 0.2) +
+        (1.0 - (-1.0)) +
+        (1.0 - (-1.0)); // Approx max diff
+    final accuracy = max(0.0, 100.0 * (1.0 - (totalDiff / maxDiff)));
+    return accuracy;
   }
 
-  // Overall accuracy
+  // Calculate overall accuracy
   double get overallAccuracy {
-    return (positioningAccuracy + collimationAccuracy) / 2;
+    return (positioningAccuracy + collimationAccuracy) / 2.0;
+  }
+
+  // Check if positioning is considered correct (e.g., > 90% accuracy)
+  bool get isCorrect {
+    return overallAccuracy >= 90.0;
   }
 }
+
+// Provider for the PositioningController
+final positioningControllerProvider = Provider<PositioningController>((ref) {
+  return PositioningController(ref);
+});

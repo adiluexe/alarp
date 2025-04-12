@@ -1,37 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_3d_controller/flutter_3d_controller.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_theme.dart';
 import '../models/positioning_state.dart';
 import '../models/collimation_state.dart';
 
-class ModelViewerWidget extends StatefulWidget {
+class ModelViewerWidget extends ConsumerStatefulWidget {
   const ModelViewerWidget({Key? key}) : super(key: key);
 
   @override
-  State<ModelViewerWidget> createState() => _ModelViewerWidgetState();
+  ConsumerState<ModelViewerWidget> createState() => _ModelViewerWidgetState();
 }
 
-class _ModelViewerWidgetState extends State<ModelViewerWidget> {
-  // Controller reference
+class _ModelViewerWidgetState extends ConsumerState<ModelViewerWidget> {
   Flutter3DController? controller;
   bool isInitialized = false;
   bool hasError = false;
   String errorMessage = '';
 
   @override
-  Widget build(BuildContext context) {
-    final posState = Provider.of<PositioningState>(context);
-    final colState = Provider.of<CollimationState>(context);
+  void initState() {
+    super.initState();
+    controller = Flutter3DController();
+  }
 
-    // Update the model position and rotation whenever state changes
-    if (isInitialized && controller != null) {
-      _updateModelTransform(posState);
-    }
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final posState = ref.watch(positioningStateProvider);
+    final colState = ref.watch(collimationStateProvider);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (isInitialized && controller != null && mounted) {
+        _updateModelTransform(posState);
+      }
+    });
 
     return Stack(
       children: [
-        // 3D Model container
         Container(
           height: 350,
           decoration: BoxDecoration(
@@ -44,34 +54,38 @@ class _ModelViewerWidgetState extends State<ModelViewerWidget> {
                 hasError
                     ? _buildErrorView()
                     : Flutter3DViewer(
-                      src:
-                          'assets/models/test.glb', // Make sure this file exists in your assets
+                      src: 'assets/models/test.glb',
                       enableTouch: true,
                       controller: controller,
-                      activeGestureInterceptor: true,
                       progressBarColor: AppTheme.primaryColor,
                       onLoad: (String modelAddress) {
                         debugPrint('Model loaded: $modelAddress');
-                        setState(() {
-                          isInitialized = true;
-                        });
-                        _updateModelTransform(posState);
+                        if (mounted) {
+                          setState(() {
+                            isInitialized = true;
+                            hasError = false;
+                          });
+                          _updateModelTransform(
+                            ref.read(positioningStateProvider),
+                          );
+                        }
                       },
                       onProgress: (double progress) {
                         debugPrint('Loading progress: $progress');
                       },
                       onError: (error) {
                         debugPrint('Error loading model: $error');
-                        setState(() {
-                          hasError = true;
-                          errorMessage = error;
-                        });
+                        if (mounted) {
+                          setState(() {
+                            hasError = true;
+                            errorMessage = error;
+                            isInitialized = false;
+                          });
+                        }
                       },
                     ),
           ),
         ),
-
-        // Collimation overlay
         Positioned.fill(
           child: IgnorePointer(
             child: CustomPaint(
@@ -112,31 +126,23 @@ class _ModelViewerWidgetState extends State<ModelViewerWidget> {
     );
   }
 
-  // Update model transform based on positioning state
-  void _updateModelTransform(PositioningState state) {
-    if (!isInitialized || controller == null) return;
+  void _updateModelTransform(PositioningStateData state) {
+    if (!isInitialized || controller == null || !mounted) return;
 
     try {
-      // Convert rotation to orbit
       controller!.setCameraOrbit(
-        state.rotationX,
-        state.rotationY,
-        10 + state.positionZ, // Use Z position to control zoom
+        state.rotationY * (3.14159 / 180),
+        state.rotationX * (3.14159 / 180),
+        10 + state.positionZ,
       );
 
-      // For target position
-      controller!.setCameraTarget(
-        state.positionX,
-        state.positionY,
-        0, // Keep Z at 0 for target
-      );
+      controller!.setCameraTarget(state.positionX, state.positionY, 0);
     } catch (e) {
       debugPrint('Error updating model transform: $e');
     }
   }
 }
 
-// CollimationPainter class remains unchanged
 class CollimationPainter extends CustomPainter {
   final double width;
   final double height;
@@ -158,7 +164,6 @@ class CollimationPainter extends CustomPainter {
           ..style = PaintingStyle.stroke
           ..strokeWidth = 2.0;
 
-    // Calculate box coordinates based on width/height (as percentage of view)
     final double boxWidth = size.width * width;
     final double boxHeight = size.height * height;
     final double boxLeft =
@@ -166,24 +171,20 @@ class CollimationPainter extends CustomPainter {
     final double boxTop =
         (size.height - boxHeight) / 2 + (centerY * size.height * 0.2);
 
-    // Draw collimation box
     final rect = Rect.fromLTWH(boxLeft, boxTop, boxWidth, boxHeight);
     canvas.drawRect(rect, paint);
 
-    // Draw cross lines
     final crossPaint =
         Paint()
           ..color = AppTheme.primaryColor.withOpacity(0.5)
           ..strokeWidth = 1.0;
 
-    // Horizontal line
     canvas.drawLine(
       Offset(boxLeft, boxTop + boxHeight / 2),
       Offset(boxLeft + boxWidth, boxTop + boxHeight / 2),
       crossPaint,
     );
 
-    // Vertical line
     canvas.drawLine(
       Offset(boxLeft + boxWidth / 2, boxTop),
       Offset(boxLeft + boxWidth / 2, boxTop + boxHeight),

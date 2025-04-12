@@ -1,17 +1,22 @@
 // position_controls_widget.dart
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'; // Add riverpod import
 import '../../../core/theme/app_theme.dart';
+// Import providers
 import 'package:alarp/features/practice/models/positioning_state.dart';
 import 'package:alarp/features/practice/controllers/positioning_controller.dart';
 
-class PositionControlsWidget extends StatelessWidget {
+// Change to ConsumerWidget
+class PositionControlsWidget extends ConsumerWidget {
   const PositionControlsWidget({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    final posState = Provider.of<PositioningState>(context);
-    final controller = Provider.of<PositioningController>(context);
+  // Add WidgetRef ref
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Watch the state provider
+    final posState = ref.watch(positioningStateProvider);
+    // Watch the controller provider
+    final controller = ref.watch(positioningControllerProvider);
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -43,7 +48,10 @@ class PositionControlsWidget extends StatelessWidget {
                     min: -90,
                     max: 90,
                     onChanged: (value) {
-                      posState.updateRotation(x: value);
+                      // Read the notifier to call methods
+                      ref
+                          .read(positioningStateProvider.notifier)
+                          .updateRotation(x: value);
                     },
                   ),
 
@@ -55,7 +63,10 @@ class PositionControlsWidget extends StatelessWidget {
                     min: -90,
                     max: 90,
                     onChanged: (value) {
-                      posState.updateRotation(y: value);
+                      // Read the notifier to call methods
+                      ref
+                          .read(positioningStateProvider.notifier)
+                          .updateRotation(y: value);
                     },
                   ),
 
@@ -67,7 +78,10 @@ class PositionControlsWidget extends StatelessWidget {
                     min: -90,
                     max: 90,
                     onChanged: (value) {
-                      posState.updateRotation(z: value);
+                      // Read the notifier to call methods
+                      ref
+                          .read(positioningStateProvider.notifier)
+                          .updateRotation(z: value);
                     },
                   ),
 
@@ -88,12 +102,13 @@ class PositionControlsWidget extends StatelessWidget {
                         ),
                         decoration: BoxDecoration(
                           color: _getAccuracyColor(
-                            controller.positioningAccuracy,
+                            controller
+                                .positioningAccuracy, // Use controller value
                           ),
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Text(
-                          '${controller.positioningAccuracy.toStringAsFixed(1)}%',
+                          '${controller.positioningAccuracy.toStringAsFixed(1)}%', // Use controller value
                           style: Theme.of(
                             context,
                           ).textTheme.labelMedium?.copyWith(
@@ -118,7 +133,8 @@ class PositionControlsWidget extends StatelessWidget {
               icon: const Icon(Icons.restart_alt),
               label: const Text('Reset Position'),
               onPressed: () {
-                posState.reset();
+                // Read the notifier to call methods
+                ref.read(positioningStateProvider.notifier).reset();
               },
             ),
           ),
@@ -127,6 +143,7 @@ class PositionControlsWidget extends StatelessWidget {
     );
   }
 
+  // _buildSliderControl remains the same
   Widget _buildSliderControl(
     BuildContext context, {
     required String label,
@@ -169,6 +186,7 @@ class PositionControlsWidget extends StatelessWidget {
     );
   }
 
+  // _getAccuracyColor remains the same
   Color _getAccuracyColor(double accuracy) {
     if (accuracy >= 90) return Colors.green;
     if (accuracy >= 70) return Colors.orange;

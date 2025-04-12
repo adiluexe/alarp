@@ -1,17 +1,22 @@
 // collimation_controls_widget.dart
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'; // Add riverpod import
 import '../../../core/theme/app_theme.dart';
+// Import providers
 import 'package:alarp/features/practice/models/collimation_state.dart';
 import 'package:alarp/features/practice/controllers/positioning_controller.dart';
 
-class CollimationControlsWidget extends StatelessWidget {
+// Change to ConsumerWidget
+class CollimationControlsWidget extends ConsumerWidget {
   const CollimationControlsWidget({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    final colState = Provider.of<CollimationState>(context);
-    final controller = Provider.of<PositioningController>(context);
+  // Add WidgetRef ref
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Watch the state provider
+    final colState = ref.watch(collimationStateProvider);
+    // Watch the controller provider
+    final controller = ref.watch(positioningControllerProvider);
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -45,7 +50,10 @@ class CollimationControlsWidget extends StatelessWidget {
                     min: 0.2,
                     max: 1.0,
                     onChanged: (value) {
-                      colState.updateSize(newWidth: value);
+                      // Read the notifier to call methods
+                      ref
+                          .read(collimationStateProvider.notifier)
+                          .updateSize(newWidth: value);
                     },
                   ),
 
@@ -57,7 +65,10 @@ class CollimationControlsWidget extends StatelessWidget {
                     min: 0.2,
                     max: 1.0,
                     onChanged: (value) {
-                      colState.updateSize(newHeight: value);
+                      // Read the notifier to call methods
+                      ref
+                          .read(collimationStateProvider.notifier)
+                          .updateSize(newHeight: value);
                     },
                   ),
 
@@ -69,7 +80,10 @@ class CollimationControlsWidget extends StatelessWidget {
                     min: -1.0,
                     max: 1.0,
                     onChanged: (value) {
-                      colState.updateCrossPosition(x: value);
+                      // Read the notifier to call methods
+                      ref
+                          .read(collimationStateProvider.notifier)
+                          .updateCrossPosition(x: value);
                     },
                   ),
 
@@ -81,7 +95,10 @@ class CollimationControlsWidget extends StatelessWidget {
                     min: -1.0,
                     max: 1.0,
                     onChanged: (value) {
-                      colState.updateCrossPosition(y: value);
+                      // Read the notifier to call methods
+                      ref
+                          .read(collimationStateProvider.notifier)
+                          .updateCrossPosition(y: value);
                     },
                   ),
 
@@ -102,12 +119,13 @@ class CollimationControlsWidget extends StatelessWidget {
                         ),
                         decoration: BoxDecoration(
                           color: _getAccuracyColor(
-                            controller.collimationAccuracy,
+                            controller
+                                .collimationAccuracy, // Use controller value
                           ),
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Text(
-                          '${controller.collimationAccuracy.toStringAsFixed(1)}%',
+                          '${controller.collimationAccuracy.toStringAsFixed(1)}%', // Use controller value
                           style: Theme.of(
                             context,
                           ).textTheme.labelMedium?.copyWith(
@@ -132,7 +150,8 @@ class CollimationControlsWidget extends StatelessWidget {
               icon: const Icon(Icons.restart_alt),
               label: const Text('Reset Collimation'),
               onPressed: () {
-                colState.reset();
+                // Read the notifier to call methods
+                ref.read(collimationStateProvider.notifier).reset();
               },
             ),
           ),
@@ -141,6 +160,7 @@ class CollimationControlsWidget extends StatelessWidget {
     );
   }
 
+  // _buildSliderControl remains the same
   Widget _buildSliderControl(
     BuildContext context, {
     required String label,
@@ -183,6 +203,7 @@ class CollimationControlsWidget extends StatelessWidget {
     );
   }
 
+  // _getAccuracyColor remains the same
   Color _getAccuracyColor(double accuracy) {
     if (accuracy >= 90) return Colors.green;
     if (accuracy >= 70) return Colors.orange;

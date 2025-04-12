@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'; // Import riverpod
 import 'core/theme/app_theme.dart';
 import 'features/onboarding/splash_screen.dart';
 import 'core/navigation/navigation.dart';
@@ -8,7 +9,10 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   // Lock the orientation to portrait mode
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  runApp(const MyApp());
+  runApp(
+    // Wrap the entire app in a ProviderScope
+    const ProviderScope(child: MyApp()),
+  );
 }
 
 class MyApp extends StatelessWidget {

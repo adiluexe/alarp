@@ -37,11 +37,11 @@ dependencies:
   flutter_launcher_icons: ^0.14.3
   solar_icons: ^0.0.5
   flutter_cube: ^0.1.1
-  provider: ^6.1.4
   tab_indicator_styler: ^2.0.0
   vector_math: ^2.1.4
   model_viewer_plus: ^1.9.3
   flutter_3d_controller: ^2.2.0
+  flutter_riverpod: ^2.6.1
 
 dev_dependencies:
   flutter_test:

@@ -1,7 +1,7 @@
 // positioning_practice_screen.dart
 import 'package:alarp/features/practice/widgets/simple_model_viewer.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'; // Add riverpod import
 import 'package:solar_icons/solar_icons.dart';
 import '../../../core/theme/app_theme.dart';
 import '../models/positioning_state.dart';
@@ -10,7 +10,7 @@ import '../controllers/positioning_controller.dart';
 import '../widgets/model_viewer_widget.dart';
 import '../widgets/control_panel_widget.dart';
 
-class PositioningPracticeScreen extends StatelessWidget {
+class PositioningPracticeScreen extends ConsumerWidget {
   final String bodyPart;
   final String projectionName;
 
@@ -21,85 +21,39 @@ class PositioningPracticeScreen extends StatelessWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    // Create the providers for state management
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => PositioningState()),
-        ChangeNotifierProvider(create: (_) => CollimationState()),
-        ChangeNotifierProxyProvider2<
-          PositioningState,
-          CollimationState,
-          PositioningController
-        >(
-          create:
-              (context) => PositioningController(
-                positioningState: Provider.of<PositioningState>(
-                  context,
-                  listen: false,
-                ),
-                collimationState: Provider.of<CollimationState>(
-                  context,
-                  listen: false,
-                ),
-              ),
-          update: (context, positioningState, collimationState, previous) {
-            if (previous == null) {
-              return PositioningController(
-                positioningState: positioningState,
-                collimationState: collimationState,
-              );
-            }
-            return previous;
-          },
-        ),
-      ],
-      child: Builder(
-        builder: (context) {
-          final controller = Provider.of<PositioningController>(context);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final controller = ref.watch(positioningControllerProvider);
 
-          return Scaffold(
-            backgroundColor: AppTheme.backgroundColor,
-            appBar: AppBar(
-              title: Text('$bodyPart: $projectionName'),
-              actions: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 16),
-                  child: IconButton(
-                    icon: const Icon(SolarIconsOutline.checkCircle),
-                    onPressed: () {
-                      // Show result dialog with accuracy information
-                      _showResultDialog(context, controller);
-                    },
-                  ),
-                ),
-              ],
+    return Scaffold(
+      backgroundColor: AppTheme.backgroundColor,
+      appBar: AppBar(
+        title: Text('$bodyPart: $projectionName'),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: IconButton(
+              icon: const Icon(SolarIconsOutline.checkCircle),
+              onPressed: () {
+                _showResultDialog(context, ref);
+              },
             ),
-            body: Column(
-              children: [
-                // Top part - 3D model viewer
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  // Use the fallback if you're having issues with Flutter3DViewer
-                  child: ModelViewerWidget(),
-                  // child:
-                  //     SimpleModelViewer(), // Uncomment this and comment out the line above
-                ),
-
-                // Bottom part - Control panels
-                const Expanded(child: ControlPanelWidget()),
-              ],
-            ),
-          );
-        },
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: ModelViewerWidget(),
+          ),
+          const Expanded(child: ControlPanelWidget()),
+        ],
       ),
     );
   }
 
-  void _showResultDialog(
-    BuildContext context,
-    PositioningController controller,
-  ) {
+  void _showResultDialog(BuildContext context, WidgetRef ref) {
+    final controller = ref.read(positioningControllerProvider);
     final isCorrect = controller.isCorrect;
 
     showDialog(
@@ -131,8 +85,6 @@ class PositioningPracticeScreen extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 24),
-
-                // Accuracy statistics
                 _buildAccuracyRow(
                   context,
                   label: 'Positioning Accuracy',

@@ -1,61 +1,115 @@
 // positioning_state.dart
-import 'package:flutter/material.dart';
-import 'package:vector_math/vector_math_64.dart' as vector;
+import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:vector_math/vector_math_64.dart';
 
-class PositioningState with ChangeNotifier {
-  // Rotation in degrees
-  double rotationX = 0;
-  double rotationY = 0;
-  double rotationZ = 0;
+// Represents the immutable state data
+@immutable
+class PositioningStateData {
+  final double rotationX;
+  final double rotationY;
+  final double rotationZ;
+  final double positionX;
+  final double positionY;
+  final double positionZ;
+  final double scale;
 
-  // Position offsets
-  double positionX = 0;
-  double positionY = 0;
-  double positionZ = 0;
+  const PositioningStateData({
+    this.rotationX = 0.0,
+    this.rotationY = 0.0,
+    this.rotationZ = 0.0,
+    this.positionX = 0.0,
+    this.positionY = 0.0,
+    this.positionZ = 0.0,
+    this.scale = 1.0,
+  });
 
-  // Model scale
-  double scale = 1.0;
+  // Initial state
+  factory PositioningStateData.initial() => const PositioningStateData();
 
-  // Update rotation
-  void updateRotation({double? x, double? y, double? z}) {
-    if (x != null) rotationX = x;
-    if (y != null) rotationY = y;
-    if (z != null) rotationZ = z;
-    notifyListeners();
-  }
-
-  // Update position
-  void updatePosition({double? x, double? y, double? z}) {
-    if (x != null) positionX = x;
-    if (y != null) positionY = y;
-    if (z != null) positionZ = z;
-    notifyListeners();
-  }
-
-  // Update scale
-  void updateScale(double newScale) {
-    scale = newScale;
-    notifyListeners();
-  }
-
-  // Reset all values
-  void reset() {
-    rotationX = 0;
-    rotationY = 0;
-    rotationZ = 0;
-    positionX = 0;
-    positionY = 0;
-    positionZ = 0;
-    scale = 1.0;
-    notifyListeners();
-  }
-
-  // Get quaternion for rotation
-  vector.Quaternion get quaternion {
-    return vector.Quaternion.euler(
-      rotationX * (3.14159 / 180),
-      rotationY * (3.14159 / 180),
-      rotationZ * (3.14159 / 180),
+  // CopyWith method for immutability
+  PositioningStateData copyWith({
+    double? rotationX,
+    double? rotationY,
+    double? rotationZ,
+    double? positionX,
+    double? positionY,
+    double? positionZ,
+    double? scale,
+  }) {
+    return PositioningStateData(
+      rotationX: rotationX ?? this.rotationX,
+      rotationY: rotationY ?? this.rotationY,
+      rotationZ: rotationZ ?? this.rotationZ,
+      positionX: positionX ?? this.positionX,
+      positionY: positionY ?? this.positionY,
+      positionZ: positionZ ?? this.positionZ,
+      scale: scale ?? this.scale,
     );
   }
+
+  // Helper to get rotation as Vector3
+  Vector3 get rotation => Vector3(rotationX, rotationY, rotationZ);
+  // Helper to get position as Vector3
+  Vector3 get position => Vector3(positionX, positionY, positionZ);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PositioningStateData &&
+          runtimeType == other.runtimeType &&
+          rotationX == other.rotationX &&
+          rotationY == other.rotationY &&
+          rotationZ == other.rotationZ &&
+          positionX == other.positionX &&
+          positionY == other.positionY &&
+          positionZ == other.positionZ &&
+          scale == other.scale;
+
+  @override
+  int get hashCode =>
+      rotationX.hashCode ^
+      rotationY.hashCode ^
+      rotationZ.hashCode ^
+      positionX.hashCode ^
+      positionY.hashCode ^
+      positionZ.hashCode ^
+      scale.hashCode;
 }
+
+// StateNotifier class
+class PositioningStateNotifier extends StateNotifier<PositioningStateData> {
+  PositioningStateNotifier() : super(PositioningStateData.initial());
+
+  void updateRotation({double? x, double? y, double? z}) {
+    state = state.copyWith(
+      rotationX: x ?? state.rotationX,
+      rotationY: y ?? state.rotationY,
+      rotationZ: z ?? state.rotationZ,
+    );
+  }
+
+  void updatePosition({double? x, double? y, double? z}) {
+    state = state.copyWith(
+      positionX: x ?? state.positionX,
+      positionY: y ?? state.positionY,
+      positionZ: z ?? state.positionZ,
+    );
+  }
+
+  void updateScale(double newScale) {
+    state = state.copyWith(scale: newScale);
+  }
+
+  void reset() {
+    state = PositioningStateData.initial();
+  }
+}
+
+// StateNotifierProvider
+final positioningStateProvider =
+    StateNotifierProvider<PositioningStateNotifier, PositioningStateData>((
+      ref,
+    ) {
+      return PositioningStateNotifier();
+    });
