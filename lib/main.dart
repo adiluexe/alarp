@@ -2,17 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:alarp/core/navigation/app_router.dart'; // Import the router provider
 import 'package:alarp/core/theme/app_theme.dart'; // Import your theme
+import 'package:alarp/app_root.dart'; // Import the new AppRoot widget
 
 void main() {
   runApp(
     const ProviderScope(
-      // Ensure ProviderScope is at the root
-      child: MyApp(),
+      // Run AppRoot, which handles the splash screen logic
+      child: AppRoot(),
     ),
   );
 }
 
-// Make MyApp a ConsumerWidget to access the router provider
+// MyApp now just builds the MaterialApp.router part
 class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
