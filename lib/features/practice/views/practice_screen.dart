@@ -135,50 +135,6 @@ class PracticeScreen extends StatelessWidget {
                 ),
               ),
             ),
-
-            // Difficulty-based practice options
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Practice by Difficulty',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontFamily: 'Chillax',
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    const DifficultyCard(
-                      title: 'Beginner Practice',
-                      description:
-                          'Basic positioning techniques with guided assistance',
-                      icon: SolarIconsOutline.stars,
-                      color: Colors.green,
-                    ),
-                    const SizedBox(height: 12),
-                    const DifficultyCard(
-                      title: 'Intermediate Practice',
-                      description: 'Standard positioning with minimal guidance',
-                      icon: SolarIconsOutline.star,
-                      color: AppTheme.primaryColor,
-                    ),
-                    const SizedBox(height: 12),
-                    const DifficultyCard(
-                      title: 'Advanced Practice',
-                      description:
-                          'Complex positioning scenarios for experienced users',
-                      icon: SolarIconsOutline.starFall,
-                      color: AppTheme.accentColor,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            const SliverToBoxAdapter(child: SizedBox(height: 24)),
           ],
         ),
       ),
