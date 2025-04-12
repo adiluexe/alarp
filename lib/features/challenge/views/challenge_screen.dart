@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart'; // Import GoRouter
 import 'package:alarp/core/theme/app_theme.dart';
 import 'package:solar_icons/solar_icons.dart';
 import 'package:alarp/features/challenge/widgets/challenge_card.dart';
 import 'package:alarp/features/challenge/widgets/leaderboard_preview.dart';
 import 'package:alarp/features/challenge/widgets/feature_highlight_card.dart';
+import 'package:alarp/core/navigation/app_router.dart'; // Import AppRoutes
+import '../models/challenge.dart'; // Import Challenge model
 
 class ChallengeScreen extends StatelessWidget {
   const ChallengeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Get the placeholder challenge data
+    final todayChallenge = Challenge.apForearmChallenge;
+
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       body: SafeArea(
@@ -93,14 +99,21 @@ class ChallengeScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    const ChallengeCard(
-                      title: 'AP Hip Positioning',
-                      description:
-                          'Position the patient correctly for an AP Hip projection',
-                      difficulty: 'Intermediate',
-                      timeLimit: '3:00',
-                      participants: 48,
+                    // Use data from the model and add onTap navigation
+                    ChallengeCard(
+                      title: todayChallenge.title,
+                      description: todayChallenge.description,
+                      difficulty: todayChallenge.difficulty,
+                      timeLimit:
+                          '${todayChallenge.timeLimit.inMinutes}:${(todayChallenge.timeLimit.inSeconds % 60).toString().padLeft(2, '0')}',
+                      participants: 48, // Placeholder
                       isActive: true,
+                      onTap: () {
+                        // Navigate to the start screen using the challenge ID
+                        context.go(
+                          '${AppRoutes.challenge}/${AppRoutes.challengeStart.replaceFirst(':challengeId', todayChallenge.id)}',
+                        );
+                      },
                     ),
                   ],
                 ),

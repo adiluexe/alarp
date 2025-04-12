@@ -10,9 +10,12 @@ import 'package:alarp/features/practice/views/region_detail_screen.dart';
 import 'package:alarp/features/practice/views/collimation_practice_screen.dart';
 import 'package:alarp/features/home/views/home_screen.dart';
 import 'package:alarp/features/challenge/views/challenge_screen.dart';
+import 'package:alarp/features/challenge/views/challenge_start_screen.dart'; // Import start screen
+import 'package:alarp/features/challenge/views/challenge_active_screen.dart'; // Import active screen
 import 'package:alarp/features/profile/views/profile_screen.dart';
 import 'package:alarp/core/navigation/navigation.dart'; // Import the main navigation shell
 import 'package:alarp/features/practice/models/body_region.dart'; // Import BodyRegions
+import 'package:alarp/features/challenge/models/challenge.dart'; // Import Challenge model
 
 // Define route paths
 class AppRoutes {
@@ -28,7 +31,14 @@ class AppRoutes {
   static const practicePositioning =
       'part/:bodyPartId/projection/:projectionName'; // Relative to practiceRegionDetail
   static const challenge = '/challenge';
+  // New challenge routes (relative to /challenge)
+  static const challengeStart = 'start/:challengeId';
+  static const challengeActivePath = 'active/:challengeId'; // Path segment
   static const profile = '/profile';
+
+  // Helper method to build the full path for navigation
+  static String challengeActive(String challengeId) =>
+      '/challenge/active/$challengeId';
 }
 
 // Private navigator keys
@@ -142,6 +152,43 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             pageBuilder:
                 (context, state) =>
                     const NoTransitionPage(child: ChallengeScreen()),
+            routes: [
+              // Route for Challenge Start Screen
+              GoRoute(
+                path:
+                    AppRoutes
+                        .challengeStart, // e.g., /challenge/start/ch_ap_forearm_01
+                builder: (context, state) {
+                  final challengeId = state.pathParameters['challengeId']!;
+                  // Fetch challenge data (using static method for now)
+                  final challenge = Challenge.getChallengeById(challengeId);
+                  // Override the provider for this specific route
+                  return ProviderScope(
+                    overrides: [
+                      currentChallengeProvider.overrideWithValue(challenge),
+                    ],
+                    child: ChallengeStartScreen(challengeId: challengeId),
+                  );
+                },
+              ),
+              // Route for Active Challenge Screen
+              GoRoute(
+                path:
+                    AppRoutes
+                        .challengeActivePath, // e.g., /challenge/active/ch_ap_forearm_01
+                builder: (context, state) {
+                  final challengeId = state.pathParameters['challengeId']!;
+                  final challenge = Challenge.getChallengeById(challengeId);
+                  // Override the provider for this specific route
+                  return ProviderScope(
+                    overrides: [
+                      activeChallengeProvider.overrideWithValue(challenge),
+                    ],
+                    child: ChallengeActiveScreen(challengeId: challengeId),
+                  );
+                },
+              ),
+            ],
           ),
           GoRoute(
             path: AppRoutes.profile,
