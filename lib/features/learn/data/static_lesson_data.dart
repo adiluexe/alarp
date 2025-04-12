@@ -107,6 +107,38 @@ Skull radiography involves multiple projections to visualize the cranial bones, 
 *(Add details for other projections like AP Towne, SMV as needed)*
 """,
   ),
+  const Lesson(
+    id: 'forearm', // Matches the bodyPart.id used in navigation
+    title: 'Forearm AP & Lateral',
+    bodyRegion: 'Upper Extremity',
+    projectionName: 'AP/Lateral',
+    imageUrl: 'assets/images/practice/forearm.png', // Reuse practice image
+    modelPath: 'assets/models/test.glb', // Use the specified model
+    content: """
+# Forearm Radiography Guide (AP & Lateral)
+
+## Overview
+Standard forearm radiography includes AP and Lateral projections to visualize the radius, ulna, and surrounding soft tissues.
+
+## General Considerations
+*   Remove any radiopaque objects (watches, bracelets).
+*   Explain the procedure to the patient.
+
+## AP Projection
+*   **Patient Position:** Seated at the end of the table, arm extended. Supinate the hand (palm up). Ensure wrist and elbow joints are included. Epicondyles should be parallel to the Image Receptor (IR).
+*   **Central Ray:** Perpendicular to the mid-forearm.
+*   **Collimation:** Include wrist and elbow joints, collimate to skin margins laterally.
+*   **Evaluation:** Elbow and wrist joints visible. Slight overlap of radial head, neck, and tuberosity over the proximal ulna. No elongation or foreshortening of bones.
+
+## Lateral Projection
+*   **Patient Position:** Seated, elbow flexed 90 degrees, shoulder, elbow, and wrist on the same plane. Place the ulnar (medial) aspect of the forearm and hand against the IR. Ensure wrist and elbow joints are included.
+*   **Central Ray:** Perpendicular to the mid-forearm.
+*   **Collimation:** Include wrist and elbow joints, collimate to skin margins anteriorly and posteriorly.
+*   **Evaluation:** Elbow and wrist joints visible. Elbow flexed 90 degrees. Superimposition of the radius and ulna at their distal ends. Superimposition of the radial head over the coronoid process.
+
+*(Ensure both projections are typically taken for comparison)*
+""",
+  ),
   // Add more sample lessons as needed
 ];
 
