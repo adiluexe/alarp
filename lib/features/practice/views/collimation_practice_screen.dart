@@ -122,10 +122,12 @@ class _CollimationPracticeScreenState
   Widget build(BuildContext context) {
     // Watch state needed for UI updates
     final colState = ref.watch(collimationStateProvider);
-    // Pass selected projection to the controller provider
-    final controller = ref.watch(
-      collimationControllerProvider(_selectedProjectionName),
+    // Pass selected projection and bodyPartId to the controller provider
+    final params = (
+      bodyPartId: widget.bodyPartId,
+      projectionName: _selectedProjectionName,
     );
+    final controller = ref.watch(collimationControllerProvider(params));
 
     // Determine image asset - Prioritize projection-specific image
     String imageAsset = _placeholderImage; // Start with placeholder
@@ -298,6 +300,51 @@ class _CollimationPracticeScreenState
                                   ),
                                 ),
                               ),
+                              // Accuracy Display Overlay
+                              Positioned(
+                                top: 12,
+                                right: 12,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 5,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: _getAccuracyColor(
+                                      controller.collimationAccuracy,
+                                    ).withOpacity(0.85), // Semi-transparent bg
+                                    borderRadius: BorderRadius.circular(12),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.2),
+                                        blurRadius: 4,
+                                        offset: const Offset(0, 1),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        SolarIconsOutline
+                                            .graphUp, // Or target icon
+                                        color: Colors.white,
+                                        size: 16,
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        '${controller.collimationAccuracy.toStringAsFixed(1)}%',
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.labelMedium?.copyWith(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -305,7 +352,8 @@ class _CollimationPracticeScreenState
                     ),
                     Expanded(
                       child: CollimationControlsWidget(
-                        projectionName: _selectedProjectionName,
+                        // Pass params to controls widget
+                        params: params,
                       ),
                     ),
                   ],
@@ -455,5 +503,12 @@ class _CollimationPracticeScreenState
         ),
       ],
     );
+  }
+
+  // Add _getAccuracyColor helper (can be moved to a utility file later)
+  Color _getAccuracyColor(double accuracy) {
+    if (accuracy >= 90) return Colors.green;
+    if (accuracy >= 70) return Colors.orange;
+    return Colors.red;
   }
 }

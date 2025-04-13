@@ -80,9 +80,14 @@ class ChallengeController extends StateNotifier<ChallengeState> {
     }
 
     final step = state.currentStep as CollimationStep;
+    // Construct the CollimationParams record
+    final params = (
+      bodyPartId: step.bodyPartId,
+      projectionName: step.projectionName,
+    );
     // Use the CollimationController (specific to this projection) to check accuracy
     final collimationController = ref.read(
-      collimationControllerProvider(step.projectionName),
+      collimationControllerProvider(params), // Pass the params record
     );
 
     // Define success criteria (e.g., >= 90% accuracy)

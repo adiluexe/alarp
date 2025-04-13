@@ -13,6 +13,7 @@ import '../../practice/widgets/collimation_controls_widget.dart';
 import '../../practice/models/collimation_state.dart';
 import '../../practice/models/body_part.dart'; // Import BodyPart
 import '../../practice/models/body_region.dart'; // Import BodyRegions
+import '../../practice/controllers/collimation_controller.dart'; // Ensure CollimationParams is accessible
 
 // Provider to get the specific challenge instance for this screen
 final activeChallengeProvider = Provider<Challenge>((ref) {
@@ -140,6 +141,12 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
           bodyPart?.imageAsset ??
           _placeholderImage; // Use placeholder as fallback
 
+      // Create params needed for controls widget
+      final params = (
+        bodyPartId: step.bodyPartId,
+        projectionName: step.projectionName,
+      );
+
       return Column(
         children: [
           Padding(
@@ -190,7 +197,7 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
           ),
           Expanded(
             child: CollimationControlsWidget(
-              projectionName: step.projectionName, // Pass projection name
+              params: params, // Pass the params record
             ),
           ),
           // Add Submit Button for Collimation Step

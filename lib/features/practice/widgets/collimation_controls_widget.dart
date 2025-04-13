@@ -1,33 +1,26 @@
 // collimation_controls_widget.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:solar_icons/solar_icons.dart'; // Import Solar Icons for consistency
+import 'package:solar_icons/solar_icons.dart';
 import '../../../core/theme/app_theme.dart';
 import 'package:alarp/features/practice/models/collimation_state.dart';
-import 'package:alarp/features/practice/controllers/collimation_controller.dart';
+import 'package:alarp/features/practice/controllers/collimation_controller.dart'; // Import needed for CollimationParams
 
 class CollimationControlsWidget extends ConsumerWidget {
-  final String projectionName; // Add projectionName parameter
+  // Accept the combined parameters
+  final CollimationParams params;
 
   const CollimationControlsWidget({
     Key? key,
-    required this.projectionName, // Make it required
+    required this.params, // Make it required
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colState = ref.watch(collimationStateProvider);
-    // Watch the specific controller instance using the projectionName
-    final controller = ref.watch(collimationControllerProvider(projectionName));
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(
-        16,
-        16,
-        16,
-        24,
-      ), // Add more bottom padding
-      // Add decoration for rounded corners
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.only(
@@ -61,7 +54,7 @@ class CollimationControlsWidget extends ConsumerWidget {
                     context,
                     label: 'Field Width',
                     value: colState.width,
-                    min: 0.1, // Update min value
+                    min: 0.1,
                     max: 1.0,
                     onChanged: (value) {
                       ref
@@ -73,7 +66,7 @@ class CollimationControlsWidget extends ConsumerWidget {
                     context,
                     label: 'Field Height',
                     value: colState.height,
-                    min: 0.1, // Update min value
+                    min: 0.1,
                     max: 1.0,
                     onChanged: (value) {
                       ref
@@ -105,77 +98,38 @@ class CollimationControlsWidget extends ConsumerWidget {
                           .updateCrossPosition(y: value);
                     },
                   ),
-                  // Add Angulation Slider
                   _buildSliderControl(
                     context,
                     label: 'Angulation',
                     value: colState.angle,
-                    min: -45.0, // Example range: -45 to +45 degrees
+                    min: -45.0,
                     max: 45.0,
-                    divisions: 90, // Optional: divisions for snapping
-                    displayValueMultiplier: 1, // Display degrees directly
-                    displayValueSuffix: '°', // Add degree symbol
+                    divisions: 90,
+                    displayValueMultiplier: 1,
+                    displayValueSuffix: '°',
                     onChanged: (value) {
                       ref
                           .read(collimationStateProvider.notifier)
                           .updateAngle(value);
                     },
                   ),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Collimation Accuracy:',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: _getAccuracyColor(
-                            controller.collimationAccuracy,
-                          ),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Text(
-                          '${controller.collimationAccuracy.toStringAsFixed(1)}%',
-                          style: Theme.of(
-                            context,
-                          ).textTheme.labelMedium?.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
                 ],
               ),
             ),
           ),
-          const SizedBox(height: 16), // Space before the button
+          const SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
-              icon: const Icon(
-                SolarIconsOutline.restart,
-                size: 20,
-              ), // Use Solar Icon
+              icon: const Icon(SolarIconsOutline.restart, size: 20),
               label: const Text('Reset Collimation'),
               style: ElevatedButton.styleFrom(
-                foregroundColor: AppTheme.primaryColor, // Text/icon color
-                backgroundColor: AppTheme.primaryColor.withOpacity(
-                  0.1,
-                ), // Light background
-                elevation: 0, // No shadow
-                padding: const EdgeInsets.symmetric(
-                  vertical: 14,
-                ), // Increase padding
+                foregroundColor: AppTheme.primaryColor,
+                backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
+                elevation: 0,
+                padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12), // Rounded corners
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 textStyle: Theme.of(
                   context,
@@ -199,8 +153,8 @@ class CollimationControlsWidget extends ConsumerWidget {
     required double max,
     required Function(double) onChanged,
     int? divisions,
-    double displayValueMultiplier = 1.0, // For displaying value differently
-    String displayValueSuffix = '', // Suffix like '%' or '°'
+    double displayValueMultiplier = 1.0,
+    String displayValueSuffix = '',
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -210,7 +164,6 @@ class CollimationControlsWidget extends ConsumerWidget {
           children: [
             Text(label, style: Theme.of(context).textTheme.bodyMedium),
             Text(
-              // Apply multiplier and suffix for display
               '${(value * displayValueMultiplier).toStringAsFixed(1)}$displayValueSuffix',
               style: Theme.of(context).textTheme.bodyMedium,
             ),
@@ -225,7 +178,7 @@ class CollimationControlsWidget extends ConsumerWidget {
             value: value,
             min: min,
             max: max,
-            divisions: divisions, // Use provided divisions
+            divisions: divisions,
             activeColor: AppTheme.secondaryColor,
             inactiveColor: AppTheme.secondaryColor.withOpacity(0.2),
             onChanged: onChanged,
@@ -234,11 +187,5 @@ class CollimationControlsWidget extends ConsumerWidget {
         const SizedBox(height: 8),
       ],
     );
-  }
-
-  Color _getAccuracyColor(double accuracy) {
-    if (accuracy >= 90) return Colors.green;
-    if (accuracy >= 70) return Colors.orange;
-    return Colors.red;
   }
 }
