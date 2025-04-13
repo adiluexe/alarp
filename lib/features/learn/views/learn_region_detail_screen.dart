@@ -183,7 +183,7 @@ class LearnRegionDetailScreen extends ConsumerWidget {
   }
 }
 
-// Update nested BodyPartCard to use Solar Icon
+// Update nested BodyPartCard: Remove image, adjust spacing
 class BodyPartCard extends StatelessWidget {
   final BodyPart bodyPart;
   final VoidCallback? onTap; // Make onTap nullable
@@ -206,9 +206,11 @@ class BodyPartCard extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
         child: Container(
-          margin: const EdgeInsets.only(
-            bottom: 0,
-          ), // Removed margin as Padding is used in parent
+          // Removed margin as Padding is used in parent
+          padding: const EdgeInsets.symmetric(
+            vertical: 16,
+            horizontal: 20,
+          ), // Adjust padding
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
@@ -222,88 +224,60 @@ class BodyPartCard extends StatelessWidget {
           ),
           child: Row(
             children: [
-              // Image section
-              ClipRRect(
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  bottomLeft: Radius.circular(16),
-                ),
-                child: SizedBox(
-                  width: 100,
-                  height: 100,
-                  child: Image.asset(
-                    bodyPart.imageAsset,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      // Fallback for missing images
-                      return Container(
-                        color: AppTheme.primaryColor.withOpacity(0.1),
-                        child: Center(
-                          child: Icon(
-                            SolarIconsOutline.bones,
-                            color: AppTheme.primaryColor,
-                            size: 32,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
-
               // Content section
               Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        bodyPart.title,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
+                // Removed padding widget, applied padding to parent Container
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment:
+                      MainAxisAlignment.center, // Center content vertically
+                  children: [
+                    Text(
+                      bodyPart.title,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        bodyPart.description,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppTheme.textColor.withOpacity(0.7),
-                        ),
-                        maxLines: 2, // Limit description lines
-                        overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      bodyPart.description,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: AppTheme.textColor.withOpacity(0.7),
                       ),
-                      const SizedBox(height: 8),
-                      // Hide projections chips if dimmed (or show different info)
-                      if (!isDimmed)
-                        Wrap(
-                          spacing: 6, // Reduced spacing
-                          runSpacing: 4,
-                          children:
-                              bodyPart.projections.map((projection) {
-                                return Chip(
-                                  label: Text(
-                                    projection,
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.labelSmall?.copyWith(
-                                      color: AppTheme.primaryColor,
-                                    ),
-                                  ),
-                                  backgroundColor: AppTheme.primaryColor
-                                      .withOpacity(0.1),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 6,
-                                    vertical: 0,
-                                  ), // Adjust padding
-                                  materialTapTargetSize:
-                                      MaterialTapTargetSize.shrinkWrap,
-                                  visualDensity: VisualDensity.compact,
-                                );
-                              }).toList(),
-                        )
-                      else // Show alternative text if dimmed
-                        Text(
+                      maxLines: 2, // Limit description lines
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 12), // Increased space before chips
+                    // Hide projections chips if dimmed (or show different info)
+                    if (!isDimmed)
+                      Wrap(
+                        spacing: 8, // Horizontal spacing
+                        runSpacing: 8, // Increased vertical spacing
+                        children:
+                            bodyPart.projections.map((projection) {
+                              return Chip(
+                                label: Text(
+                                  projection,
+                                  style: Theme.of(context).textTheme.labelSmall
+                                      ?.copyWith(color: AppTheme.primaryColor),
+                                ),
+                                backgroundColor: AppTheme.primaryColor
+                                    .withOpacity(0.1),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, // Adjust padding
+                                  vertical: 2,
+                                ),
+                                materialTapTargetSize:
+                                    MaterialTapTargetSize.shrinkWrap,
+                                visualDensity: VisualDensity.compact,
+                              );
+                            }).toList(),
+                      )
+                    else // Show alternative text if dimmed
+                      Padding(
+                        // Add padding to align with chips
+                        padding: const EdgeInsets.symmetric(vertical: 4.0),
+                        child: Text(
                           'Guide coming soon',
                           style: Theme.of(
                             context,
@@ -312,15 +286,17 @@ class BodyPartCard extends StatelessWidget {
                             fontStyle: FontStyle.italic,
                           ),
                         ),
-                    ],
-                  ),
+                      ),
+                  ],
                 ),
               ),
 
               // Arrow icon (only show if tappable)
               if (onTap != null)
                 Padding(
-                  padding: const EdgeInsets.only(right: 16),
+                  padding: const EdgeInsets.only(
+                    left: 16,
+                  ), // Adjust padding side
                   child: Icon(
                     // Use Solar Icon
                     SolarIconsOutline.altArrowRight,
