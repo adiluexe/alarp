@@ -100,7 +100,7 @@ class _PositioningSelectionWidgetState
                       borderRadius: BorderRadius.circular(16),
                       child: Image.asset(
                         imagePath,
-                        fit: BoxFit.contain,
+                        fit: BoxFit.cover, // Changed from BoxFit.contain
                         errorBuilder:
                             (context, error, stackTrace) => Container(
                               color: Colors.grey[200],
