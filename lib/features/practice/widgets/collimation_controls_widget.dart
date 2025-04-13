@@ -61,7 +61,7 @@ class CollimationControlsWidget extends ConsumerWidget {
                     context,
                     label: 'Field Width',
                     value: colState.width,
-                    min: 0.2,
+                    min: 0.1, // Update min value
                     max: 1.0,
                     onChanged: (value) {
                       ref
@@ -73,7 +73,7 @@ class CollimationControlsWidget extends ConsumerWidget {
                     context,
                     label: 'Field Height',
                     value: colState.height,
-                    min: 0.2,
+                    min: 0.1, // Update min value
                     max: 1.0,
                     onChanged: (value) {
                       ref
@@ -103,6 +103,22 @@ class CollimationControlsWidget extends ConsumerWidget {
                       ref
                           .read(collimationStateProvider.notifier)
                           .updateCrossPosition(y: value);
+                    },
+                  ),
+                  // Add Angulation Slider
+                  _buildSliderControl(
+                    context,
+                    label: 'Angulation',
+                    value: colState.angle,
+                    min: -45.0, // Example range: -45 to +45 degrees
+                    max: 45.0,
+                    divisions: 90, // Optional: divisions for snapping
+                    displayValueMultiplier: 1, // Display degrees directly
+                    displayValueSuffix: '°', // Add degree symbol
+                    onChanged: (value) {
+                      ref
+                          .read(collimationStateProvider.notifier)
+                          .updateAngle(value);
                     },
                   ),
                   const SizedBox(height: 16),
@@ -183,6 +199,8 @@ class CollimationControlsWidget extends ConsumerWidget {
     required double max,
     required Function(double) onChanged,
     int? divisions,
+    double displayValueMultiplier = 1.0, // For displaying value differently
+    String displayValueSuffix = '', // Suffix like '%' or '°'
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -192,7 +210,8 @@ class CollimationControlsWidget extends ConsumerWidget {
           children: [
             Text(label, style: Theme.of(context).textTheme.bodyMedium),
             Text(
-              ((value * 100) / 100).toStringAsFixed(2),
+              // Apply multiplier and suffix for display
+              '${(value * displayValueMultiplier).toStringAsFixed(1)}$displayValueSuffix',
               style: Theme.of(context).textTheme.bodyMedium,
             ),
           ],
@@ -206,7 +225,7 @@ class CollimationControlsWidget extends ConsumerWidget {
             value: value,
             min: min,
             max: max,
-            divisions: divisions ?? 100,
+            divisions: divisions, // Use provided divisions
             activeColor: AppTheme.secondaryColor,
             inactiveColor: AppTheme.secondaryColor.withOpacity(0.2),
             onChanged: onChanged,

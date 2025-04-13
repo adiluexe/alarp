@@ -177,6 +177,7 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
                               height: colState.height,
                               centerX: colState.centerX,
                               centerY: colState.centerY,
+                              angle: colState.angle, // Pass the angle here
                             ),
                           ),
                         ),

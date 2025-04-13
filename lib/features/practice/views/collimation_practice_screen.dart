@@ -293,6 +293,7 @@ class _CollimationPracticeScreenState
                                       height: colState.height,
                                       centerX: colState.centerX,
                                       centerY: colState.centerY,
+                                      angle: colState.angle, // Pass angle
                                     ),
                                   ),
                                 ),
