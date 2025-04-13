@@ -1,10 +1,11 @@
 import 'package:alarp/core/widgets/action_card.dart';
 import 'package:alarp/core/widgets/learning_progress_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart'; // Import GoRouter
 import 'package:solar_icons/solar_icons.dart';
 import 'package:alarp/core/theme/app_theme.dart';
-import 'package:alarp/core/widgets/learning_progress_chart.dart';
-import 'package:alarp/core/widgets/action_card.dart';
+import 'package:alarp/core/navigation/app_router.dart'; // Import AppRoutes
+import 'package:alarp/features/challenge/models/challenge.dart'; // Import Challenge for daily challenge ID
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -92,6 +93,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildQuickActions() {
+    // Get today's challenge ID for navigation
+    final String dailyChallengeId = Challenge.apForearmChallenge.id;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -102,35 +106,40 @@ class _HomeScreenState extends State<HomeScreen> {
         const SizedBox(height: 16),
         ActionCard(
           title: 'Continue Learning',
-          subtitle: 'AP Chest Projection',
+          subtitle: 'AP Chest Projection', // Placeholder - needs dynamic update
           description: 'Continue where you left off',
           icon: SolarIconsBold.bookBookmark,
           color: AppTheme.primaryColor,
-          progress: 0.65,
+          progress: 0.65, // Placeholder
           onTap: () {
-            // Navigate to the last lesson
+            // Navigate to the main Learn screen (or specific lesson later)
+            context.go(AppRoutes.learn);
           },
         ),
         const SizedBox(height: 12),
         ActionCard(
           title: 'Daily Challenge',
-          subtitle: 'AP Hip Projection',
+          subtitle: Challenge.apForearmChallenge.title, // Use actual title
           description: 'Complete today\'s challenge',
           icon: SolarIconsBold.medalStar,
           color: AppTheme.secondaryColor,
           onTap: () {
-            // Navigate to daily challenge
+            // Navigate to the start screen for the daily challenge
+            context.go(
+              '${AppRoutes.challenge}/${AppRoutes.challengeStart.replaceFirst(':challengeId', dailyChallengeId)}',
+            );
           },
         ),
         const SizedBox(height: 12),
         ActionCard(
           title: 'Practice Session',
           subtitle: 'Hands-on positioning',
-          description: 'Practice your skills in 3D environment',
+          description: 'Practice your skills', // Updated description
           icon: SolarIconsBold.compassSquare,
           color: AppTheme.accentColor,
           onTap: () {
-            // Navigate to practice
+            // Navigate to the main Practice screen
+            context.go(AppRoutes.practice);
           },
         ),
       ],
@@ -138,14 +147,28 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildStats() {
+    // Define gradient
+    final statsGradient = LinearGradient(
+      colors: [
+        // Updated gradient colors
+        AppTheme.primaryColor.withOpacity(0.8),
+        AppTheme.secondaryColor.withOpacity(0.7),
+      ],
+      begin: Alignment.centerLeft,
+      end: Alignment.centerRight,
+    );
+    // Define text/icon color for contrast
+    const Color contentColor = Colors.white;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        gradient: statsGradient, // Apply gradient
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            // Updated shadow color based on new gradient
+            color: AppTheme.primaryColor.withOpacity(0.3),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -154,7 +177,13 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Your progress', style: Theme.of(context).textTheme.titleLarge),
+          Text(
+            'Your progress',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              color: contentColor, // Use contrast color
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           const SizedBox(height: 16),
           Row(
             children: [
@@ -163,6 +192,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 '$completedLessons/$totalLessons',
                 'lessons',
                 SolarIconsBold.diploma,
+                contentColor, // Pass contrast color
               ),
               const SizedBox(width: 24),
               _buildStatItem(
@@ -170,6 +200,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 '${weeklyAccuracy.toStringAsFixed(1)}%',
                 'this week',
                 SolarIconsBold.target,
+                contentColor, // Pass contrast color
               ),
             ],
           ),
@@ -183,6 +214,7 @@ class _HomeScreenState extends State<HomeScreen> {
     String value,
     String sublabel,
     IconData icon,
+    Color contentColor, // Receive contrast color
   ) {
     return Expanded(
       child: Row(
@@ -190,23 +222,38 @@ class _HomeScreenState extends State<HomeScreen> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: AppTheme.primaryColor.withOpacity(0.1),
+              // Use a semi-transparent white for the icon background
+              color: Colors.white.withOpacity(0.2),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: AppTheme.primaryColor, size: 24),
+            // Use the contrast color for the icon itself
+            child: Icon(icon, color: contentColor, size: 24),
           ),
           const SizedBox(width: 12),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: Theme.of(context).textTheme.bodySmall),
+              Text(
+                label,
+                // Use contrast color with slight opacity
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: contentColor.withOpacity(0.8),
+                ),
+              ),
               Text(
                 value,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: contentColor, // Use contrast color
+                ),
               ),
-              Text(sublabel, style: Theme.of(context).textTheme.bodySmall),
+              Text(
+                sublabel,
+                // Use contrast color with slight opacity
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: contentColor.withOpacity(0.8),
+                ),
+              ),
             ],
           ),
         ],
