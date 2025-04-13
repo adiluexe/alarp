@@ -13,7 +13,6 @@ import '../../practice/widgets/collimation_controls_widget.dart';
 import '../../practice/models/collimation_state.dart';
 import '../../practice/models/body_part.dart'; // Import BodyPart
 import '../../practice/models/body_region.dart'; // Import BodyRegions
-import '../../practice/controllers/collimation_controller.dart'; // Ensure CollimationParams is accessible
 
 // Provider to get the specific challenge instance for this screen
 final activeChallengeProvider = Provider<Challenge>((ref) {
@@ -33,12 +32,20 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
   @override
   void initState() {
     super.initState();
-    // Start the challenge when the screen loads
+    // Reset and Start the challenge when the screen loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Ensure the widget is still mounted before accessing ref
+      if (!mounted) return;
       final challenge = ref.read(activeChallengeProvider);
-      ref
-          .read(challengeControllerProvider(challenge).notifier)
-          .startChallenge();
+      final notifier = ref.read(
+        challengeControllerProvider(challenge).notifier,
+      );
+
+      // Reset the controller's state first
+      notifier.resetChallenge();
+
+      // Then start the challenge
+      notifier.startChallenge();
     });
   }
 
@@ -56,8 +63,8 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
       prev,
       next,
     ) {
-      // Check if build_runner generated the state correctly
-      // If status is still causing errors, ensure build_runner ran successfully
+      // Ensure widget is mounted before showing dialog
+      if (!mounted) return;
       if (prev?.status != next.status) {
         if (next.status == ChallengeStatus.completedSuccess ||
             next.status == ChallengeStatus.completedFailureTime ||

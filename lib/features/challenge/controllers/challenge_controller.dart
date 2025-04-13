@@ -3,42 +3,58 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/challenge.dart';
 import '../models/challenge_step.dart';
 import '../state/challenge_state.dart';
-// Import collimation state/controller if needed for checking collimation step
 import '../../practice/models/collimation_state.dart';
 import '../../practice/controllers/collimation_controller.dart';
 
 class ChallengeController extends StateNotifier<ChallengeState> {
   final Ref ref;
   Timer? _timer;
+  final Challenge initialChallenge;
 
-  ChallengeController(this.ref, Challenge challenge)
+  ChallengeController(this.ref, this.initialChallenge)
     : super(
         ChallengeState(
-          challenge: challenge,
+          challenge: initialChallenge,
           status: ChallengeStatus.notStarted,
-          currentStepIndex: -1, // Start before the first step
-          remainingTime: challenge.timeLimit,
+          currentStepIndex: -1,
+          remainingTime: initialChallenge.timeLimit,
         ),
       );
 
+  void resetChallenge() {
+    _timer?.cancel();
+    ref.read(collimationStateProvider.notifier).reset();
+    state = ChallengeState(
+      challenge: initialChallenge,
+      status: ChallengeStatus.notStarted,
+      currentStepIndex: -1,
+      remainingTime: initialChallenge.timeLimit,
+      selectedPositioningIndex: null,
+    );
+    print("Challenge state reset.");
+  }
+
   void startChallenge() {
     if (state.status != ChallengeStatus.notStarted) {
+      print(
+        "Challenge cannot start, status is ${state.status}. Call resetChallenge() first.",
+      );
       return;
     }
 
-    // Reset collimation state if reusing the provider
     ref.read(collimationStateProvider.notifier).reset();
 
     state = state.copyWith(
       status: ChallengeStatus.inProgress,
-      currentStepIndex: 0, // Move to the first step
+      currentStepIndex: 0,
       remainingTime: state.challenge.timeLimit,
     );
     _startTimer();
+    print("Challenge started.");
   }
 
   void _startTimer() {
-    _timer?.cancel(); // Cancel any existing timer
+    _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (state.remainingTime.inSeconds <= 0) {
         timer.cancel();
@@ -58,16 +74,11 @@ class ChallengeController extends StateNotifier<ChallengeState> {
     }
 
     final step = state.currentStep as PositioningSelectionStep;
-    state = state.copyWith(
-      // Pass the function directly
-      selectedPositioningIndex: () => index,
-    ); // Record selection
+    state = state.copyWith(selectedPositioningIndex: () => index);
 
     if (index == step.correctImageIndex) {
-      // Correct - move to next step or complete
       _moveToNextStep();
     } else {
-      // Incorrect - fail challenge
       _timer?.cancel();
       state = state.copyWith(status: ChallengeStatus.completedFailureIncorrect);
     }
@@ -80,21 +91,17 @@ class ChallengeController extends StateNotifier<ChallengeState> {
     }
 
     final step = state.currentStep as CollimationStep;
-    // Construct the CollimationParams record
     final params = (
       bodyPartId: step.bodyPartId,
       projectionName: step.projectionName,
     );
-    // Use the CollimationController (specific to this projection) to check accuracy
     final collimationController = ref.read(
-      collimationControllerProvider(params), // Pass the params record
+      collimationControllerProvider(params),
     );
 
-    // Define success criteria (e.g., >= 90% accuracy)
     if (collimationController.isCorrect) {
-      _moveToNextStep(); // Move to next step or complete
+      _moveToNextStep();
     } else {
-      // Incorrect collimation - fail challenge
       _timer?.cancel();
       state = state.copyWith(status: ChallengeStatus.completedFailureIncorrect);
     }
@@ -104,15 +111,12 @@ class ChallengeController extends StateNotifier<ChallengeState> {
     if (state.currentStepIndex + 1 < state.challenge.steps.length) {
       state = state.copyWith(
         currentStepIndex: state.currentStepIndex + 1,
-        // Pass the function directly
         selectedPositioningIndex: () => null,
       );
-      // Reset collimation if the next step is collimation (or handle differently)
       if (state.currentStep is CollimationStep) {
         ref.read(collimationStateProvider.notifier).reset();
       }
     } else {
-      // All steps completed successfully
       _timer?.cancel();
       state = state.copyWith(status: ChallengeStatus.completedSuccess);
     }
@@ -125,8 +129,6 @@ class ChallengeController extends StateNotifier<ChallengeState> {
   }
 }
 
-// Provider for the ChallengeController
-// Using .family because each active challenge needs its own controller instance
 final challengeControllerProvider = StateNotifierProvider.family<
   ChallengeController,
   ChallengeState,
