@@ -147,50 +147,50 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
         projectionName: step.projectionName,
       );
 
+      // Simplified layout for collimation step without tabs or accuracy overlay
       return Column(
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
-            child: AspectRatio(
-              aspectRatio: 1.0,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      Image.asset(
-                        imageAsset, // Use the potentially placeholder path
-                        fit: BoxFit.contain,
-                        errorBuilder:
-                            (context, error, stackTrace) => const Center(
-                              // Consistent placeholder icon
-                              child: Icon(
-                                Icons.image_not_supported,
-                                size: 60,
-                                color: Colors.grey,
-                              ),
+            child: Container(
+              height: 300, // Set fixed height
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Image.asset(
+                      imageAsset, // Use the potentially placeholder path
+                      fit: BoxFit.cover, // Change fit to cover
+                      errorBuilder:
+                          (context, error, stackTrace) => const Center(
+                            // Consistent placeholder icon
+                            child: Icon(
+                              Icons.image_not_supported,
+                              size: 60,
+                              color: Colors.grey,
                             ),
-                      ),
-                      Positioned.fill(
-                        child: IgnorePointer(
-                          child: CustomPaint(
-                            painter: CollimationPainter(
-                              width: colState.width,
-                              height: colState.height,
-                              centerX: colState.centerX,
-                              centerY: colState.centerY,
-                              angle: colState.angle, // Pass the angle here
-                            ),
+                          ),
+                    ),
+                    Positioned.fill(
+                      child: IgnorePointer(
+                        child: CustomPaint(
+                          painter: CollimationPainter(
+                            width: colState.width,
+                            height: colState.height,
+                            centerX: colState.centerX,
+                            centerY: colState.centerY,
+                            angle: colState.angle, // Pass the angle here
                           ),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                    // Accuracy overlay removed for challenge screen
+                  ],
                 ),
               ),
             ),
