@@ -22,6 +22,14 @@ class ActionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Color contentColor = Colors.black;
+    final Color secondaryContentColor = contentColor.withAlpha(
+      (255 * 0.8).round(),
+    );
+    final Color tertiaryContentColor = contentColor.withAlpha(
+      (255 * 0.7).round(),
+    );
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
@@ -56,14 +64,23 @@ class ActionCard extends StatelessWidget {
                   Text(
                     title,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
+                      color: contentColor,
                     ),
                   ),
-                  Text(subtitle, style: Theme.of(context).textTheme.bodyLarge),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: secondaryContentColor,
+                    ),
+                  ),
                   const SizedBox(height: 4),
                   Text(
                     description,
-                    style: Theme.of(context).textTheme.bodySmall,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: tertiaryContentColor,
+                    ),
                   ),
                   if (progress != null) ...[
                     const SizedBox(height: 8),

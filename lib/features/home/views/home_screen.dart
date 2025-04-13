@@ -95,65 +95,93 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildQuickActions() {
     // Get today's challenge ID for navigation
     final String dailyChallengeId = Challenge.apForearmChallenge.id;
+    // Define a width for the cards
+    const double cardWidth = 280.0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Continue your learning',
+          'Quick Actions', // Changed title slightly
           style: Theme.of(context).textTheme.titleLarge,
         ),
         const SizedBox(height: 16),
-        ActionCard(
-          title: 'Continue Learning',
-          subtitle: 'AP Chest Projection', // Placeholder - needs dynamic update
-          description: 'Continue where you left off',
-          icon: SolarIconsBold.bookBookmark,
-          color: AppTheme.primaryColor,
-          progress: 0.65, // Placeholder
-          onTap: () {
-            // Navigate to the main Learn screen (or specific lesson later)
-            context.go(AppRoutes.learn);
-          },
-        ),
-        const SizedBox(height: 12),
-        ActionCard(
-          title: 'Daily Challenge',
-          subtitle: Challenge.apForearmChallenge.title, // Use actual title
-          description: 'Complete today\'s challenge',
-          icon: SolarIconsBold.medalStar,
-          color: AppTheme.secondaryColor,
-          onTap: () {
-            // Navigate to the start screen for the daily challenge
-            context.go(
-              '${AppRoutes.challenge}/${AppRoutes.challengeStart.replaceFirst(':challengeId', dailyChallengeId)}',
-            );
-          },
-        ),
-        const SizedBox(height: 12),
-        ActionCard(
-          title: 'Practice Session',
-          subtitle: 'Hands-on positioning',
-          description: 'Practice your skills', // Updated description
-          icon: SolarIconsBold.compassSquare,
-          color: AppTheme.accentColor,
-          onTap: () {
-            // Navigate to the main Practice screen
-            context.go(AppRoutes.practice);
-          },
-        ),
-        const SizedBox(height: 12), // Add spacing
-        // New Card for Skeleton Viewer
-        ActionCard(
-          title: 'Explore Skeleton',
-          subtitle: 'Full anatomical reference',
-          description: 'View and interact with the complete human skeleton.',
-          icon: SolarIconsBold.bone, // Using bone icon
-          color: Colors.teal, // Example color, adjust as needed
-          onTap: () {
-            // Navigate to the new Skeleton Viewer screen
-            context.go(AppRoutes.skeletonViewer);
-          },
+        // Wrap the cards in a horizontally scrolling view
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          // Add padding so cards don't touch edges
+          padding: const EdgeInsets.symmetric(
+            horizontal: 4.0,
+          ), // Adjust as needed
+          clipBehavior: Clip.none, // Allow shadows to render outside bounds
+          // Use IntrinsicHeight to make cards in the row the same height
+          child: IntrinsicHeight(
+            child: Row(
+              children: [
+                // Wrap each card in a SizedBox to control its width
+                SizedBox(
+                  width: cardWidth,
+                  child: ActionCard(
+                    title: 'Continue Learning',
+                    subtitle:
+                        'AP Chest Projection', // Placeholder - needs dynamic update
+                    description: 'Continue where you left off',
+                    icon: SolarIconsBold.bookBookmark,
+                    color: AppTheme.primaryColor,
+                    // progress: 0.65, // Placeholder
+                    onTap: () {
+                      context.go(AppRoutes.learn);
+                    },
+                  ),
+                ),
+                const SizedBox(width: 12), // Spacing between cards
+                SizedBox(
+                  width: cardWidth,
+                  child: ActionCard(
+                    title: 'Daily Challenge',
+                    subtitle:
+                        Challenge.apForearmChallenge.title, // Use actual title
+                    description: 'Complete today\'s challenge',
+                    icon: SolarIconsBold.medalStar,
+                    color: AppTheme.secondaryColor,
+                    onTap: () {
+                      context.go(
+                        '${AppRoutes.challenge}/${AppRoutes.challengeStart.replaceFirst(':challengeId', dailyChallengeId)}',
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(width: 12), // Spacing between cards
+                SizedBox(
+                  width: cardWidth,
+                  child: ActionCard(
+                    title: 'Practice Session',
+                    subtitle: 'Hands-on positioning',
+                    description: 'Practice your skills', // Updated description
+                    icon: SolarIconsBold.compassSquare,
+                    color: AppTheme.accentColor,
+                    onTap: () {
+                      context.go(AppRoutes.practice);
+                    },
+                  ),
+                ),
+                const SizedBox(width: 12), // Spacing between cards
+                SizedBox(
+                  width: cardWidth,
+                  child: ActionCard(
+                    title: 'Explore Skeleton',
+                    subtitle: 'Anatomical reference',
+                    description: 'View the human skeleton.',
+                    icon: SolarIconsBold.bone, // Using bone icon
+                    color: Colors.teal, // Example color, adjust as needed
+                    onTap: () {
+                      context.go(AppRoutes.skeletonViewer);
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ],
     );
