@@ -142,6 +142,19 @@ class _HomeScreenState extends State<HomeScreen> {
             context.go(AppRoutes.practice);
           },
         ),
+        const SizedBox(height: 12), // Add spacing
+        // New Card for Skeleton Viewer
+        ActionCard(
+          title: 'Explore Skeleton',
+          subtitle: 'Full anatomical reference',
+          description: 'View and interact with the complete human skeleton.',
+          icon: SolarIconsBold.bone, // Using bone icon
+          color: Colors.teal, // Example color, adjust as needed
+          onTap: () {
+            // Navigate to the new Skeleton Viewer screen
+            context.go(AppRoutes.skeletonViewer);
+          },
+        ),
       ],
     );
   }
