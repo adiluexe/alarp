@@ -12,7 +12,7 @@ class AchievementsGrid extends StatelessWidget {
       {
         'title': 'Skull Master',
         'description': 'Completed all head projections with 90%+ accuracy',
-        'icon': SolarIconsBold.bones,
+        'icon': SolarIconsBold.boneCrack,
         'color': const Color(0xFFEB6B9D),
         'unlocked': true,
       },

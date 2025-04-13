@@ -48,64 +48,97 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildProfileHeader(BuildContext context) {
+    // Define content color for contrast against gradient
+    const Color contentColor = Colors.white;
+    final Color secondaryContentColor = contentColor.withOpacity(0.8);
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        // Replace solid color with gradient
+        gradient: LinearGradient(
+          colors: [
+            AppTheme.primaryColor,
+            AppTheme.secondaryColor.withOpacity(0.8), // Example gradient
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(24),
+          bottomRight: Radius.circular(24),
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            offset: const Offset(0, 2),
-            blurRadius: 8,
+            // Adjust shadow color if needed
+            color: AppTheme.primaryColor.withOpacity(0.3),
+            offset: const Offset(0, 4), // Slightly larger offset for gradient
+            blurRadius: 12,
           ),
         ],
       ),
       child: Column(
         children: [
-          // Profile picture
+          // Profile picture - Adjust background/text color for contrast
           CircleAvatar(
             radius: 50,
-            backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
+            backgroundColor: Colors.white.withOpacity(
+              0.2,
+            ), // Lighter background
             child: Text(
               "S", // First letter of username
               style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                color: AppTheme.primaryColor,
+                color: contentColor, // Use white text
                 fontWeight: FontWeight.w700,
               ),
             ),
           ),
           const SizedBox(height: 16),
 
-          // Name
+          // Name - Use white text
           Text(
             "Student",
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.w700,
               fontFamily: 'Chillax',
+              color: contentColor, // Use white text
             ),
           ),
           const SizedBox(height: 4),
 
-          // Email or student ID
+          // Email or student ID - Use semi-transparent white text
           Text(
             "student@university.edu",
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: AppTheme.textColor.withOpacity(0.7),
+              color: secondaryContentColor, // Use semi-transparent white
             ),
           ),
 
           const SizedBox(height: 16),
 
-          // Edit profile button
+          // Edit profile button - Style for contrast on gradient
           OutlinedButton.icon(
             onPressed: () {
               // Navigate to edit profile
             },
-            icon: const Icon(SolarIconsOutline.pen, size: 18),
-            label: const Text('Edit Profile'),
+            icon: Icon(
+              SolarIconsOutline.pen,
+              size: 18,
+              color: contentColor,
+            ), // White icon
+            label: Text(
+              'Edit Profile',
+              style: TextStyle(color: contentColor), // White text
+            ),
             style: OutlinedButton.styleFrom(
-              side: BorderSide(color: AppTheme.primaryColor),
-              foregroundColor: AppTheme.primaryColor,
+              side: BorderSide(
+                color: contentColor.withOpacity(0.5),
+              ), // White border
+              foregroundColor: contentColor, // Ensure ripple uses white
+              shape: RoundedRectangleBorder(
+                // Ensure consistent radius
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
           ),
         ],

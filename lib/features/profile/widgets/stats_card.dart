@@ -42,42 +42,46 @@ class StatsCard extends StatelessWidget {
           const SizedBox(height: 16),
 
           // Stats grid
-          Row(
-            children: [
-              _buildStatItem(
-                context,
-                'Challenges Completed',
-                '27',
-                SolarIconsOutline.checkSquare,
-                AppTheme.primaryColor,
-              ),
-              _buildStatItem(
-                context,
-                'Average Accuracy',
-                '86.2%',
-                SolarIconsOutline.target,
-                AppTheme.secondaryColor,
-              ),
-            ],
+          IntrinsicHeight(
+            child: Row(
+              children: [
+                _buildStatItem(
+                  context,
+                  'Challenges Completed',
+                  '27',
+                  SolarIconsOutline.checkSquare,
+                  AppTheme.primaryColor,
+                ),
+                _buildStatItem(
+                  context,
+                  'Average Accuracy',
+                  '86.2%',
+                  SolarIconsOutline.target,
+                  AppTheme.secondaryColor,
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 16),
-          Row(
-            children: [
-              _buildStatItem(
-                context,
-                'Streak',
-                '8 days',
-                SolarIconsOutline.fireMinimalistic,
-                AppTheme.accentColor,
-              ),
-              _buildStatItem(
-                context,
-                'Total Learning Time',
-                '36 hrs',
-                SolarIconsOutline.clockCircle,
-                const Color(0xFF53C892), // Green
-              ),
-            ],
+          IntrinsicHeight(
+            child: Row(
+              children: [
+                _buildStatItem(
+                  context,
+                  'Overall\nStreak',
+                  '8 days',
+                  SolarIconsOutline.fireMinimalistic,
+                  AppTheme.accentColor,
+                ),
+                _buildStatItem(
+                  context,
+                  'Total Learning Time',
+                  '36 hrs',
+                  SolarIconsOutline.clockCircle,
+                  const Color(0xFF53C892), // Green
+                ),
+              ],
+            ),
           ),
         ],
       ),
