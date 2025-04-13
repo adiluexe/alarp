@@ -64,18 +64,21 @@ class LearnRegionDetailScreen extends ConsumerWidget {
 
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12.0),
-                  child: BodyPartCard(
-                    bodyPart: bodyPart,
-                    // Disable onTap if no lesson exists, or navigate differently
-                    onTap:
-                        lessonExists
-                            ? () {
-                              // Navigate relatively using the bodyPart.id
-                              context.go('./part/${bodyPart.id}');
-                            }
-                            : null, // Disable tap if no lesson
-                    // Optional: Add visual indication if lesson is unavailable
-                    isDimmed: !lessonExists,
+                  // Wrap BodyPartCard with Center
+                  child: Center(
+                    child: BodyPartCard(
+                      bodyPart: bodyPart,
+                      // Disable onTap if no lesson exists, or navigate differently
+                      onTap:
+                          lessonExists
+                              ? () {
+                                // Navigate relatively using the bodyPart.id
+                                context.go('./part/${bodyPart.id}');
+                              }
+                              : null, // Disable tap if no lesson
+                      // Optional: Add visual indication if lesson is unavailable
+                      isDimmed: !lessonExists,
+                    ),
                   ),
                 );
               }, childCount: region.bodyParts.length),

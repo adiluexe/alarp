@@ -3,6 +3,9 @@ import 'challenge_step.dart';
 
 // Placeholder image path
 const String _placeholderImage = 'assets/images/alarp_icon.png';
+// Define the specific image path
+const String _apForearmCorrectImage =
+    'assets/images/practice/forearm/forearm_ap.jpeg';
 
 /// Represents a single challenge instance.
 class Challenge {
@@ -36,7 +39,7 @@ class Challenge {
     title: 'AP Forearm Positioning',
     description:
         'Select the correct AP Forearm position and collimate accurately within the time limit.',
-    difficulty: 'Intermediate',
+    difficulty: 'Beginner', // Changed back to 'Beginner'
     timeLimit: const Duration(minutes: 1, seconds: 30), // 90 seconds total
     regionId: 'upper_extremity', // Added: Specify the region
     bodyPartId: 'forearm', // Matches BodyPart ID
@@ -47,9 +50,9 @@ class Challenge {
         instruction:
             'Select the image showing the correct AP Forearm position.',
         imageOptions: [
-          // Use placeholder image paths
+          // Use placeholder image paths for incorrect options
           _placeholderImage,
-          _placeholderImage, // Assume this is correct
+          _apForearmCorrectImage, // Use the specific correct image path
           _placeholderImage,
           _placeholderImage,
         ],
