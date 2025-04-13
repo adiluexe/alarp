@@ -255,51 +255,49 @@ class _CollimationPracticeScreenState
                   children: [
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
-                      child: AspectRatio(
-                        aspectRatio: 1.0,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.grey[200],
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(16),
-                            child: Stack(
-                              fit: StackFit.expand,
-                              children: [
-                                Image.asset(
-                                  imageAsset, // Use the determined imageAsset
-                                  fit: BoxFit.contain,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    // --- Logging Start ---
-                                    print(
-                                      'Image.asset errorBuilder triggered for path: $imageAsset',
-                                    );
-                                    print('Image Error: $error');
-                                    // --- Logging End ---
-                                    return Center(
-                                      child: Icon(
-                                        SolarIconsOutline.galleryRemove,
-                                        size: 60,
-                                        color: Colors.grey[400],
-                                      ),
-                                    );
-                                  },
-                                ),
-                                Positioned.fill(
-                                  child: IgnorePointer(
-                                    child: CustomPaint(
-                                      painter: CollimationPainter(
-                                        width: colState.width,
-                                        height: colState.height,
-                                        centerX: colState.centerX,
-                                        centerY: colState.centerY,
-                                      ),
+                      child: Container(
+                        height: 300, // Set fixed height
+                        decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              Image.asset(
+                                imageAsset, // Use the determined imageAsset
+                                fit: BoxFit.cover, // Change fit to cover
+                                errorBuilder: (context, error, stackTrace) {
+                                  // --- Logging Start ---
+                                  print(
+                                    'Image.asset errorBuilder triggered for path: $imageAsset',
+                                  );
+                                  print('Image Error: $error');
+                                  // --- Logging End ---
+                                  return Center(
+                                    child: Icon(
+                                      SolarIconsOutline.galleryRemove,
+                                      size: 60,
+                                      color: Colors.grey[400],
+                                    ),
+                                  );
+                                },
+                              ),
+                              Positioned.fill(
+                                child: IgnorePointer(
+                                  child: CustomPaint(
+                                    painter: CollimationPainter(
+                                      width: colState.width,
+                                      height: colState.height,
+                                      centerX: colState.centerX,
+                                      centerY: colState.centerY,
                                     ),
                                   ),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
