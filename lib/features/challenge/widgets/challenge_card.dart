@@ -10,7 +10,8 @@ class ChallengeCard extends StatelessWidget {
   final int participants;
   final bool isActive;
   final String? yourScore;
-  final VoidCallback? onTap; // Add this line
+  final VoidCallback? onTap;
+  final Gradient? gradientBackground; // Add gradient parameter
 
   const ChallengeCard({
     super.key,
@@ -19,27 +20,48 @@ class ChallengeCard extends StatelessWidget {
     required this.difficulty,
     required this.timeLimit,
     required this.participants,
-    required this.isActive,
+    this.isActive = false,
     this.yourScore,
-    this.onTap, // Add this line
+    this.onTap,
+    this.gradientBackground, // Initialize gradient parameter
   });
 
   @override
   Widget build(BuildContext context) {
-    final Color difficultyColor = _getDifficultyColor(difficulty);
+    // Determine text color based on background
+    final bool useDarkText =
+        gradientBackground ==
+        null; // Use dark text on white/default, light on gradient
+    final Color textColor = useDarkText ? AppTheme.textColor : Colors.white;
+    final Color secondaryTextColor =
+        useDarkText
+            ? AppTheme.textColor.withOpacity(0.7)
+            : Colors.white.withOpacity(0.8);
+    final Color iconColor = useDarkText ? AppTheme.primaryColor : Colors.white;
+    final Color chipBackgroundColor =
+        useDarkText
+            ? AppTheme.primaryColor.withOpacity(0.1)
+            : Colors.white.withOpacity(0.2);
+    final Color chipTextColor =
+        useDarkText ? AppTheme.primaryColor : Colors.white;
 
-    // Wrap with InkWell for tap functionality
     return InkWell(
-      onTap: onTap, // Use the onTap callback
+      onTap: onTap,
       borderRadius: BorderRadius.circular(16),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          // Apply gradient if provided, otherwise use white
+          gradient: gradientBackground,
+          color: gradientBackground == null ? Colors.white : null,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              // Adjust shadow color based on background
+              color: (gradientBackground == null
+                      ? Colors.black
+                      : AppTheme.primaryColor)
+                  .withOpacity(0.1),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -51,96 +73,98 @@ class ChallengeCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Difficulty Chip
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: difficultyColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                Expanded(
                   child: Text(
-                    difficulty,
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      color: difficultyColor,
+                    title,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w600,
+                      color: textColor, // Use adjusted text color
                     ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                // Time Limit
-                Row(
-                  children: [
-                    Icon(
-                      SolarIconsOutline.clockCircle,
-                      size: 16,
-                      color: AppTheme.textColor.withOpacity(0.6),
+                if (isActive)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
                     ),
-                    const SizedBox(width: 4),
-                    Text(
-                      timeLimit,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppTheme.textColor.withOpacity(0.8),
-                      ),
+                    decoration: BoxDecoration(
+                      color: chipBackgroundColor, // Use adjusted chip color
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                  ],
-                ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          SolarIconsBold.play,
+                          size: 14,
+                          color: chipTextColor,
+                        ), // Use adjusted chip text color
+                        const SizedBox(width: 4),
+                        Text(
+                          'Active',
+                          style: Theme.of(
+                            context,
+                          ).textTheme.labelSmall?.copyWith(
+                            color: chipTextColor,
+                            fontWeight: FontWeight.bold,
+                          ), // Use adjusted chip text color
+                        ),
+                      ],
+                    ),
+                  ),
+                if (!isActive && yourScore != null)
+                  Text(
+                    'Score: $yourScore',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: textColor, // Use adjusted text color
+                    ),
+                  ),
               ],
             ),
-            const SizedBox(height: 12),
-            // Title
-            Text(
-              title,
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 4),
-            // Description
+            const SizedBox(height: 8),
             Text(
               description,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppTheme.textColor.withOpacity(0.7),
-              ),
+                color: secondaryTextColor,
+              ), // Use adjusted secondary text color
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: 16),
-            const Divider(height: 1),
             const SizedBox(height: 12),
-            // Footer row (Participants/Score and Button)
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Participants or Score
-                Row(
-                  children: [
-                    Icon(
-                      isActive
-                          ? SolarIconsOutline.usersGroupRounded
-                          : SolarIconsOutline.checkCircle,
-                      size: 18,
-                      color: AppTheme.textColor.withOpacity(0.6),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      isActive
-                          ? '$participants participants'
-                          : 'Your Score: ${yourScore ?? 'N/A'}',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppTheme.textColor.withOpacity(0.8),
-                      ),
-                    ),
-                  ],
+                _buildInfoChip(
+                  context,
+                  icon: SolarIconsOutline.chartSquare,
+                  text: difficulty,
+                  iconColor: iconColor, // Use adjusted icon color
+                  backgroundColor:
+                      chipBackgroundColor, // Use adjusted chip color
+                  textColor: chipTextColor, // Use adjusted chip text color
                 ),
-                // Start/View Button (only show if onTap is provided)
-                if (onTap != null)
-                  Icon(
-                    Icons.chevron_right_rounded,
-                    color: Colors.grey[400],
-                    size: 24,
-                  ),
+                const SizedBox(width: 8),
+                _buildInfoChip(
+                  context,
+                  icon: SolarIconsOutline.clockCircle,
+                  text: timeLimit,
+                  iconColor: iconColor, // Use adjusted icon color
+                  backgroundColor:
+                      chipBackgroundColor, // Use adjusted chip color
+                  textColor: chipTextColor, // Use adjusted chip text color
+                ),
+                const SizedBox(width: 8),
+                _buildInfoChip(
+                  context,
+                  icon: SolarIconsOutline.usersGroupRounded,
+                  text: '$participants',
+                  iconColor: iconColor, // Use adjusted icon color
+                  backgroundColor:
+                      chipBackgroundColor, // Use adjusted chip color
+                  textColor: chipTextColor, // Use adjusted chip text color
+                ),
               ],
             ),
           ],
@@ -149,16 +173,33 @@ class ChallengeCard extends StatelessWidget {
     );
   }
 
-  Color _getDifficultyColor(String difficulty) {
-    switch (difficulty.toLowerCase()) {
-      case 'beginner':
-        return Colors.green;
-      case 'intermediate':
-        return Colors.orange;
-      case 'advanced':
-        return Colors.red;
-      default:
-        return Colors.grey;
-    }
+  Widget _buildInfoChip(
+    BuildContext context, {
+    required IconData icon,
+    required String text,
+    required Color iconColor,
+    required Color backgroundColor,
+    required Color textColor,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: iconColor),
+          const SizedBox(width: 4),
+          Text(
+            text,
+            style: Theme.of(
+              context,
+            ).textTheme.labelMedium?.copyWith(color: textColor),
+          ),
+        ],
+      ),
+    );
   }
 }

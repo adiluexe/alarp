@@ -99,7 +99,7 @@ class ChallengeScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    // Use data from the model and add onTap navigation
+                    // Pass gradient directly to the card
                     ChallengeCard(
                       title: todayChallenge.title,
                       description: todayChallenge.description,
@@ -108,6 +108,17 @@ class ChallengeScreen extends StatelessWidget {
                           '${todayChallenge.timeLimit.inMinutes}:${(todayChallenge.timeLimit.inSeconds % 60).toString().padLeft(2, '0')}',
                       participants: 48, // Placeholder
                       isActive: true,
+                      gradientBackground: LinearGradient(
+                        // Pass the gradient
+                        colors: [
+                          AppTheme.primaryColor.withOpacity(
+                            0.8,
+                          ), // Slightly adjust opacity if needed
+                          AppTheme.accentColor.withOpacity(0.6),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
                       onTap: () {
                         // Navigate to the start screen using the challenge ID
                         context.go(
