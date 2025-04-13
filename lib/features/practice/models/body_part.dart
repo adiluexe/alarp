@@ -5,16 +5,18 @@ class BodyPart {
   final String id;
   final String title;
   final String description;
-  final String imageAsset; // Path to the image asset
-  final List<String>
-  projections; // List of projection names (e.g., 'AP', 'Lateral')
+  final String imageAsset; // Default/fallback image
+  final List<String> projections;
+  // New: Map of projection name to specific image asset path
+  final Map<String, String>? projectionImages;
 
   const BodyPart({
     required this.id,
     required this.title,
     required this.description,
-    required this.imageAsset,
+    required this.imageAsset, // Keep as fallback
     required this.projections,
+    this.projectionImages, // Add to constructor
   });
 
   // --- Static Data Example (Update your actual data source) ---
@@ -38,10 +40,15 @@ class BodyPart {
     id: 'forearm',
     title: 'Forearm',
     description: 'Practice positioning for forearm radiographs.',
-    imageAsset: _placeholderImage, // Use placeholder
+    imageAsset:
+        'assets/images/practice/forearm/forearm_ap.jpeg', // Default to AP or a generic one
     projections: ['AP', 'Lateral'],
+    // Add the projection-specific images
+    projectionImages: {
+      'AP': 'assets/images/practice/forearm/forearm_ap.jpeg',
+      'Lateral': 'assets/images/practice/forearm/forearm_lateral.jpeg',
+    },
   );
-  // ... Add all other body parts using _placeholderImage ...
   static const BodyPart elbow = BodyPart(
     id: 'elbow',
     title: 'Elbow',

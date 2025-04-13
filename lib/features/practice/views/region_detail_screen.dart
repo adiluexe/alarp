@@ -3,9 +3,9 @@ import 'package:go_router/go_router.dart'; // Import GoRouter
 import 'package:solar_icons/solar_icons.dart'; // Import Solar Icons
 import 'package:alarp/core/theme/app_theme.dart';
 import 'package:alarp/features/practice/models/body_region.dart';
-import 'package:alarp/features/practice/models/body_part.dart';
+
 import 'package:alarp/features/practice/widgets/body_part_card.dart';
-import 'package:alarp/features/practice/views/positioning_practice_screen.dart';
+
 import 'package:alarp/core/navigation/app_router.dart'; // Import AppRoutes
 
 class RegionDetailScreen extends StatelessWidget {

@@ -59,7 +59,11 @@ class BodyRegions {
         title: 'Forearm',
         description: 'Positioning for forearm radiography',
         projections: ['AP', 'Lateral'],
-        imageAsset: 'assets/images/practice/forearm.png',
+        imageAsset: 'assets/images/practice/forearm/forearm_ap.jpeg',
+        projectionImages: {
+          'AP': 'assets/images/practice/forearm/forearm_ap.jpeg',
+          'Lateral': 'assets/images/practice/forearm/forearm_lateral.jpeg',
+        },
       ),
       BodyPart(
         id: 'wrist',

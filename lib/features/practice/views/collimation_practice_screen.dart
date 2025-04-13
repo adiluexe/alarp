@@ -29,6 +29,9 @@ BodyRegion? _findBodyRegion(String regionId) {
   }
 }
 
+// Define placeholder path globally or import if defined elsewhere
+const String _placeholderImage = 'assets/images/alarp_icon.png';
+
 // Convert to ConsumerStatefulWidget
 class CollimationPracticeScreen extends ConsumerStatefulWidget {
   final String regionId;
@@ -64,6 +67,26 @@ class _CollimationPracticeScreenState
     // Fetch both body part and body region data
     _bodyPartData = _findBodyPart(widget.regionId, widget.bodyPartId);
     _bodyRegionData = _findBodyRegion(widget.regionId); // Fetch region data
+
+    // --- Logging Start ---
+    print(
+      'initState: regionId=${widget.regionId}, bodyPartId=${widget.bodyPartId}',
+    );
+    print('initState: _bodyPartData found: ${_bodyPartData != null}');
+    if (_bodyPartData != null) {
+      print('initState: _bodyPartData title: ${_bodyPartData!.title}');
+      print(
+        'initState: _bodyPartData projections: ${_bodyPartData!.projections}',
+      );
+      print(
+        'initState: _bodyPartData imageAsset: ${_bodyPartData!.imageAsset}',
+      );
+      print(
+        'initState: _bodyPartData projectionImages: ${_bodyPartData!.projectionImages}',
+      );
+    }
+    // --- Logging End ---
+
     _availableProjections =
         _bodyPartData?.projections ?? [_selectedProjectionName];
     // Ensure initial projection is valid, fallback if needed
@@ -73,6 +96,9 @@ class _CollimationPracticeScreenState
               ? _availableProjections.first
               : 'N/A';
     }
+    print(
+      'initState: _selectedProjectionName initialized to: $_selectedProjectionName',
+    ); // Log initial projection
 
     // Reset collimation state when screen initializes or projection changes significantly
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -101,9 +127,29 @@ class _CollimationPracticeScreenState
       collimationControllerProvider(_selectedProjectionName),
     );
 
-    // Determine image asset (could be projection specific later)
-    final imageAsset =
-        _bodyPartData?.imageAsset ?? 'assets/images/placeholder.png';
+    // Determine image asset - Prioritize projection-specific image
+    String imageAsset = _placeholderImage; // Start with placeholder
+    String? projectionSpecificImage; // Variable to hold the specific path
+
+    if (_bodyPartData != null) {
+      // Check if there's a specific image for the selected projection
+      projectionSpecificImage =
+          _bodyPartData!.projectionImages?[_selectedProjectionName];
+
+      if (projectionSpecificImage != null) {
+        imageAsset = projectionSpecificImage;
+      } else {
+        // Fallback to the body part's default image if no projection-specific one exists
+        imageAsset = _bodyPartData!.imageAsset;
+      }
+    }
+
+    // --- Logging Start ---
+    print('build: _selectedProjectionName: $_selectedProjectionName');
+    print('build: projectionSpecificImage found: $projectionSpecificImage');
+    print('build: Final imageAsset path: $imageAsset');
+    // --- Logging End ---
+
     // Use body region's background color
     final appBarColor =
         _bodyRegionData?.backgroundColor ?? AppTheme.primaryColor;
@@ -180,6 +226,9 @@ class _CollimationPracticeScreenState
                           newValue != _selectedProjectionName) {
                         setState(() {
                           _selectedProjectionName = newValue;
+                          print(
+                            'Dropdown changed: _selectedProjectionName set to: $_selectedProjectionName',
+                          ); // Log dropdown change
                         });
                         _resetCollimationState();
                       }
@@ -219,17 +268,23 @@ class _CollimationPracticeScreenState
                               fit: StackFit.expand,
                               children: [
                                 Image.asset(
-                                  imageAsset,
+                                  imageAsset, // Use the determined imageAsset
                                   fit: BoxFit.contain,
-                                  errorBuilder:
-                                      (context, error, stackTrace) =>
-                                          const Center(
-                                            child: Icon(
-                                              Icons.broken_image,
-                                              size: 60,
-                                              color: Colors.grey,
-                                            ),
-                                          ),
+                                  errorBuilder: (context, error, stackTrace) {
+                                    // --- Logging Start ---
+                                    print(
+                                      'Image.asset errorBuilder triggered for path: $imageAsset',
+                                    );
+                                    print('Image Error: $error');
+                                    // --- Logging End ---
+                                    return Center(
+                                      child: Icon(
+                                        SolarIconsOutline.galleryRemove,
+                                        size: 60,
+                                        color: Colors.grey[400],
+                                      ),
+                                    );
+                                  },
                                 ),
                                 Positioned.fill(
                                   child: IgnorePointer(

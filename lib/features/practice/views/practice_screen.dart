@@ -3,7 +3,7 @@ import 'package:alarp/core/theme/app_theme.dart';
 import 'package:solar_icons/solar_icons.dart';
 import 'package:alarp/features/practice/widgets/recent_practice_item.dart';
 import 'package:alarp/features/practice/widgets/region_carousel_card.dart';
-import 'package:alarp/features/practice/widgets/difficulty_card.dart';
+
 import 'package:alarp/features/practice/models/body_region.dart'; // Import BodyRegions
 
 class PracticeScreen extends StatelessWidget {
