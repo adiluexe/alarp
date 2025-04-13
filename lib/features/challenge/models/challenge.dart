@@ -19,6 +19,7 @@ class Challenge {
   final String projectionName; // e.g., 'AP'
   final List<ChallengeStep> steps;
   final Color? backgroundColor; // Optional color for theming
+  final bool isTodaysChallenge; // Added flag
 
   const Challenge({
     required this.id,
@@ -31,6 +32,7 @@ class Challenge {
     required this.projectionName,
     required this.steps,
     this.backgroundColor,
+    this.isTodaysChallenge = false, // Default to false
   });
 
   // --- Placeholder Data ---
@@ -45,6 +47,7 @@ class Challenge {
     bodyPartId: 'forearm', // Matches BodyPart ID
     projectionName: 'AP', // Matches Projection Name
     backgroundColor: Colors.blueGrey, // Example color
+    isTodaysChallenge: true, // Set flag for today's challenge
     steps: [
       PositioningSelectionStep(
         instruction:

@@ -56,7 +56,25 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
     final challengeNotifier = ref.read(
       challengeControllerProvider(challenge).notifier,
     );
-    final bgColor = challenge.backgroundColor ?? AppTheme.primaryColor;
+
+    // Define the gradient (matching the one from challenge_screen.dart)
+    final Gradient? appBarGradient =
+        challenge.isTodaysChallenge
+            ? LinearGradient(
+              colors: [
+                AppTheme.primaryColor.withOpacity(0.8),
+                AppTheme.accentColor.withOpacity(0.6),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            )
+            : null; // No gradient if not today's challenge
+
+    // Use default background color if no gradient
+    final appBarBackgroundColor =
+        appBarGradient == null
+            ? (challenge.backgroundColor ?? AppTheme.primaryColor)
+            : null; // Set to null if gradient is used
 
     // Listen for status changes to show results dialog
     ref.listen<ChallengeState>(challengeControllerProvider(challenge), (
@@ -78,8 +96,13 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
       backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
         title: Text(challenge.title),
-        backgroundColor: bgColor,
-        foregroundColor: Colors.white,
+        // Apply gradient via flexibleSpace, or use backgroundColor
+        flexibleSpace:
+            appBarGradient != null
+                ? Container(decoration: BoxDecoration(gradient: appBarGradient))
+                : null,
+        backgroundColor: appBarBackgroundColor,
+        foregroundColor: Colors.white, // Keep text white for contrast
         leading: IconButton(
           icon: const Icon(SolarIconsOutline.altArrowLeft),
           // Prevent going back during challenge? Or ask confirmation?
