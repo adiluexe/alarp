@@ -90,12 +90,12 @@ class LearnRegionDetailScreen extends ConsumerWidget {
     );
   }
 
-  // New header widget inspired by practice screen's header
+  // Update header to use solid color
   Widget _buildLearnRegionHeader(BuildContext context, BodyRegion region) {
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 24), // Adjust padding
       decoration: BoxDecoration(
-        color: region.backgroundColor,
+        color: region.backgroundColor, // Use solid background color
         borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(24),
           bottomRight: Radius.circular(24),
@@ -183,7 +183,7 @@ class LearnRegionDetailScreen extends ConsumerWidget {
   }
 }
 
-// Extend BodyPartCard slightly to handle dimming (optional)
+// Update nested BodyPartCard to use Solar Icon
 class BodyPartCard extends StatelessWidget {
   final BodyPart bodyPart;
   final VoidCallback? onTap; // Make onTap nullable
@@ -322,7 +322,8 @@ class BodyPartCard extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(right: 16),
                   child: Icon(
-                    Icons.chevron_right_rounded,
+                    // Use Solar Icon
+                    SolarIconsOutline.altArrowRight,
                     color: Colors.grey[400],
                     size: 24,
                   ),
