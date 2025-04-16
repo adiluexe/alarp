@@ -29,8 +29,8 @@ class AppBottomNavigation extends StatelessWidget {
       elevation: 8.0,
       items: const [
         BottomNavigationBarItem(
-          icon: Icon(SolarIconsOutline.home),
-          activeIcon: Icon(SolarIconsBold.home),
+          icon: Icon(SolarIconsOutline.homeSmileAngle),
+          activeIcon: Icon(SolarIconsBold.homeSmileAngle),
           label: 'Home',
         ),
         BottomNavigationBarItem(
@@ -39,13 +39,13 @@ class AppBottomNavigation extends StatelessWidget {
           label: 'Learn',
         ),
         BottomNavigationBarItem(
-          icon: Icon(SolarIconsOutline.box),
-          activeIcon: Icon(SolarIconsBold.box),
+          icon: Icon(SolarIconsOutline.documentAdd),
+          activeIcon: Icon(SolarIconsBold.documentAdd),
           label: 'Practice',
         ),
         BottomNavigationBarItem(
-          icon: Icon(SolarIconsOutline.cupStar),
-          activeIcon: Icon(SolarIconsBold.cupStar),
+          icon: Icon(SolarIconsOutline.medalRibbonStar),
+          activeIcon: Icon(SolarIconsBold.medalRibbonStar),
           label: 'Challenge',
         ),
         BottomNavigationBarItem(
