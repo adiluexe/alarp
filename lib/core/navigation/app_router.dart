@@ -17,6 +17,7 @@ import 'package:alarp/core/navigation/navigation.dart'; // Import the main navig
 import 'package:alarp/features/practice/models/body_region.dart'; // Import BodyRegions
 import 'package:alarp/features/challenge/models/challenge.dart'; // Import Challenge model
 import 'package:alarp/features/anatomy/views/skeleton_viewer_screen.dart'; // Import the new screen
+import 'package:alarp/features/practice/views/recent_practice_list_screen.dart'; // Ensure this import is present
 
 // Define route paths
 class AppRoutes {
@@ -37,6 +38,8 @@ class AppRoutes {
   static const challengeActivePath = 'active/:challengeId'; // Path segment
   static const profile = '/profile';
   static const skeletonViewer = '/skeleton'; // New route for skeleton viewer
+  static const recentPracticeList =
+      '/recent-practice'; // Verify the constant path
 
   // Helper method to build the full path for navigation
   static String challengeActive(String challengeId) =>
@@ -52,10 +55,16 @@ final goRouterProvider = Provider<GoRouter>((ref) {
     initialLocation: AppRoutes.home,
     navigatorKey: _rootNavigatorKey,
     routes: [
-      // Add the new route (outside the ShellRoute for a full-screen experience)
+      // Routes accessible without bottom nav bar
       GoRoute(
         path: AppRoutes.skeletonViewer,
         builder: (context, state) => const SkeletonViewerScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.recentPracticeList, // Verify path uses the constant
+        builder:
+            (context, state) =>
+                const RecentPracticeListScreen(), // Verify builder points to the correct screen
       ),
       // Main application shell with bottom navigation
       ShellRoute(

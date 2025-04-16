@@ -3,6 +3,8 @@ import 'package:alarp/core/theme/app_theme.dart';
 import 'package:solar_icons/solar_icons.dart';
 import 'package:alarp/features/practice/widgets/recent_practice_item.dart';
 import 'package:alarp/features/practice/widgets/region_carousel_card.dart';
+import 'package:go_router/go_router.dart'; // Import GoRouter
+import 'package:alarp/core/navigation/app_router.dart'; // Import AppRoutes
 
 import 'package:alarp/features/practice/models/body_region.dart'; // Import BodyRegions
 
@@ -64,7 +66,9 @@ class PracticeScreen extends StatelessWidget {
                           ),
                         ),
                         TextButton.icon(
-                          onPressed: () {},
+                          // Use push instead of go to allow popping back
+                          onPressed:
+                              () => context.push(AppRoutes.recentPracticeList),
                           icon: const Icon(
                             SolarIconsOutline.clockCircle,
                             size: 18,
