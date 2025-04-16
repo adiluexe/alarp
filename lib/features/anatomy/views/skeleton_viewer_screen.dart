@@ -34,45 +34,49 @@ class _SkeletonViewerScreenState extends State<SkeletonViewerScreen> {
       ),
       body: Stack(
         children: [
-          Flutter3DViewer(
-            // Controller is needed for potential future interactions (animations, etc.)
-            controller: _controller,
-            // Path to your GLB model asset
-            src: 'assets/models/body.glb',
-            // Enable touch interactions (zoom, pan, rotate) - default is true
-            enableTouch: true,
-            // Optional: Set background color (default is transparent)
-            // backgroundColor: Colors.black,
-            // Optional: Set camera defaults if needed
-            // cameraTarget: CameraTarget(0, 0.8, 0), // Example target
-            // cameraOrbit: CameraOrbit(0, 90, 5), // Example orbit
-            // Show a progress indicator while loading
-            progressBarColor: AppTheme.primaryColor,
-            onProgress: (double progress) {
-              setState(() {
-                _progressValue = progress;
-                _loadError = null; // Clear error on progress
-              });
-              debugPrint('Skeleton loading progress: $progress');
-            },
-            onLoad: (String modelAddress) {
-              setState(() {
-                _progressValue = 1.0; // Ensure progress is 100% on load
-              });
-              debugPrint('Skeleton model loaded: $modelAddress');
-            },
-            onError: (String error) {
-              setState(() {
-                _loadError = error;
-              });
-              debugPrint('Failed to load skeleton model: $error');
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Error loading model: $error'),
-                  backgroundColor: Colors.red,
-                ),
-              );
-            },
+          // Wrap the viewer in a Container to set the background color
+          Container(
+            color: AppTheme.textColor.withOpacity(
+              0.8,
+            ), // Set the background color with opacity
+            child: Flutter3DViewer(
+              // Controller is needed for potential future interactions (animations, etc.)
+              controller: _controller,
+              // Path to your GLB model asset
+              src: 'assets/models/body.glb',
+              // Enable touch interactions (zoom, pan, rotate) - default is true
+              enableTouch: true,
+              // Optional: Set camera defaults if needed
+              // cameraTarget: CameraTarget(0, 0.8, 0), // Example target
+              // cameraOrbit: CameraOrbit(0, 90, 5), // Example orbit
+              // Show a progress indicator while loading
+              progressBarColor: AppTheme.primaryColor,
+              onProgress: (double progress) {
+                setState(() {
+                  _progressValue = progress;
+                  _loadError = null; // Clear error on progress
+                });
+                debugPrint('Skeleton loading progress: $progress');
+              },
+              onLoad: (String modelAddress) {
+                setState(() {
+                  _progressValue = 1.0; // Ensure progress is 100% on load
+                });
+                debugPrint('Skeleton model loaded: $modelAddress');
+              },
+              onError: (String error) {
+                setState(() {
+                  _loadError = error;
+                });
+                debugPrint('Failed to load skeleton model: $error');
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Error loading model: $error'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              },
+            ),
           ),
           // Show loading indicator or error message
           if (_progressValue < 1.0 && _loadError == null)

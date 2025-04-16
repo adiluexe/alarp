@@ -169,11 +169,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 SizedBox(
                   width: cardWidth,
                   child: ActionCard(
-                    title: 'Explore Skeleton',
+                    title: 'Skeleton Explorer',
                     subtitle: 'Anatomical reference',
-                    description: 'View the human skeleton.',
+                    description: 'View the human skeleton',
                     icon: SolarIconsBold.bone, // Using bone icon
-                    color: Colors.teal, // Example color, adjust as needed
+                    color: Colors.blueAccent, // Example color, adjust as needed
                     onTap: () {
                       context.go(AppRoutes.skeletonViewer);
                     },
@@ -219,7 +219,7 @@ class _HomeScreenState extends State<HomeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Your progress',
+            'Your Progress',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
               color: contentColor, // Use contrast color
               fontWeight: FontWeight.bold,
