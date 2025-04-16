@@ -22,22 +22,23 @@ class LeaderboardEntry {
 class LeaderboardScreen extends StatelessWidget {
   const LeaderboardScreen({super.key});
 
+  // Updated mock data with "FirstName, Initial." format
   final List<LeaderboardEntry> mockLeaderboardData = const [
-    LeaderboardEntry(rank: 1, name: 'Radiology Master', score: 15200),
-    LeaderboardEntry(rank: 2, name: 'X-Ray Vision', score: 14850),
+    LeaderboardEntry(rank: 1, name: 'Sebastian, B.', score: 15200),
+    LeaderboardEntry(rank: 2, name: 'Michael, B.', score: 14850),
     LeaderboardEntry(
       rank: 3,
-      name: 'Student',
+      name: 'You', // Keep 'You' for the current user
       score: 14500,
       isCurrentUser: true,
     ),
-    LeaderboardEntry(rank: 4, name: 'Pixel Perfect', score: 13900),
-    LeaderboardEntry(rank: 5, name: 'Collimator Pro', score: 13550),
-    LeaderboardEntry(rank: 6, name: 'Anatomy Ace', score: 13100),
-    LeaderboardEntry(rank: 7, name: 'Positioning Guru', score: 12800),
-    LeaderboardEntry(rank: 8, name: 'Rad Tech Rookie', score: 12500),
-    LeaderboardEntry(rank: 9, name: 'Beam Aligner', score: 12150),
-    LeaderboardEntry(rank: 10, name: 'Image Interpreter', score: 11800),
+    LeaderboardEntry(rank: 4, name: 'David, L.', score: 13900),
+    LeaderboardEntry(rank: 5, name: 'Emily, C.', score: 13550),
+    LeaderboardEntry(rank: 6, name: 'James, R.', score: 13100),
+    LeaderboardEntry(rank: 7, name: 'Olivia, M.', score: 12800),
+    LeaderboardEntry(rank: 8, name: 'Daniel, P.', score: 12500),
+    LeaderboardEntry(rank: 9, name: 'Sophia, T.', score: 12150),
+    LeaderboardEntry(rank: 10, name: 'Chris, J.', score: 11800),
   ];
 
   @override
@@ -219,6 +220,22 @@ class LeaderboardScreen extends StatelessWidget {
     Color color,
     double height,
   ) {
+    // Determine the initial to display (handle "You")
+    String initial = '?';
+    if (entry.name.isNotEmpty) {
+      if (entry.isCurrentUser && entry.name == 'You') {
+        initial = 'Y'; // Special case for "You"
+      } else if (entry.name.contains(',')) {
+        initial =
+            entry.name
+                .split(',')[0][0]
+                .toUpperCase(); // First letter of first name
+      } else {
+        initial =
+            entry.name[0].toUpperCase(); // Fallback for names without comma
+      }
+    }
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -229,7 +246,7 @@ class LeaderboardScreen extends StatelessWidget {
             radius: 24,
             backgroundColor: Colors.white,
             child: Text(
-              entry.name.isNotEmpty ? entry.name[0].toUpperCase() : '?',
+              initial, // Use the determined initial
               style: TextStyle(
                 fontSize: 20,
                 color: AppTheme.primaryColor,
@@ -241,7 +258,7 @@ class LeaderboardScreen extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          entry.name,
+          entry.name, // Display the full name
           style: Theme.of(context).textTheme.titleSmall?.copyWith(
             fontWeight: FontWeight.w600,
             color: AppTheme.textColor.withOpacity(0.9),
@@ -319,6 +336,22 @@ class LeaderboardScreen extends StatelessWidget {
       end: Alignment.bottomRight,
     );
 
+    // Determine the initial to display (handle "You")
+    String initial = '?';
+    if (entry.name.isNotEmpty) {
+      if (entry.isCurrentUser && entry.name == 'You') {
+        initial = 'Y'; // Special case for "You"
+      } else if (entry.name.contains(',')) {
+        initial =
+            entry.name
+                .split(',')[0][0]
+                .toUpperCase(); // First letter of first name
+      } else {
+        initial =
+            entry.name[0].toUpperCase(); // Fallback for names without comma
+      }
+    }
+
     return Card(
       elevation: entry.isCurrentUser ? 2.0 : 1.0,
       margin: EdgeInsets.zero,
@@ -362,7 +395,7 @@ class LeaderboardScreen extends StatelessWidget {
                     radius: 18,
                     backgroundColor: AppTheme.primaryColor.withOpacity(0.18),
                     child: Text(
-                      entry.name.isNotEmpty ? entry.name[0].toUpperCase() : '?',
+                      initial, // Use the determined initial
                       style: TextStyle(
                         color: AppTheme.primaryColor,
                         fontWeight: FontWeight.bold,
@@ -377,7 +410,7 @@ class LeaderboardScreen extends StatelessWidget {
             const SizedBox(width: 10),
             Expanded(
               child: Text(
-                entry.name,
+                entry.name, // Display the full name
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   fontWeight:
                       entry.isCurrentUser ? FontWeight.w700 : FontWeight.w600,
