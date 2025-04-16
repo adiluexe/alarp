@@ -75,6 +75,12 @@ flutter:
   assets:
     - assets/images/
     - assets/images/practice/
+    - assets/images/practice/elbow/
+    - assets/images/practice/forearm/
+    - assets/images/practice/hand/
+    - assets/images/practice/humerus/
+    - assets/images/practice/shoulder/
+    - assets/images/practice/wrist/
     - assets/fonts/
     - assets/models/
     - assets/images/alarp_icon.png
