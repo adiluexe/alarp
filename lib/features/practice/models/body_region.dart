@@ -33,26 +33,58 @@ class BodyRegions {
         title: 'Shoulder',
         description: 'Positioning for shoulder radiography',
         projections: [
-          'AP (Internal Rotation)',
           'AP (External Rotation)',
-          'Axillary',
+          'AP (Internal Rotation)',
+          'AP (Neutral Rotation)',
           'Scapular Y',
+          'Transthoracic',
         ],
         imageAsset: 'assets/images/practice/shoulder.png',
+        projectionImages: {
+          'AP (External Rotation)':
+              'assets/images/practice/shoulder/shoulder_ap_external_rotation.webp',
+          'AP (Internal Rotation)':
+              'assets/images/practice/shoulder/shoulder_ap_internal_rotation.webp',
+          'AP (Neutral Rotation)':
+              'assets/images/practice/shoulder/shoulder_ap_neutral_rotation.webp',
+          'Scapular Y':
+              'assets/images/practice/shoulder/shoulder_scapular_y.webp',
+          'Transthoracic':
+              'assets/images/practice/shoulder/shoulder_transthoracic.webp',
+        },
       ),
       BodyPart(
         id: 'humerus',
         title: 'Humerus',
         description: 'Positioning for humerus radiography',
-        projections: ['AP', 'Lateral'],
+        projections: ['AP (Upright)', 'Lateral (Upright)'],
         imageAsset: 'assets/images/practice/humerus.png',
+        projectionImages: {
+          'AP (Upright)':
+              'assets/images/practice/humerus/humerus_ap_upright.webp',
+          'Lateral (Upright)':
+              'assets/images/practice/humerus/humerus_lateral_upright.webp',
+        },
       ),
       BodyPart(
         id: 'elbow',
         title: 'Elbow',
         description: 'Positioning for elbow radiography',
-        projections: ['AP', 'Lateral', 'Oblique'],
+        projections: [
+          'AP',
+          'AP Oblique (Lateral Rotation)',
+          'AP Oblique (Medial Rotation)',
+          'Lateral',
+        ],
         imageAsset: 'assets/images/practice/elbow.png',
+        projectionImages: {
+          'AP': 'assets/images/practice/elbow/elbow_ap.webp',
+          'AP Oblique (Lateral Rotation)':
+              'assets/images/practice/elbow/elbow_ap_obliquelateral_rotation.webp',
+          'AP Oblique (Medial Rotation)':
+              'assets/images/practice/elbow/elbow_ap_oblique_medial_rotation.webp',
+          'Lateral': 'assets/images/practice/elbow/elbow_lateral.webp',
+        },
       ),
       BodyPart(
         id: 'forearm',
@@ -69,15 +101,41 @@ class BodyRegions {
         id: 'wrist',
         title: 'Wrist',
         description: 'Positioning for wrist radiography',
-        projections: ['PA', 'Lateral', 'Oblique', 'Carpal Tunnel View'],
+        projections: [
+          'AP',
+          'AP Oblique (Medial Rotation)',
+          'Lateral',
+          'PA',
+          'PA Oblique',
+          'PA (Radial Deviation)',
+          'PA (Ulnar Deviation)',
+        ],
         imageAsset: 'assets/images/practice/wrist.png',
+        projectionImages: {
+          'AP': 'assets/images/practice/wrist/wrist_ap.webp',
+          'AP Oblique (Medial Rotation)':
+              'assets/images/practice/wrist/wrist_ap_oblique_medial_rotation.webp',
+          'Lateral': 'assets/images/practice/wrist/wrist_lateral.webp',
+          'PA': 'assets/images/practice/wrist/wrist_pa.webp',
+          'PA Oblique': 'assets/images/practice/wrist/wrist_pa_oblique.webp',
+          'PA (Radial Deviation)':
+              'assets/images/practice/wrist/wrist_pa_radial_deviation.webp',
+          'PA (Ulnar Deviation)':
+              'assets/images/practice/wrist/wrist_pa_ulnar_deviation.webp',
+        },
       ),
       BodyPart(
         id: 'hand',
         title: 'Hand',
         description: 'Positioning for hand radiography',
-        projections: ['PA', 'Lateral', 'Oblique'],
+        projections: ['Lateral', 'Norgaard', 'PA', 'PA Oblique'],
         imageAsset: 'assets/images/practice/hand.png',
+        projectionImages: {
+          'Lateral': 'assets/images/practice/hand/hand_lateral.webp',
+          'Norgaard': 'assets/images/practice/hand/hand_norgaad.webp',
+          'PA': 'assets/images/practice/hand/hand_pa.webp',
+          'PA Oblique': 'assets/images/practice/hand/hand_pa_oblique.webp',
+        },
       ),
       BodyPart(
         id: 'fingers',
@@ -85,6 +143,7 @@ class BodyRegions {
         description: 'Positioning for finger and thumb radiography',
         projections: ['AP', 'Lateral', 'Oblique'],
         imageAsset: 'assets/images/practice/fingers.png',
+        projectionImages: {},
       ),
     ],
   );
