@@ -258,7 +258,7 @@ class _CollimationPracticeScreenState
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
                       child: Container(
-                        height: 300, // Set fixed height
+                        height: 400, // Set fixed height
                         decoration: BoxDecoration(
                           color: Colors.grey[200],
                           borderRadius: BorderRadius.circular(16),

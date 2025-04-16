@@ -61,8 +61,8 @@ class BodyRegions {
         projections: ['AP', 'Lateral'],
         imageAsset: 'assets/images/practice/forearm/forearm_ap.jpeg',
         projectionImages: {
-          'AP': 'assets/images/practice/forearm/forearm_ap.jpeg',
-          'Lateral': 'assets/images/practice/forearm/forearm_lateral.jpeg',
+          'AP': 'assets/images/practice/forearm/forearm_ap.webp',
+          'Lateral': 'assets/images/practice/forearm/forearm_lateral.webp',
         },
       ),
       BodyPart(
