@@ -118,28 +118,6 @@ class CollimationControlsWidget extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              icon: const Icon(SolarIconsOutline.restart, size: 20),
-              label: const Text('Reset Collimation'),
-              style: ElevatedButton.styleFrom(
-                foregroundColor: AppTheme.primaryColor,
-                backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
-                elevation: 0,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                textStyle: Theme.of(
-                  context,
-                ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600),
-              ),
-              onPressed: () {
-                ref.read(collimationStateProvider.notifier).reset();
-              },
-            ),
-          ),
         ],
       ),
     );

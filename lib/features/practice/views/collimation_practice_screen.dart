@@ -99,14 +99,9 @@ class _CollimationPracticeScreenState
     print(
       'initState: _selectedProjectionName initialized to: $_selectedProjectionName',
     ); // Log initial projection
-
-    // Reset collimation state when screen initializes or projection changes significantly
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _resetCollimationState();
-    });
   }
 
-  // Helper to reset state, call when projection changes
+  // Helper to reset state, call when projection changes or reset button pressed
   void _resetCollimationState() {
     ref.read(collimationStateProvider.notifier).reset();
     // Potentially trigger controller recalculation if needed, though watching should handle it
@@ -232,7 +227,6 @@ class _CollimationPracticeScreenState
                             'Dropdown changed: _selectedProjectionName set to: $_selectedProjectionName',
                           ); // Log dropdown change
                         });
-                        _resetCollimationState();
                       }
                     },
                     items:
@@ -258,7 +252,7 @@ class _CollimationPracticeScreenState
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
                       child: Container(
-                        height: 400, // Set fixed height
+                        height: 450, // Set fixed height
                         decoration: BoxDecoration(
                           color: Colors.grey[200],
                           borderRadius: BorderRadius.circular(16),
@@ -296,6 +290,37 @@ class _CollimationPracticeScreenState
                                       centerX: colState.centerX,
                                       centerY: colState.centerY,
                                       angle: colState.angle, // Pass angle
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              // Reset Button Overlay
+                              Positioned(
+                                top: 12,
+                                left: 12,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withOpacity(
+                                      0.5,
+                                    ), // Semi-transparent bg
+                                    borderRadius: BorderRadius.circular(
+                                      20,
+                                    ), // Make it circular
+                                  ),
+                                  child: IconButton(
+                                    icon: const Icon(SolarIconsOutline.refresh),
+                                    color: Colors.white,
+                                    iconSize: 20,
+                                    tooltip: 'Reset Collimation',
+                                    onPressed:
+                                        _resetCollimationState, // Call reset function
+                                    padding:
+                                        EdgeInsets
+                                            .zero, // Remove default padding
+                                    constraints: const BoxConstraints(
+                                      // Ensure it's compact
+                                      minHeight: 36,
+                                      minWidth: 36,
                                     ),
                                   ),
                                 ),
