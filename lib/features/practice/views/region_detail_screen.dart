@@ -45,14 +45,15 @@ class RegionDetailScreen extends StatelessWidget {
                   child: BodyPartCard(
                     bodyPart: bodyPart,
                     onTap: () {
-                      // Navigate relatively using GoRouter
+                      // Navigate using the full absolute path
                       final projectionName =
                           bodyPart.projections.isNotEmpty
                               ? bodyPart.projections.first
                               : 'default';
-                      context.go(
-                        './${AppRoutes.practicePositioning.replaceFirst(':regionId', region.id).replaceFirst(':bodyPartId', bodyPart.id).replaceFirst(':projectionName', projectionName)}',
-                      );
+                      // Construct the full path
+                      final fullPath =
+                          '${AppRoutes.practice}/region/${region.id}/part/${bodyPart.id}/projection/$projectionName';
+                      context.push(fullPath);
                     },
                   ),
                 );

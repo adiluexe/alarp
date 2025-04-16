@@ -74,6 +74,22 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.leaderboard,
         builder: (context, state) => const LeaderboardScreen(),
       ),
+      // MOVED: Collimation Practice Screen (outside ShellRoute)
+      GoRoute(
+        // Define the full path
+        path:
+            '${AppRoutes.practice}/${AppRoutes.practiceRegionDetail}/${AppRoutes.practicePositioning}',
+        builder: (context, state) {
+          final regionId = state.pathParameters['regionId']!;
+          final bodyPartId = state.pathParameters['bodyPartId']!;
+          final projectionName = state.pathParameters['projectionName']!;
+          return CollimationPracticeScreen(
+            regionId: regionId,
+            bodyPartId: bodyPartId,
+            initialProjectionName: projectionName,
+          );
+        },
+      ),
       // Main application shell with bottom navigation
       ShellRoute(
         navigatorKey: _shellNavigatorKey,
@@ -148,25 +164,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                   return RegionDetailScreen(region: region);
                 },
                 routes: [
-                  GoRoute(
-                    // Path remains relative: part/:bodyPartId/projection/:projectionName
-                    path: AppRoutes.practicePositioning,
-                    builder: (context, state) {
-                      // Get all parameters needed
-                      final regionId = state.pathParameters['regionId']!;
-                      final bodyPartId = state.pathParameters['bodyPartId']!;
-                      final projectionName =
-                          state.pathParameters['projectionName']!;
-
-                      // Use the renamed screen and pass all IDs
-                      return CollimationPracticeScreen(
-                        regionId: regionId,
-                        bodyPartId: bodyPartId,
-                        initialProjectionName:
-                            projectionName, // Corrected parameter name
-                      );
-                    },
-                  ),
+                  // REMOVED CollimationPracticeScreen route from here
                 ],
               ),
             ],
