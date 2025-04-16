@@ -4,6 +4,8 @@ import 'package:alarp/core/theme/app_theme.dart';
 import 'package:alarp/features/profile/widgets/stats_card.dart';
 import 'package:alarp/features/profile/widgets/leaderboard_card.dart';
 import 'package:alarp/features/profile/widgets/achievements_grid.dart';
+import 'package:go_router/go_router.dart'; // Import GoRouter
+import 'package:alarp/core/navigation/app_router.dart'; // Import AppRoutes
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -166,7 +168,8 @@ class ProfileScreen extends StatelessWidget {
             ),
             TextButton.icon(
               onPressed: () {
-                // Navigate to full leaderboard view
+                // Navigate to full leaderboard view using push
+                context.push(AppRoutes.leaderboard);
               },
               icon: const Icon(SolarIconsOutline.ranking, size: 18),
               label: const Text('See All'),

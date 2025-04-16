@@ -152,7 +152,9 @@ class ChallengeScreen extends StatelessWidget {
                         ),
                         TextButton.icon(
                           onPressed: () {
-                            // Navigate to full leaderboard
+                            // Use the route constant from AppRoutes
+                            // Ensure AppRoutes.leaderboard holds the correct path string
+                            context.push(AppRoutes.leaderboard);
                           },
                           icon: const Icon(SolarIconsOutline.ranking, size: 18),
                           label: const Text('View All'),

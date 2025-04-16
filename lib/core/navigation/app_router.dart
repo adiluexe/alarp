@@ -18,6 +18,7 @@ import 'package:alarp/features/practice/models/body_region.dart'; // Import Body
 import 'package:alarp/features/challenge/models/challenge.dart'; // Import Challenge model
 import 'package:alarp/features/anatomy/views/skeleton_viewer_screen.dart'; // Import the new screen
 import 'package:alarp/features/practice/views/recent_practice_list_screen.dart'; // Ensure this import is present
+import 'package:alarp/features/profile/views/leaderboard_screen.dart'; // Import the new leaderboard screen
 
 // Define route paths
 class AppRoutes {
@@ -40,6 +41,8 @@ class AppRoutes {
   static const skeletonViewer = '/skeleton'; // New route for skeleton viewer
   static const recentPracticeList =
       '/recent-practice'; // Verify the constant path
+  static const leaderboard =
+      '/leaderboard'; // New route for the full leaderboard
 
   // Helper method to build the full path for navigation
   static String challengeActive(String challengeId) =>
@@ -65,6 +68,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder:
             (context, state) =>
                 const RecentPracticeListScreen(), // Verify builder points to the correct screen
+      ),
+      // Add the new leaderboard route here (outside the ShellRoute)
+      GoRoute(
+        path: AppRoutes.leaderboard,
+        builder: (context, state) => const LeaderboardScreen(),
       ),
       // Main application shell with bottom navigation
       ShellRoute(
