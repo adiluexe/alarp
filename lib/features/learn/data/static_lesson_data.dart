@@ -2,48 +2,6 @@ import '../models/lesson.dart';
 
 /// Static list of sample lessons for the MVP.
 final List<Lesson> allStaticLessons = [
-  const Lesson(
-    id: 'chest_pa',
-    title: 'Chest PA Projection',
-    bodyRegion: 'Thorax',
-    projectionName: 'PA',
-    imageUrl: 'assets/images/learn/chest_pa_example.png', // Example path
-    modelPath: 'assets/models/chest_pa_model.glb', // Example path
-    content: """
-# Chest PA Projection Guide
-
-## Overview
-The Posteroanterior (PA) chest projection is a standard radiographic view used to evaluate the lungs, heart, and surrounding structures.
-
-## Patient Positioning
-*   Patient stands erect, facing the image receptor (IR).
-*   Chin raised, resting on top of the IR holder.
-*   Hands placed on lower hips, palms out, elbows partially flexed.
-*   Shoulders rotated forward against the IR to move scapulae laterally from the lung fields.
-*   Weight evenly distributed on both feet.
-
-## Central Ray (CR)
-*   CR perpendicular to the IR.
-*   Centered to the midsagittal plane at the level of T7 (inferior angle of scapulae).
-
-## Image Receptor (IR)
-*   14 x 17 inches (35 x 43 cm), lengthwise or crosswise.
-*   Top of IR approximately 1.5 to 2 inches (4 to 5 cm) above the shoulders.
-
-## Collimation
-*   Collimate laterally to the outer skin margins.
-*   Collimate superiorly to the level of the vertebra prominens (C7).
-*   Collimate inferiorly to the level of the costophrenic angles.
-
-## Evaluation Criteria
-*   Entire lungs included from apices to costophrenic angles.
-*   No rotation (sternal ends of clavicles equidistant from the vertebral column).
-*   Scapulae outside the lung fields.
-*   Sharp outlines of heart and diaphragm.
-*   Full inspiration (minimum of 10 posterior ribs visible above the diaphragm).
-""",
-  ),
-
   // --- Upper Extremity Lessons (Consolidated) ---
   const Lesson(
     id: 'shoulder', // Matches BodyPart ID
