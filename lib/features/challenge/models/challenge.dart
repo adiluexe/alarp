@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 import 'challenge_step.dart';
 
 // Placeholder image path
-const String _placeholderImage = 'assets/images/alarp_icon.png';
+const String _handLateral = 'assets/images/practice/hand/hand_lateral.webp';
+const String _elbowLateral = 'assets/images/practice/elbow/elbow_lateral.webp';
+const String _elbowAP = 'assets/images/practice/elbow/elbow_ap.webp';
+const String _forearmLateral =
+    'assets/images/practice/forearm/forearm_lateral.webp';
 // Define the specific image path
 const String _apForearmCorrectImage =
-    'assets/images/practice/forearm/forearm_ap.jpeg';
+    'assets/images/practice/forearm/forearm_ap.webp';
 
 /// Represents a single challenge instance.
 class Challenge {
@@ -54,10 +58,10 @@ class Challenge {
             'Select the image showing the correct AP Forearm position.',
         imageOptions: [
           // Use placeholder image paths for incorrect options
-          _placeholderImage,
+          _handLateral,
           _apForearmCorrectImage, // Use the specific correct image path
-          _placeholderImage,
-          _placeholderImage,
+          _elbowLateral,
+          _elbowAP,
         ],
         correctImageIndex: 1, // Index of the correct image
       ),

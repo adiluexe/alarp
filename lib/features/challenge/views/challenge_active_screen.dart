@@ -183,7 +183,7 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
           Padding(
             padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
             child: Container(
-              height: 300, // Set fixed height
+              height: 450, // Height is already 450, no change needed here.
               decoration: BoxDecoration(
                 color: Colors.grey[200],
                 borderRadius: BorderRadius.circular(16),
