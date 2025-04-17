@@ -25,7 +25,7 @@ class BodyRegions {
     id: 'upper_extremity',
     title: 'Upper Extremity',
     emoji: '💪',
-    positionCount: 20,
+    positionCount: 24,
     backgroundColor: Color(0xFFFFAA33),
     bodyParts: [
       BodyPart(
@@ -132,18 +132,10 @@ class BodyRegions {
         imageAsset: 'assets/images/practice/hand.png',
         projectionImages: {
           'Lateral': 'assets/images/practice/hand/hand_lateral.webp',
-          'Norgaard': 'assets/images/practice/hand/hand_norgaad.webp',
+          'Norgaard': 'assets/images/practice/hand/hand_norgaard.webp',
           'PA': 'assets/images/practice/hand/hand_pa.webp',
           'PA Oblique': 'assets/images/practice/hand/hand_pa_oblique.webp',
         },
-      ),
-      BodyPart(
-        id: 'fingers',
-        title: 'Fingers/Thumb',
-        description: 'Positioning for finger and thumb radiography',
-        projections: ['AP', 'Lateral', 'Oblique'],
-        imageAsset: 'assets/images/practice/fingers.png',
-        projectionImages: {},
       ),
     ],
   );
