@@ -43,86 +43,137 @@ The Posteroanterior (PA) chest projection is a standard radiographic view used t
 *   Full inspiration (minimum of 10 posterior ribs visible above the diaphragm).
 """,
   ),
+
+  // --- Upper Extremity Lessons (Consolidated) ---
   const Lesson(
-    id: 'shoulder_ap_ext',
-    title: 'Shoulder AP (External Rotation)',
+    id: 'shoulder', // Matches BodyPart ID
+    title: 'Shoulder Radiography',
     bodyRegion: 'Upper Extremity',
-    projectionName: 'AP External Rotation',
-    imageUrl: 'assets/images/learn/shoulder_ap_ext.png', // Example path
+    projectionName: 'Various Projections',
+    imageUrl: 'assets/images/practice/shoulder.png', // General image
+    modelPath: 'assets/models/test.glb', // Placeholder
     content: """
-# Shoulder AP - External Rotation
+# Shoulder Radiography Guide
 
 ## Overview
-This projection provides an AP view of the shoulder joint with the humerus in external rotation, best visualizing the greater tubercle in profile laterally.
-
-## Patient Positioning
-*   Patient may be erect or supine.
-*   Rotate the body slightly toward the affected side if necessary to place the shoulder in contact with the IR.
-*   Abduct the arm slightly, externally rotate the hand (supinate) until the epicondyles of the distal humerus are parallel to the IR.
-
-## Central Ray (CR)
-*   CR perpendicular to the IR.
-*   Centered approximately 1 inch (2.5 cm) inferior to the coracoid process.
-
-## Image Receptor (IR)
-*   10 x 12 inches (24 x 30 cm), crosswise.
-
-## Collimation
-*   Collimate to include the entire clavicle, scapula, and proximal humerus.
-
-## Evaluation Criteria
-*   Greater tubercle seen in profile laterally.
-*   Humeral head seen in profile medially.
-*   Outline of the lesser tubercle superimposed over the humeral head.
-""",
-  ),
-  const Lesson(
-    id: 'skull', // Matches the bodyPart.id used in navigation
-    title: 'Skull Series',
-    bodyRegion: 'Head & Neck',
-    projectionName: 'Various', // Or specify one like 'PA Caldwell'
-    imageUrl:
-        'assets/images/practice/skull.png', // Reuse practice image for now
-    content: """
-# Skull Radiography Guide
-
-## Overview
-Skull radiography involves multiple projections to visualize the cranial bones, facial bones, and sinuses. Common projections include PA Caldwell, AP Towne, Lateral, and Submentovertex (SMV).
+This guide covers common radiographic projections for the shoulder joint.
 
 ## General Considerations
-*   Remove all metallic objects from the head and neck area.
-*   Use appropriate immobilization techniques.
-*   Ensure patient comfort and understanding.
+*   Remove radiopaque items from the shoulder area.
+*   Immobilize the patient as needed.
+*   Use appropriate shielding.
 
-## Example: PA Caldwell Projection
-*   **Patient Position:** Erect or prone, forehead and nose resting against the IR. Orbitomeatal Line (OML) perpendicular to IR. Midsagittal plane perpendicular.
-*   **Central Ray:** Angled 15 degrees caudad, exiting at the nasion.
-*   **Evaluation:** Petrous ridges projected in the lower third of the orbits. Equal distance from lateral border of skull to lateral border of orbit on both sides.
+## AP (External Rotation)
+*   **Patient Position:** *(Details for Shoulder AP External Rotation go here)*
+*   **Central Ray (CR):** *(Details for Shoulder AP External Rotation go here)*
+*   **Evaluation Criteria:** *(Details for Shoulder AP External Rotation go here)*
 
-## Example: Lateral Projection
-*   **Patient Position:** Erect or semi-prone. Affected side closest to IR. Interpupillary line perpendicular to IR. Midsagittal plane parallel to IR. Infraorbitomeatal Line (IOML) perpendicular to the front edge of the IR.
-*   **Central Ray:** Perpendicular to IR, centered 2 inches (5 cm) superior to the External Acoustic Meatus (EAM).
-*   **Evaluation:** Superimposed orbital roofs, mandibular rami, and EAMs. Sella turcica seen in profile.
+## AP (Internal Rotation)
+*   **Patient Position:** *(Details for Shoulder AP Internal Rotation go here)*
+*   **Central Ray (CR):** *(Details for Shoulder AP Internal Rotation go here)*
+*   **Evaluation Criteria:** *(Details for Shoulder AP Internal Rotation go here)*
 
-*(Add details for other projections like AP Towne, SMV as needed)*
+## AP (Neutral Rotation)
+*   **Patient Position:** *(Details for Shoulder AP Neutral Rotation go here)*
+*   **Central Ray (CR):** *(Details for Shoulder AP Neutral Rotation go here)*
+*   **Evaluation Criteria:** *(Details for Shoulder AP Neutral Rotation go here)*
+
+## Scapular Y
+*   **Patient Position:** *(Details for Shoulder Scapular Y go here)*
+*   **Central Ray (CR):** *(Details for Shoulder Scapular Y go here)*
+*   **Evaluation Criteria:** *(Details for Shoulder Scapular Y go here)*
+
+## Transthoracic
+*   **Patient Position:** *(Details for Shoulder Transthoracic go here)*
+*   **Central Ray (CR):** *(Details for Shoulder Transthoracic go here)*
+*   **Evaluation Criteria:** *(Details for Shoulder Transthoracic go here)*
 """,
   ),
+
   const Lesson(
-    id: 'forearm', // Matches the bodyPart.id used in navigation
-    title: 'Forearm AP & Lateral',
+    id: 'humerus', // Matches BodyPart ID
+    title: 'Humerus Radiography',
     bodyRegion: 'Upper Extremity',
-    projectionName: 'AP/Lateral',
-    imageUrl: 'assets/images/practice/forearm.png', // Reuse practice image
-    modelPath: 'assets/models/test.glb', // Use the specified model
+    projectionName: 'Various Projections',
+    imageUrl: 'assets/images/practice/humerus.png', // General image
+    modelPath: 'assets/models/test.glb', // Placeholder
     content: """
-# Forearm Radiography Guide (AP & Lateral)
+# Humerus Radiography Guide
+
+## Overview
+This guide covers standard AP and Lateral projections of the humerus.
+
+## General Considerations
+*   Ensure both shoulder and elbow joints are included if possible, or take separate images if necessary.
+*   Consider patient condition (trauma vs. non-trauma).
+
+## AP (Upright/Supine)
+*   **Patient Position:** *(Details for Humerus AP go here)*
+*   **Central Ray (CR):** *(Details for Humerus AP go here)*
+*   **Evaluation Criteria:** *(Details for Humerus AP go here)*
+
+## Lateral (Upright/Supine)
+*   **Patient Position:** *(Details for Humerus Lateral go here)*
+*   **Central Ray (CR):** *(Details for Humerus Lateral go here)*
+*   **Evaluation Criteria:** *(Details for Humerus Lateral go here)*
+""",
+  ),
+
+  const Lesson(
+    id: 'elbow', // Matches BodyPart ID
+    title: 'Elbow Radiography',
+    bodyRegion: 'Upper Extremity',
+    projectionName: 'Various Projections',
+    imageUrl: 'assets/images/practice/elbow.png', // General image
+    modelPath: 'assets/models/test.glb', // Placeholder
+    content: """
+# Elbow Radiography Guide
+
+## Overview
+This guide covers standard projections for the elbow joint.
+
+## General Considerations
+*   Flexion/extension limitations may require modifications.
+*   Assess for fat pad signs indicating effusion or fracture.
+
+## AP
+*   **Patient Position:** *(Details for Elbow AP go here)*
+*   **Central Ray (CR):** *(Details for Elbow AP go here)*
+*   **Evaluation Criteria:** *(Details for Elbow AP go here)*
+
+## AP Oblique (Lateral Rotation)
+*   **Patient Position:** *(Details for Elbow AP Oblique Lateral Rotation go here)*
+*   **Central Ray (CR):** *(Details for Elbow AP Oblique Lateral Rotation go here)*
+*   **Evaluation Criteria:** *(Details for Elbow AP Oblique Lateral Rotation go here)*
+
+## AP Oblique (Medial Rotation)
+*   **Patient Position:** *(Details for Elbow AP Oblique Medial Rotation go here)*
+*   **Central Ray (CR):** *(Details for Elbow AP Oblique Medial Rotation go here)*
+*   **Evaluation Criteria:** *(Details for Elbow AP Oblique Medial Rotation go here)*
+
+## Lateral
+*   **Patient Position:** *(Details for Elbow Lateral go here)*
+*   **Central Ray (CR):** *(Details for Elbow Lateral go here)*
+*   **Evaluation Criteria:** *(Details for Elbow Lateral go here)*
+""",
+  ),
+
+  const Lesson(
+    id: 'forearm', // Matches BodyPart ID
+    title: 'Forearm Radiography',
+    bodyRegion: 'Upper Extremity',
+    projectionName: 'Various Projections',
+    imageUrl: 'assets/images/practice/forearm/forearm_ap.jpeg', // General image
+    modelPath: 'assets/models/test.glb', // Placeholder
+    content: """
+# Forearm Radiography Guide
 
 ## Overview
 Standard forearm radiography includes AP and Lateral projections to visualize the radius, ulna, and surrounding soft tissues.
 
 ## General Considerations
 *   Remove any radiopaque objects (watches, bracelets).
-*   Explain the procedure to the patient.
+*   Ensure both wrist and elbow joints are included.
 
 ## AP Projection
 *   **Patient Position:** Seated at the end of the table, arm extended. Supinate the hand (palm up). Ensure wrist and elbow joints are included. Epicondyles should be parallel to the Image Receptor (IR).
@@ -135,19 +186,146 @@ Standard forearm radiography includes AP and Lateral projections to visualize th
 *   **Central Ray:** Perpendicular to the mid-forearm.
 *   **Collimation:** Include wrist and elbow joints, collimate to skin margins anteriorly and posteriorly.
 *   **Evaluation:** Elbow and wrist joints visible. Elbow flexed 90 degrees. Superimposition of the radius and ulna at their distal ends. Superimposition of the radial head over the coronoid process.
-
-*(Ensure both projections are typically taken for comparison)*
 """,
   ),
-  // Add more sample lessons as needed
+
+  const Lesson(
+    id: 'wrist', // Matches BodyPart ID
+    title: 'Wrist Radiography',
+    bodyRegion: 'Upper Extremity',
+    projectionName: 'Various Projections',
+    imageUrl: 'assets/images/practice/wrist.png', // General image
+    modelPath: 'assets/models/test.glb', // Placeholder
+    content: """
+# Wrist Radiography Guide
+
+## Overview
+This guide covers common projections for the wrist joint and carpal bones.
+
+## General Considerations
+*   Remove watches, rings, and bracelets.
+*   Note any patient pain or limited mobility.
+
+## AP
+*   **Patient Position:** *(Details for Wrist AP go here)*
+*   **Central Ray (CR):** *(Details for Wrist AP go here)*
+*   **Evaluation Criteria:** *(Details for Wrist AP go here)*
+
+## AP Oblique (Medial Rotation)
+*   **Patient Position:** *(Details for Wrist AP Oblique Medial Rotation go here)*
+*   **Central Ray (CR):** *(Details for Wrist AP Oblique Medial Rotation go here)*
+*   **Evaluation Criteria:** *(Details for Wrist AP Oblique Medial Rotation go here)*
+
+## Lateral
+*   **Patient Position:** *(Details for Wrist Lateral go here)*
+*   **Central Ray (CR):** *(Details for Wrist Lateral go here)*
+*   **Evaluation Criteria:** *(Details for Wrist Lateral go here)*
+
+## PA
+*   **Patient Position:** *(Details for Wrist PA go here)*
+*   **Central Ray (CR):** *(Details for Wrist PA go here)*
+*   **Evaluation Criteria:** *(Details for Wrist PA go here)*
+
+## PA Oblique
+*   **Patient Position:** *(Details for Wrist PA Oblique go here)*
+*   **Central Ray (CR):** *(Details for Wrist PA Oblique go here)*
+*   **Evaluation Criteria:** *(Details for Wrist PA Oblique go here)*
+
+## PA (Radial Deviation)
+*   **Patient Position:** *(Details for Wrist PA Radial Deviation go here)*
+*   **Central Ray (CR):** *(Details for Wrist PA Radial Deviation go here)*
+*   **Evaluation Criteria:** *(Details for Wrist PA Radial Deviation go here)*
+
+## PA (Ulnar Deviation) / Scaphoid View
+*   **Patient Position:** *(Details for Wrist PA Ulnar Deviation go here)*
+*   **Central Ray (CR):** *(Details for Wrist PA Ulnar Deviation go here)*
+*   **Evaluation Criteria:** *(Details for Wrist PA Ulnar Deviation go here)*
+""",
+  ),
+
+  const Lesson(
+    id: 'hand', // Matches BodyPart ID
+    title: 'Hand Radiography',
+    bodyRegion: 'Upper Extremity',
+    projectionName: 'Various Projections',
+    imageUrl: 'assets/images/practice/hand.png', // General image
+    modelPath: 'assets/models/test.glb', // Placeholder
+    content: """
+# Hand Radiography Guide
+
+## Overview
+This guide covers standard projections for the hand, including fingers and thumb.
+
+## General Considerations
+*   Remove all rings.
+*   Place lead shield over patient's lap.
+
+## Lateral
+*   **Patient Position:** *(Details for Hand Lateral go here)*
+*   **Central Ray (CR):** *(Details for Hand Lateral go here)*
+*   **Evaluation Criteria:** *(Details for Hand Lateral go here)*
+
+## Norgaard (Ball-Catcher's)
+*   **Patient Position:** *(Details for Hand Norgaard go here)*
+*   **Central Ray (CR):** *(Details for Hand Norgaard go here)*
+*   **Evaluation Criteria:** *(Details for Hand Norgaard go here)*
+
+## PA
+*   **Patient Position:** *(Details for Hand PA go here)*
+*   **Central Ray (CR):** *(Details for Hand PA go here)*
+*   **Evaluation Criteria:** *(Details for Hand PA go here)*
+
+## PA Oblique
+*   **Patient Position:** *(Details for Hand PA Oblique go here)*
+*   **Central Ray (CR):** *(Details for Hand PA Oblique go here)*
+*   **Evaluation Criteria:** *(Details for Hand PA Oblique go here)*
+""",
+  ),
+
+  // --- Other Body Regions ---
+  const Lesson(
+    id: 'skull', // Matches the bodyPart.id used in navigation
+    title: 'Skull Radiography',
+    bodyRegion: 'Head',
+    projectionName: 'Various Projections',
+    imageUrl: 'assets/images/practice/skull.png', // General image
+    modelPath: 'assets/models/skull_model.glb', // Placeholder
+    content: """
+# Skull Radiography Guide
+
+## Overview
+This guide covers standard projections for the skull.
+
+## General Considerations
+*   Remove any radiopaque objects (glasses, earrings).
+*   Immobilize the patient as needed.
+
+## AP
+*   **Patient Position:** *(Details for Skull AP go here)*
+*   **Central Ray (CR):** *(Details for Skull AP go here)*
+*   **Evaluation Criteria:** *(Details for Skull AP go here)*
+
+## Lateral
+*   **Patient Position:** *(Details for Skull Lateral go here)*
+*   **Central Ray (CR):** *(Details for Skull Lateral go here)*
+*   **Evaluation Criteria:** *(Details for Skull Lateral go here)*
+
+## PA
+*   **Patient Position:** *(Details for Skull PA go here)*
+*   **Central Ray (CR):** *(Details for Skull PA go here)*
+*   **Evaluation Criteria:** *(Details for Skull PA go here)*
+""",
+  ),
 ];
 
 /// Utility function to retrieve a lesson by its ID from the static list.
 Lesson? getLessonFromStaticSource(String lessonId) {
   try {
+    // Use firstWhereOrNull for cleaner null handling
     return allStaticLessons.firstWhere((lesson) => lesson.id == lessonId);
   } catch (e) {
     // Return null if no lesson with the given ID is found
+    print('Lesson with ID $lessonId not found.'); // Added print statement
     return null;
   }
 }
