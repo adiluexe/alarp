@@ -34,9 +34,9 @@ class AppRoutes {
   static const practicePositioning =
       'part/:bodyPartId/projection/:projectionName'; // Relative to practiceRegionDetail
   static const challenge = '/challenge';
-  // New challenge routes (relative to /challenge)
-  static const challengeStart = 'start/:challengeId';
-  static const challengeActivePath = 'active/:challengeId'; // Path segment
+  // Define absolute paths for challenge start and active screens
+  static const challengeStart = '/challenge/start/:challengeId';
+  static const challengeActivePath = '/challenge/active/:challengeId';
   static const profile = '/profile';
   static const skeletonViewer = '/skeleton'; // New route for skeleton viewer
   static const recentPracticeList =
@@ -44,9 +44,13 @@ class AppRoutes {
   static const leaderboard =
       '/leaderboard'; // New route for the full leaderboard
 
-  // Helper method to build the full path for navigation
+  // Helper method to build the full path for challenge start
+  static String challengeStartRoute(String challengeId) =>
+      challengeStart.replaceFirst(':challengeId', challengeId);
+
+  // Helper method to build the full path for challenge active
   static String challengeActive(String challengeId) =>
-      '/challenge/active/$challengeId';
+      challengeActivePath.replaceFirst(':challengeId', challengeId);
 }
 
 // Private navigator keys
@@ -87,6 +91,33 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             regionId: regionId,
             bodyPartId: bodyPartId,
             initialProjectionName: projectionName,
+          );
+        },
+      ),
+      // Challenge Start Screen (outside ShellRoute) - Use absolute path
+      GoRoute(
+        path: AppRoutes.challengeStart, // Use the absolute path constant
+        builder: (context, state) {
+          final challengeId = state.pathParameters['challengeId']!;
+          // Fetch challenge data (using static method for now)
+          final challenge = Challenge.getChallengeById(challengeId);
+          // Override the provider for this specific route
+          return ProviderScope(
+            overrides: [currentChallengeProvider.overrideWithValue(challenge)],
+            child: ChallengeStartScreen(challengeId: challengeId),
+          );
+        },
+      ),
+      // Challenge Active Screen (outside ShellRoute) - Use absolute path
+      GoRoute(
+        path: AppRoutes.challengeActivePath, // Use the absolute path constant
+        builder: (context, state) {
+          final challengeId = state.pathParameters['challengeId']!;
+          final challenge = Challenge.getChallengeById(challengeId);
+          // Override the provider for this specific route
+          return ProviderScope(
+            overrides: [activeChallengeProvider.overrideWithValue(challenge)],
+            child: ChallengeActiveScreen(challengeId: challengeId),
           );
         },
       ),
@@ -170,47 +201,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             ],
           ),
           GoRoute(
-            path: AppRoutes.challenge,
+            path: AppRoutes.challenge, // Base challenge route remains in shell
             pageBuilder:
                 (context, state) =>
                     const NoTransitionPage(child: ChallengeScreen()),
-            routes: [
-              // Route for Challenge Start Screen
-              GoRoute(
-                path:
-                    AppRoutes
-                        .challengeStart, // e.g., /challenge/start/ch_ap_forearm_01
-                builder: (context, state) {
-                  final challengeId = state.pathParameters['challengeId']!;
-                  // Fetch challenge data (using static method for now)
-                  final challenge = Challenge.getChallengeById(challengeId);
-                  // Override the provider for this specific route
-                  return ProviderScope(
-                    overrides: [
-                      currentChallengeProvider.overrideWithValue(challenge),
-                    ],
-                    child: ChallengeStartScreen(challengeId: challengeId),
-                  );
-                },
-              ),
-              // Route for Active Challenge Screen
-              GoRoute(
-                path:
-                    AppRoutes
-                        .challengeActivePath, // e.g., /challenge/active/ch_ap_forearm_01
-                builder: (context, state) {
-                  final challengeId = state.pathParameters['challengeId']!;
-                  final challenge = Challenge.getChallengeById(challengeId);
-                  // Override the provider for this specific route
-                  return ProviderScope(
-                    overrides: [
-                      activeChallengeProvider.overrideWithValue(challenge),
-                    ],
-                    child: ChallengeActiveScreen(challengeId: challengeId),
-                  );
-                },
-              ),
-            ],
+            // Challenge start/active routes are now top-level, remove from here
           ),
           GoRoute(
             path: AppRoutes.profile,

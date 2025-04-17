@@ -120,9 +120,9 @@ class ChallengeScreen extends StatelessWidget {
                         end: Alignment.bottomRight,
                       ),
                       onTap: () {
-                        // Navigate to the start screen using the challenge ID
-                        context.go(
-                          '${AppRoutes.challenge}/${AppRoutes.challengeStart.replaceFirst(':challengeId', todayChallenge.id)}',
+                        // Use context.push with the correct helper method
+                        context.push(
+                          AppRoutes.challengeStartRoute(todayChallenge.id),
                         );
                       },
                     ),

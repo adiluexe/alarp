@@ -160,16 +160,8 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
     if (step is CollimationStep) {
       // Use practice screen's layout structure for collimation
       final colState = ref.watch(collimationStateProvider);
-      // Fetch the body part image (similar to practice screen)
-      final bodyPart = _findBodyPart(
-        challengeState
-            .challenge
-            .regionId, // Use regionId from challenge in state
-        step.bodyPartId,
-      );
-      final imageAsset =
-          bodyPart?.imageAsset ??
-          _placeholderImage; // Use placeholder as fallback
+      // Force imageAsset to use forearm_ap.webp
+      const imageAsset = 'assets/images/practice/forearm/forearm_ap.webp';
 
       // Create params needed for controls widget
       final params = (
@@ -182,8 +174,9 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+            // Remove AspectRatio wrapper
             child: Container(
-              height: 450, // Height is already 450, no change needed here.
+              height: 450, // Set fixed height
               decoration: BoxDecoration(
                 color: Colors.grey[200],
                 borderRadius: BorderRadius.circular(16),
@@ -194,7 +187,7 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
                   fit: StackFit.expand,
                   children: [
                     Image.asset(
-                      imageAsset, // Use the potentially placeholder path
+                      imageAsset, // Use the hardcoded path
                       fit: BoxFit.cover, // Change fit to cover
                       errorBuilder:
                           (context, error, stackTrace) => const Center(
@@ -343,6 +336,3 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
     }
   }
 }
-
-// Define placeholder path globally or import if defined elsewhere
-const String _placeholderImage = 'assets/images/alarp_icon.png';

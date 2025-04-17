@@ -67,7 +67,7 @@ class _PositioningSelectionWidgetState
           // Constrain the PageView instead of using Center(Expanded(...))
           SizedBox(
             // Adjust height as needed, e.g., based on screen size or fixed value
-            height: MediaQuery.of(context).size.height * 0.4,
+            height: MediaQuery.of(context).size.height * 0.5,
             child: PageView.builder(
               controller: _pageController,
               itemCount: widget.step.imageOptions.length,
