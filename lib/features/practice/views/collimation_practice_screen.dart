@@ -51,9 +51,7 @@ class CollimationPracticeScreen extends ConsumerStatefulWidget {
 }
 
 class _CollimationPracticeScreenState
-    extends ConsumerState<CollimationPracticeScreen>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+    extends ConsumerState<CollimationPracticeScreen> {
   late String _selectedProjectionName;
   BodyPart? _bodyPartData;
   BodyRegion? _bodyRegionData; // Add state variable for region data
@@ -62,7 +60,6 @@ class _CollimationPracticeScreenState
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
     _selectedProjectionName = widget.initialProjectionName;
     // Fetch both body part and body region data
     _bodyPartData = _findBodyPart(widget.regionId, widget.bodyPartId);
@@ -109,7 +106,6 @@ class _CollimationPracticeScreenState
 
   @override
   void dispose() {
-    _tabController.dispose();
     super.dispose();
   }
 
@@ -176,15 +172,6 @@ class _CollimationPracticeScreenState
             ),
           ),
         ],
-        // Update TabBar appearance
-        bottom: TabBar(
-          controller: _tabController,
-          indicatorColor: Colors.white,
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.white.withOpacity(0.7),
-          dividerColor: Colors.transparent,
-          tabs: const [Tab(text: 'Practice'), Tab(text: 'Guide')],
-        ),
       ),
       body: Column(
         children: [
@@ -243,179 +230,137 @@ class _CollimationPracticeScreenState
               ),
             ),
           Expanded(
-            child: TabBarView(
-              controller: _tabController,
+            child: Column(
               children: [
-                // Practice Tab Content
-                Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
-                      child: Container(
-                        height: 450, // Set fixed height
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
-                          child: Stack(
-                            fit: StackFit.expand,
-                            children: [
-                              Image.asset(
-                                imageAsset, // Use the determined imageAsset
-                                fit: BoxFit.cover, // Change fit to cover
-                                errorBuilder: (context, error, stackTrace) {
-                                  // --- Logging Start ---
-                                  print(
-                                    'Image.asset errorBuilder triggered for path: $imageAsset',
-                                  );
-                                  print('Image Error: $error');
-                                  // --- Logging End ---
-                                  return Center(
-                                    child: Icon(
-                                      SolarIconsOutline.galleryRemove,
-                                      size: 60,
-                                      color: Colors.grey[400],
-                                    ),
-                                  );
-                                },
-                              ),
-                              Positioned.fill(
-                                child: IgnorePointer(
-                                  child: CustomPaint(
-                                    painter: CollimationPainter(
-                                      width: colState.width,
-                                      height: colState.height,
-                                      centerX: colState.centerX,
-                                      centerY: colState.centerY,
-                                      angle: colState.angle, // Pass angle
-                                    ),
-                                  ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+                  child: Container(
+                    height: 450, // Set fixed height
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          Image.asset(
+                            imageAsset, // Use the determined imageAsset
+                            fit: BoxFit.cover, // Change fit to cover
+                            errorBuilder: (context, error, stackTrace) {
+                              // --- Logging Start ---
+                              print(
+                                'Image.asset errorBuilder triggered for path: $imageAsset',
+                              );
+                              print('Image Error: $error');
+                              // --- Logging End ---
+                              return Center(
+                                child: Icon(
+                                  SolarIconsOutline.galleryRemove,
+                                  size: 60,
+                                  color: Colors.grey[400],
                                 ),
-                              ),
-                              // Reset Button Overlay
-                              Positioned(
-                                top: 12,
-                                left: 12,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.black.withOpacity(
-                                      0.5,
-                                    ), // Semi-transparent bg
-                                    borderRadius: BorderRadius.circular(
-                                      20,
-                                    ), // Make it circular
-                                  ),
-                                  child: IconButton(
-                                    icon: const Icon(SolarIconsOutline.refresh),
-                                    color: Colors.white,
-                                    iconSize: 20,
-                                    tooltip: 'Reset Collimation',
-                                    onPressed:
-                                        _resetCollimationState, // Call reset function
-                                    padding:
-                                        EdgeInsets
-                                            .zero, // Remove default padding
-                                    constraints: const BoxConstraints(
-                                      // Ensure it's compact
-                                      minHeight: 36,
-                                      minWidth: 36,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              // Accuracy Display Overlay
-                              Positioned(
-                                top: 12,
-                                right: 12,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 5,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: _getAccuracyColor(
-                                      controller.collimationAccuracy,
-                                    ).withOpacity(0.85), // Semi-transparent bg
-                                    borderRadius: BorderRadius.circular(12),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.2),
-                                        blurRadius: 4,
-                                        offset: const Offset(0, 1),
-                                      ),
-                                    ],
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        SolarIconsOutline
-                                            .graphUp, // Or target icon
-                                        color: Colors.white,
-                                        size: 16,
-                                      ),
-                                      const SizedBox(width: 6),
-                                      Text(
-                                        '${controller.collimationAccuracy.toStringAsFixed(1)}%',
-                                        style: Theme.of(
-                                          context,
-                                        ).textTheme.labelMedium?.copyWith(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
+                              );
+                            },
                           ),
-                        ),
+                          Positioned.fill(
+                            child: IgnorePointer(
+                              child: CustomPaint(
+                                painter: CollimationPainter(
+                                  width: colState.width,
+                                  height: colState.height,
+                                  centerX: colState.centerX,
+                                  centerY: colState.centerY,
+                                  angle: colState.angle, // Pass angle
+                                ),
+                              ),
+                            ),
+                          ),
+                          // Reset Button Overlay
+                          Positioned(
+                            top: 12,
+                            left: 12,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(
+                                  0.5,
+                                ), // Semi-transparent bg
+                                borderRadius: BorderRadius.circular(
+                                  20,
+                                ), // Make it circular
+                              ),
+                              child: IconButton(
+                                icon: const Icon(SolarIconsOutline.refresh),
+                                color: Colors.white,
+                                iconSize: 20,
+                                tooltip: 'Reset Collimation',
+                                onPressed:
+                                    _resetCollimationState, // Call reset function
+                                padding:
+                                    EdgeInsets.zero, // Remove default padding
+                                constraints: const BoxConstraints(
+                                  // Ensure it's compact
+                                  minHeight: 36,
+                                  minWidth: 36,
+                                ),
+                              ),
+                            ),
+                          ),
+                          // Accuracy Display Overlay
+                          Positioned(
+                            top: 12,
+                            right: 12,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 5,
+                              ),
+                              decoration: BoxDecoration(
+                                color: _getAccuracyColor(
+                                  controller.collimationAccuracy,
+                                ).withOpacity(0.85), // Semi-transparent bg
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.2),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 1),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    SolarIconsOutline.graphUp, // Or target icon
+                                    color: Colors.white,
+                                    size: 16,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    '${controller.collimationAccuracy.toStringAsFixed(1)}%',
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.labelMedium?.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    Expanded(
-                      child: CollimationControlsWidget(
-                        // Pass params to controls widget
-                        params: params,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-                // Guide Tab Content (Placeholder)
-                ListView(
-                  padding: const EdgeInsets.all(16.0),
-                  children: [
-                    Text(
-                      'Reference Guide: $_selectedProjectionName',
-                      style: Theme.of(context).textTheme.headlineSmall
-                          ?.copyWith(fontFamily: 'Chillax'),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'This section will contain helpful information and reference images for the $_selectedProjectionName projection of the ${_bodyPartData?.title ?? widget.bodyPartId}.',
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                    const SizedBox(height: 20),
-                    Text(
-                      'Key Considerations:',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: 8),
-                    const ListTile(
-                      leading: Icon(SolarIconsOutline.ruler),
-                      title: Text('Ensure correct SID.'),
-                    ),
-                    const ListTile(
-                      leading: Icon(SolarIconsOutline.alignVerticalSpacing),
-                      title: Text('Align central ray properly.'),
-                    ),
-                    const ListTile(
-                      leading: Icon(SolarIconsOutline.fullScreen),
-                      title: Text('Collimate tightly to the area of interest.'),
-                    ),
-                  ],
+                Expanded(
+                  child: CollimationControlsWidget(
+                    // Pass params to controls widget
+                    params: params,
+                  ),
                 ),
               ],
             ),
