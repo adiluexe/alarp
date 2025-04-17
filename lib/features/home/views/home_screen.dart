@@ -306,7 +306,7 @@ class _HomeScreenState extends State<HomeScreen> {
               'Study bones and landmarks in detail', // Updated description
           icon: SolarIconsBold.bone, // Using bone icon
           // Use a more distinct color, e.g., Blue Grey
-          color: Colors.blueGrey[700] ?? Colors.blueGrey,
+          color: AppTheme.primaryColor,
           onTap: () {
             context.go(AppRoutes.skeletonViewer);
           },

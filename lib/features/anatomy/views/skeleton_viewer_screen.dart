@@ -24,20 +24,32 @@ class _SkeletonViewerScreenState extends State<SkeletonViewerScreen> {
           AppTheme.backgroundColor, // Or a darker theme if preferred
       appBar: AppBar(
         title: const Text('Explore Skeleton'),
-        backgroundColor: AppTheme.primaryColor, // Or another suitable color
         foregroundColor: Colors.white,
         leading: IconButton(
           icon: const Icon(SolarIconsOutline.altArrowLeft),
           // Change from pop to go to the home route
           onPressed: () => context.go(AppRoutes.home),
         ),
+        // Add flexibleSpace for the gradient
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                AppTheme.primaryColor,
+                AppTheme.secondaryColor, // Example gradient
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
       ),
       body: Stack(
         children: [
           // Wrap the viewer in a Container to set the background color
           Container(
-            color: AppTheme.textColor.withOpacity(
-              0.8,
+            color: AppTheme.accentColor.withOpacity(
+              0.5,
             ), // Set the background color with opacity
             child: Flutter3DViewer(
               // Controller is needed for potential future interactions (animations, etc.)
