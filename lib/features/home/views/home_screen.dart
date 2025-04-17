@@ -34,9 +34,11 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               _buildHeader(),
               const SizedBox(height: 24),
-              _buildQuickActions(),
+              _buildStats(), // Moved up
               const SizedBox(height: 24),
-              _buildStats(),
+              _buildQuickActions(), // Moved down
+              const SizedBox(height: 24),
+              _buildSkeletonExplorer(),
               const SizedBox(height: 24),
               _buildLearningProgress(),
             ],
@@ -165,20 +167,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     },
                   ),
                 ),
-                const SizedBox(width: 12), // Spacing between cards
-                SizedBox(
-                  width: cardWidth,
-                  child: ActionCard(
-                    title: 'Skeleton Explorer',
-                    subtitle: 'Anatomical reference',
-                    description: 'View the human skeleton',
-                    icon: SolarIconsBold.bone, // Using bone icon
-                    color: Colors.blueAccent, // Example color, adjust as needed
-                    onTap: () {
-                      context.go(AppRoutes.skeletonViewer);
-                    },
-                  ),
-                ),
               ],
             ),
           ),
@@ -299,6 +287,31 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildSkeletonExplorer() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Anatomy Explorer', // Improved section title
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+        const SizedBox(height: 16),
+        ActionCard(
+          title: '3D Skeleton Viewer', // Updated title
+          subtitle: 'Interactive anatomical model', // Updated subtitle
+          description:
+              'Study bones and landmarks in detail', // Updated description
+          icon: SolarIconsBold.bone, // Using bone icon
+          // Use a more distinct color, e.g., Blue Grey
+          color: Colors.blueGrey[700] ?? Colors.blueGrey,
+          onTap: () {
+            context.go(AppRoutes.skeletonViewer);
+          },
+        ),
+      ],
     );
   }
 
