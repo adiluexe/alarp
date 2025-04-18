@@ -21,30 +21,45 @@ This guide covers common radiographic projections for the shoulder joint.
 *   Immobilize the patient as needed.
 *   Use appropriate shielding.
 
-## AP (External Rotation)
-*   **Patient Position:** *(Details for Shoulder AP External Rotation go here)*
-*   **Central Ray (CR):** *(Details for Shoulder AP External Rotation go here)*
-*   **Evaluation Criteria:** *(Details for Shoulder AP External Rotation go here)*
+## AP Projection (External Rotation Humerus)
+*   **IR Size:** 24 x 30 cm crosswise
+*   **Patient Position:** Upright / supine position.
+*   **Part Position:** Shoulder joint centered to the midline of the grid; center of the IR should be 1 inch (2.5 cm) inferior to the coracoid process; supinate the hand/ externally rotate the entire arm; rotate arm to place epicondyles parallel with the plane of IR.
+*   **Central Ray (CR):** Perpendicular.
+*   **Reference Point:** 1 inch (2.5 cm) inferior to coracoid process.
+*   **Structures Shown:** Greater tubercle of the humerus, site of the insertion supraspinatus tendon.
 
-## AP (Internal Rotation)
-*   **Patient Position:** *(Details for Shoulder AP Internal Rotation go here)*
-*   **Central Ray (CR):** *(Details for Shoulder AP Internal Rotation go here)*
-*   **Evaluation Criteria:** *(Details for Shoulder AP Internal Rotation go here)*
+## AP Projection (Neutral Rotation Humerus)
+*   **IR Size:** 24 x 30 cm crosswise
+*   **Patient Position:** Upright / supine position.
+*   **Part Position:** Shoulder joint centered to the midline of the grid; center of the IR should be 1 inch (2.5 cm) inferior to the coracoid process; rest palm of the hand against thigh; epicondyles are at 45 degrees to plane of IR.
+*   **Central Ray (CR):** Perpendicular.
+*   **Reference Point:** 1 inch (2.5 cm) inferior to coracoid process.
+*   **Structures Shown:** Greater tubercle partially demonstrated, posterior part of the supraspinatus insertion.
 
-## AP (Neutral Rotation)
-*   **Patient Position:** *(Details for Shoulder AP Neutral Rotation go here)*
-*   **Central Ray (CR):** *(Details for Shoulder AP Neutral Rotation go here)*
-*   **Evaluation Criteria:** *(Details for Shoulder AP Neutral Rotation go here)*
+## AP Projection (Internal Rotation Humerus)
+*   **IR Size:** 24 x 30 cm crosswise
+*   **Patient Position:** Upright / supine position.
+*   **Part Position:** Shoulder joint centered to the midline of the grid; center of the IR should be 1 inch (2.5 cm) inferior to the coracoid process; internally rotate the arm; rest the back of the hand on the hip; adjust arm to place epicondyles perpendicular with the plane of IR.
+*   **Central Ray (CR):** Perpendicular.
+*   **Reference Point:** 1 inch (2.5 cm) inferior to coracoid process.
+*   **Structures Shown:** Proximal humerus in a true lateral position, site of the insertion of subscapular tendon.
 
-## Scapular Y
-*   **Patient Position:** *(Details for Shoulder Scapular Y go here)*
-*   **Central Ray (CR):** *(Details for Shoulder Scapular Y go here)*
-*   **Evaluation Criteria:** *(Details for Shoulder Scapular Y go here)*
+## Transthoracic Lateral Projection (Lawrence Method)
+*   **IR Size:** 24 x 30 cm lengthwise
+*   **Patient Position:** Upright / supine position.
+*   **Part Position:** Raise uninjured arm w/ forearm resting on the head and elevating the shoulders as much as possible; IR centered at the surgical neck of the affected humerus.
+*   **Central Ray (CR):** Perpendicular to IR, entering MCP at the level of the surgical neck. (Use 10 to 15 degrees cephalad if patient cannot elevate unaffected shoulder).
+*   **Reference Point:** Surgical neck.
+*   **Structures Shown:** Lateral image of the shoulder, proximal humerus is projected through the thorax.
 
-## Transthoracic
-*   **Patient Position:** *(Details for Shoulder Transthoracic go here)*
-*   **Central Ray (CR):** *(Details for Shoulder Transthoracic go here)*
-*   **Evaluation Criteria:** *(Details for Shoulder Transthoracic go here)*
+## Scapular Y (PA Oblique Projection)
+*   **IR Size:** 24 x 30 cm
+*   **Patient Position:** Upright (preferred) / recumbent body position.
+*   **Part Position:** Position the anterior surface of the affected shoulder against IR; rotate body until MCP forms 45 to 60 degrees to the IR.
+*   **Central Ray (CR):** Perpendicular.
+*   **Reference Point:** Scapulohumeral joint.
+*   **Structures Shown:** Humeral head directly superimposed over the junction of Y (normal shoulder). Anterior (subcoracoid) dislocations: humeral head is beneath coracoid process. Posterior (subacromial) dislocations: projected beneath acromion process.
 """,
   ),
 
@@ -65,15 +80,21 @@ This guide covers standard AP and Lateral projections of the humerus.
 *   Ensure both shoulder and elbow joints are included if possible, or take separate images if necessary.
 *   Consider patient condition (trauma vs. non-trauma).
 
-## AP (Upright/Supine)
-*   **Patient Position:** *(Details for Humerus AP go here)*
-*   **Central Ray (CR):** *(Details for Humerus AP go here)*
-*   **Evaluation Criteria:** *(Details for Humerus AP go here)*
+## AP Projection
+*   **IR Size:** Lengthwise: 18x43 cm; 35x 43 cm
+*   **Patient Position:** Upright/Seated.
+*   **Part Position:** Arm slightly abducted; Hand Supinated. Humeral Epicondyles parallel with IR.
+*   **Central Ray (CR):** Perpendicular.
+*   **Reference Point:** Mid portion of humerus.
+*   **Structures Shown:** AP Projection of Entire Humerus. Epicondyles showed without rotation.
 
-## Lateral (Upright/Supine)
-*   **Patient Position:** *(Details for Humerus Lateral go here)*
-*   **Central Ray (CR):** *(Details for Humerus Lateral go here)*
-*   **Evaluation Criteria:** *(Details for Humerus Lateral go here)*
+## Lateromedial Projection
+*   **IR Size:** Lengthwise: 18x43 cm; 35x 43 cm
+*   **Patient Position:** Upright.
+*   **Part Position:** Arm internally rotated. Elbow flexed 90 degrees with the palmar surface on the hip. Humeral Epicondyles parallel with IR.
+*   **Central Ray (CR):** Perpendicular.
+*   **Reference Point:** Mid portion of humerus.
+*   **Structures Shown:** Lateral Projection of entire Humerus.
 """,
   ),
 
@@ -94,25 +115,37 @@ This guide covers standard projections for the elbow joint.
 *   Flexion/extension limitations may require modifications.
 *   Assess for fat pad signs indicating effusion or fracture.
 
-## AP
-*   **Patient Position:** *(Details for Elbow AP go here)*
-*   **Central Ray (CR):** *(Details for Elbow AP go here)*
-*   **Evaluation Criteria:** *(Details for Elbow AP go here)*
+## AP Projection
+*   **IR Size:** 18 x 24 cm single / 24 x 30 cm divided
+*   **Patient Position:** Seated.
+*   **Part Position:** Elbow extended. Hand supinated. IR center to the elbow joint. IR parallel with the long axis of the part.
+*   **Central Ray (CR):** Perpendicular.
+*   **Reference Point:** Elbow joint.
+*   **Structures Shown:** AP projection of the elbow joint. Distal arm. Proximal forearm.
+
+## Lateral Projection (Lateromedial)
+*   **IR Size:** 18 x 24 cm single / 24 x 30 cm divided
+*   **Patient Position:** Seated.
+*   **Part Position:** From supine position flex the elbow 90°. Elbow joint long axis is parallel to the long axis of the forearm.
+*   **Central Ray (CR):** Perpendicular.
+*   **Reference Point:** Elbow joint.
+*   **Structures Shown:** Oblique projection of the elbow. Coronoid process free of superimposition. *(Note: Spreadsheet title says Lateral, but description/structures suggest Oblique)*
 
 ## AP Oblique (Lateral Rotation)
-*   **Patient Position:** *(Details for Elbow AP Oblique Lateral Rotation go here)*
-*   **Central Ray (CR):** *(Details for Elbow AP Oblique Lateral Rotation go here)*
-*   **Evaluation Criteria:** *(Details for Elbow AP Oblique Lateral Rotation go here)*
+*   **IR Size:** 8 x 10 inch (18 X 24 cm) single / 24 X 30 cm divided
+*   **Patient Position:** Seated.
+*   **Part Position:** Extend the limb. Center the midpoint of IR to the elbow. Medially rotate or pronate the hand.
+*   **Central Ray (CR):** Perpendicular.
+*   **Reference Point:** Elbow joint.
+*   **Structures Shown:** Coronoid process free of superimposition.
 
 ## AP Oblique (Medial Rotation)
-*   **Patient Position:** *(Details for Elbow AP Oblique Medial Rotation go here)*
-*   **Central Ray (CR):** *(Details for Elbow AP Oblique Medial Rotation go here)*
-*   **Evaluation Criteria:** *(Details for Elbow AP Oblique Medial Rotation go here)*
-
-## Lateral
-*   **Patient Position:** *(Details for Elbow Lateral go here)*
-*   **Central Ray (CR):** *(Details for Elbow Lateral go here)*
-*   **Evaluation Criteria:** *(Details for Elbow Lateral go here)*
+*   **IR Size:** 8 x 10 inch (18 X 24 cm) single / 24 X 30 cm divided
+*   **Patient Position:** Seated.
+*   **Part Position:** Extend patient arm. Rotate hand laterally to face the posterior surface at a 45 degree angle. Center midpoint of the IR to elbow joint.
+*   **Central Ray (CR):** Perpendicular.
+*   **Reference Point:** Elbow joint.
+*   **Structures Shown:** Radial head and neck projected free of superimposition of the ulna.
 """,
   ),
 
@@ -129,21 +162,28 @@ This guide covers standard projections for the elbow joint.
 ## Overview
 Standard forearm radiography includes AP and Lateral projections to visualize the radius, ulna, and surrounding soft tissues.
 
+![Example of Forearm AP Positioning](assets/images/lesson_specific/forearm_ap_positioning.png)
+
 ## General Considerations
 *   Remove any radiopaque objects (watches, bracelets).
 *   Ensure both wrist and elbow joints are included.
 
 ## AP Projection
-*   **Patient Position:** Seated at the end of the table, arm extended. Supinate the hand (palm up). Ensure wrist and elbow joints are included. Epicondyles should be parallel to the Image Receptor (IR).
-*   **Central Ray:** Perpendicular to the mid-forearm.
-*   **Collimation:** Include wrist and elbow joints, collimate to skin margins laterally.
-*   **Evaluation:** Elbow and wrist joints visible. Slight overlap of radial head, neck, and tuberosity over the proximal ulna. No elongation or foreshortening of bones.
+*   **IR Size:** 18 x 43 cm single / 35 x 43 cm divided
+*   **Patient Position:** Seated.
+*   **Part Position:** Hand supinated. Elbow extended. Forearm center in IR. IR long axis parallel to the forearm.
+    ![Diagram showing AP Forearm setup](assets/images/lesson_specific/forearm_ap_diagram.png)
+*   **Central Ray:** Perpendicular.
+*   **Reference Point:** Midpoint of the forearm.
+*   **Structures Shown:** AP projection of the forearm demonstrating the elbow joint. Radius and ulna. Proximal row of slightly distorted carpal bones.
 
-## Lateral Projection
-*   **Patient Position:** Seated, elbow flexed 90 degrees, shoulder, elbow, and wrist on the same plane. Place the ulnar (medial) aspect of the forearm and hand against the IR. Ensure wrist and elbow joints are included.
-*   **Central Ray:** Perpendicular to the mid-forearm.
-*   **Collimation:** Include wrist and elbow joints, collimate to skin margins anteriorly and posteriorly.
-*   **Evaluation:** Elbow and wrist joints visible. Elbow flexed 90 degrees. Superimposition of the radius and ulna at their distal ends. Superimposition of the radial head over the coronoid process.
+## Lateral Projection (Lateromedial)
+*   **IR Size:** 18 x 43 cm single / 35 x 43 cm divided
+*   **Patient Position:** Seated.
+*   **Part Position:** Elbow flex 90°. Forearm center in IR. IR parallel with the long axis of the forearm.
+*   **Central Ray:** Perpendicular.
+*   **Reference Point:** Midpoint of the forearm.
+*   **Structures Shown:** Bones of the forearm. Elbow joint. Proximal row of carpal bones.
 """,
   ),
 
@@ -164,40 +204,61 @@ This guide covers common projections for the wrist joint and carpal bones.
 *   Remove watches, rings, and bracelets.
 *   Note any patient pain or limited mobility.
 
-## AP
-*   **Patient Position:** *(Details for Wrist AP go here)*
-*   **Central Ray (CR):** *(Details for Wrist AP go here)*
-*   **Evaluation Criteria:** *(Details for Wrist AP go here)*
+## PA Projection
+*   **IR Size:** 8x10 inch (18x24cm)
+*   **Patient Position:** Seated.
+*   **Part Position:** Rest the forearm on the table, and center the wrist to the IR. Hand pronated.
+*   **Central Ray (CR):** Perpendicular to midcarpal area.
+*   **Reference Point:** Midcarpal area.
+*   **Structures Shown:** PA projection of the carpals, distal radius and ulna, and proximal metacarpals are shown.
 
-## AP Oblique (Medial Rotation)
-*   **Patient Position:** *(Details for Wrist AP Oblique Medial Rotation go here)*
-*   **Central Ray (CR):** *(Details for Wrist AP Oblique Medial Rotation go here)*
-*   **Evaluation Criteria:** *(Details for Wrist AP Oblique Medial Rotation go here)*
+## AP Projection
+*   **IR Size:** 8x10 inch (18x24 inches)
+*   **Patient Position:** Seated.
+*   **Part Position:** Rest the forearm on the table, and center the wrist to the IR. Hand supinated.
+*   **Central Ray (CR):** Perpendicular to wrist joint.
+*   **Reference Point:** Wrist joint.
+*   **Structures Shown:** Better demonstrates the carpal interspaces.
 
-## Lateral
-*   **Patient Position:** *(Details for Wrist Lateral go here)*
-*   **Central Ray (CR):** *(Details for Wrist Lateral go here)*
-*   **Evaluation Criteria:** *(Details for Wrist Lateral go here)*
+## Lateral Projection (Lateromedial Rotation)
+*   **IR Size:** 8x10 inch (18x24 inches)
+*   **Patient Position:** Seated.
+*   **Part Position:** Flex the elbow 90° to rotate the ulna in true lateral position. Center IR to the carpals.
+*   **Central Ray (CR):** Perpendicular to wrist joint.
+*   **Reference Point:** Wrist joint.
+*   **Structures Shown:** Proximal metacarpals, carpals, and distal radius, and ulna.
 
-## PA
-*   **Patient Position:** *(Details for Wrist PA go here)*
-*   **Central Ray (CR):** *(Details for Wrist PA go here)*
-*   **Evaluation Criteria:** *(Details for Wrist PA go here)*
+## PA Oblique Projection (Lateral Rotation)
+*   **IR Size:** 8x10 inch (18x24 inches)
+*   **Patient Position:** Seated.
+*   **Part Position:** Hand is pronated. Rotate the wrist laterally forming an angle of approx. 45°.
+*   **Central Ray (CR):** Perpendicular entering distal to radius.
+*   **Reference Point:** Midcarpal area.
+*   **Structures Shown:** Lateral side of trapezium and scaphoid.
 
-## PA Oblique
-*   **Patient Position:** *(Details for Wrist PA Oblique go here)*
-*   **Central Ray (CR):** *(Details for Wrist PA Oblique go here)*
-*   **Evaluation Criteria:** *(Details for Wrist PA Oblique go here)*
+## AP Oblique Projection (Medial Rotation)
+*   **IR Size:** 8x10 inch (18x24 inches)
+*   **Patient Position:** Seated.
+*   **Part Position:** Hand is supinated. Rotate the wrist medially until it forms an angle of approx. 45°.
+*   **Central Ray (CR):** Perpendicular entering the wrist midway between the medial and lateral borders.
+*   **Reference Point:** Midcarpal area. *(Note: Spreadsheet also mentions Third MCP joint here, using Midcarpal based on CR)*
+*   **Structures Shown:** *(Not specified in spreadsheet for this projection)*
 
-## PA (Radial Deviation)
-*   **Patient Position:** *(Details for Wrist PA Radial Deviation go here)*
-*   **Central Ray (CR):** *(Details for Wrist PA Radial Deviation go here)*
-*   **Evaluation Criteria:** *(Details for Wrist PA Radial Deviation go here)*
+## PA Projection (Ulnar Deviation) / Scaphoid View
+*   **IR Size:** 8x10 inch (18x24 inches)
+*   **Patient Position:** Seated.
+*   **Part Position:** Wrist is pronated; Hand ulnar deviated. Elbow away from the patient’s body.
+*   **Central Ray (CR):** Perpendicular. (Angulate 10-15° proximally or distally for clear delineation).
+*   **Reference Point:** Scaphoid.
+*   **Structures Shown:** Corrects the foreshortening of the scaphoid. Open spaces between adjacent carpals.
 
-## PA (Ulnar Deviation) / Scaphoid View
-*   **Patient Position:** *(Details for Wrist PA Ulnar Deviation go here)*
-*   **Central Ray (CR):** *(Details for Wrist PA Ulnar Deviation go here)*
-*   **Evaluation Criteria:** *(Details for Wrist PA Ulnar Deviation go here)*
+## PA Projection (Radial Deviation)
+*   **IR Size:** 8x10 inch (18x24 inches)
+*   **Patient Position:** Seated.
+*   **Part Position:** Wrist is pronated; Hand in extreme radial deviation. Hand cupped over the wrist.
+*   **Central Ray (CR):** Perpendicular.
+*   **Reference Point:** Midcarpal area.
+*   **Structures Shown:** Open interspaces between the carpals on the medial side.
 """,
   ),
 
@@ -218,72 +279,63 @@ This guide covers standard projections for the hand, including fingers and thumb
 *   Remove all rings.
 *   Place lead shield over patient's lap.
 
-## Lateral
-*   **Patient Position:** *(Details for Hand Lateral go here)*
-*   **Central Ray (CR):** *(Details for Hand Lateral go here)*
-*   **Evaluation Criteria:** *(Details for Hand Lateral go here)*
+## PA Projection
+*   **IR Size:** 24x30cm (10x12 inches)
+*   **Patient Position:** Seated; Forearm resting on table.
+*   **Part Position:** Pronate hand; Center IR to MCP joints.
+*   **Central Ray (CR):** Perpendicular to 3rd MCP joint.
+*   **Reference Point:** Third MCP joint.
+*   **Structures Shown:** PA projections of carpals, metacarpals, phalanges, hand inter articulations, distal radius and ulna. Demonstrates PA oblique projection of first digit.
 
-## Norgaard (Ball-Catcher's)
-*   **Patient Position:** *(Details for Hand Norgaard go here)*
-*   **Central Ray (CR):** *(Details for Hand Norgaard go here)*
-*   **Evaluation Criteria:** *(Details for Hand Norgaard go here)*
+## PA Oblique Projection
+*   **IR Size:** 24x30cm (10x12 inches)
+*   **Patient Position:** Seated; Forearm resting on table.
+*   **Part Position:** From pronation, adjust hand obliquity so that MCP joints form a 45-degree angle with IR plane; Rotate hand externally until fingertips touch IR.
+*   **Central Ray (CR):** Perpendicular to 3rd MCP joint.
+*   **Reference Point:** *(Not specified, likely 3rd MCP joint)*
+*   **Structures Shown:** Shows PA oblique projection of bones and soft tissues of the hand. Investigates fractures and pathologic conditions.
 
-## PA
-*   **Patient Position:** *(Details for Hand PA go here)*
-*   **Central Ray (CR):** *(Details for Hand PA go here)*
-*   **Evaluation Criteria:** *(Details for Hand PA go here)*
+## Lateral Projection (Flexion)
+*   **IR Size:** 24x30cm (10x12 inches)
+*   **Patient Position:** Seated; Forearm resting on table.
+*   **Part Position:** Hand in lateral position with ulnar aspect down. Relax digits to maintain natural arch. Arrange the digits so that they are perfectly superimposed. Position thumb parallel to IR or immobilize if necessary.
+*   **Central Ray (CR):** Perpendicular to 2nd MCP.
+*   **Reference Point:** Second MCP joint.
+*   **Structures Shown:** Shows lateral image of the bony structures and soft tissues of the hand in their normally flexed position. It also demonstrates anterior or posterior displacement in fractures of the metacarpals.
 
-## PA Oblique
-*   **Patient Position:** *(Details for Hand PA Oblique go here)*
-*   **Central Ray (CR):** *(Details for Hand PA Oblique go here)*
-*   **Evaluation Criteria:** *(Details for Hand PA Oblique go here)*
+## AP Oblique (Norgaard / Ball-Catcher's)
+*   **IR Size:** 24x30cm (10x12 inches)
+*   **Patient Position:** Seated.
+*   **Part Position:** Radiographed both hands in half-supinate position. Rotated hands to half-supinate position until the dorsal surface of each hand rests against each 45-degree sponge support. Extend fingers and abduct thumbs slightly. (Modified position: Similar hand position except fingers are cupped like catching a ball).
+*   **Central Ray (CR):** Perpendicular to MCP joint.
+*   **Reference Point:** MCP joint.
+*   **Structures Shown:** Shows AP 45-degree oblique projection of both hands.
 """,
   ),
 
   // --- Other Body Regions ---
-  const Lesson(
-    id: 'skull', // Matches the bodyPart.id used in navigation
-    title: 'Skull Radiography',
-    bodyRegion: 'Head',
-    projectionName: 'Various Projections',
-    imageUrl: 'assets/images/practice/skull.png', // General image
-    modelPath: 'assets/models/skull_model.glb', // Placeholder
-    content: """
-# Skull Radiography Guide
-
-## Overview
-This guide covers standard projections for the skull.
-
-## General Considerations
-*   Remove any radiopaque objects (glasses, earrings).
-*   Immobilize the patient as needed.
-
-## AP
-*   **Patient Position:** *(Details for Skull AP go here)*
-*   **Central Ray (CR):** *(Details for Skull AP go here)*
-*   **Evaluation Criteria:** *(Details for Skull AP go here)*
-
-## Lateral
-*   **Patient Position:** *(Details for Skull Lateral go here)*
-*   **Central Ray (CR):** *(Details for Skull Lateral go here)*
-*   **Evaluation Criteria:** *(Details for Skull Lateral go here)*
-
-## PA
-*   **Patient Position:** *(Details for Skull PA go here)*
-*   **Central Ray (CR):** *(Details for Skull PA go here)*
-*   **Evaluation Criteria:** *(Details for Skull PA go here)*
-""",
-  ),
 ];
 
 /// Utility function to retrieve a lesson by its ID from the static list.
 Lesson? getLessonFromStaticSource(String lessonId) {
   try {
     // Use firstWhereOrNull for cleaner null handling
-    return allStaticLessons.firstWhere((lesson) => lesson.id == lessonId);
+    // Find the first lesson where the lesson's id matches the provided lessonId
+    final lesson = allStaticLessons.firstWhere(
+      (lesson) => lesson.id == lessonId,
+      // If no lesson is found, return null
+      orElse: () {
+        print('Lesson with ID $lessonId not found.'); // Log if not found
+        // Explicitly return null satisfying the Lesson? return type
+        return null as Lesson;
+      },
+    );
+    // Need to handle the case where firstWhere finds an element but it's somehow null
+    // This check ensures we always return Lesson?
+    return lesson;
   } catch (e) {
-    // Return null if no lesson with the given ID is found
-    print('Lesson with ID $lessonId not found.'); // Added print statement
+    // Catch any other potential errors during the search
+    print('Error finding lesson with ID $lessonId: $e');
     return null;
   }
 }
