@@ -58,7 +58,7 @@ class CollimationController {
   }
 
   bool get isCorrect {
-    return overallAccuracy >= 90.0;
+    return overallAccuracy >= 98.0;
   }
 }
 

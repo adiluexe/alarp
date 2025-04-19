@@ -1,7 +1,6 @@
 // collimation_controls_widget.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:solar_icons/solar_icons.dart';
 import '../../../core/theme/app_theme.dart';
 import 'package:alarp/features/practice/models/collimation_state.dart';
 import 'package:alarp/features/practice/controllers/collimation_controller.dart'; // Import needed for CollimationParams
@@ -142,7 +141,7 @@ class CollimationControlsWidget extends ConsumerWidget {
           children: [
             Text(label, style: Theme.of(context).textTheme.bodyMedium),
             Text(
-              '${(value * displayValueMultiplier).toStringAsFixed(1)}$displayValueSuffix',
+              '${(value * displayValueMultiplier).toStringAsFixed(2)}$displayValueSuffix',
               style: Theme.of(context).textTheme.bodyMedium,
             ),
           ],
