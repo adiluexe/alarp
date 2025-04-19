@@ -9,6 +9,7 @@ import '../widgets/collimation_controls_widget.dart';
 import '../widgets/collimation_painter.dart';
 import '../models/body_part.dart';
 import '../models/body_region.dart';
+import '../data/collimation_target_data.dart'; // Ensure this import exists and is correct
 
 // Helper function to find BodyPart (replace with better state management/repository later)
 BodyPart? _findBodyPart(String regionId, String bodyPartId) {
@@ -119,6 +120,8 @@ class _CollimationPracticeScreenState
       projectionName: _selectedProjectionName,
     );
     final controller = ref.watch(collimationControllerProvider(params));
+    // Fetch the extra target info
+    final targetInfo = getTargetInfo(params.bodyPartId, params.projectionName);
 
     // Determine image asset - Prioritize projection-specific image
     String imageAsset = _placeholderImage; // Start with placeholder
@@ -351,6 +354,44 @@ class _CollimationPracticeScreenState
                               ),
                             ),
                           ),
+                          // New Target Info Display Overlay
+                          Positioned(
+                            top:
+                                52, // Position below the accuracy display (adjust as needed)
+                            right: 12,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(
+                                  0.6,
+                                ), // Semi-transparent bg
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildInfoRow(
+                                    context,
+                                    'IR Size:',
+                                    targetInfo.irSize,
+                                  ),
+                                  _buildInfoRow(
+                                    context,
+                                    'IR Orient:',
+                                    targetInfo.irOrientation,
+                                  ),
+                                  _buildInfoRow(
+                                    context,
+                                    'Position:',
+                                    targetInfo.pxPosition,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -473,6 +514,32 @@ class _CollimationPracticeScreenState
           ),
         ),
       ],
+    );
+  }
+
+  // Helper widget to build info rows for the new overlay
+  Widget _buildInfoRow(BuildContext context, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 1.0),
+      child: Row(
+        mainAxisSize: MainAxisSize.min, // Keep row compact
+        children: [
+          Text(
+            '$label ',
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: Colors.white70, // Lighter color for label
+              fontWeight: FontWeight.normal,
+            ),
+          ),
+          Text(
+            value,
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
