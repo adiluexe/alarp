@@ -59,7 +59,11 @@ class LearnLessonScreen extends ConsumerWidget {
           if (lesson.modelPath != null)
             _buildMediaContainer(
               context,
-              child: LearnModelViewer(src: lesson.modelPath!),
+              child: Visibility(
+                // Wrap LearnModelViewer with Visibility
+                maintainState: false, // Set maintainState to false
+                child: LearnModelViewer(src: lesson.modelPath!),
+              ),
               // Make model viewer larger, adjust aspect ratio as needed (e.g., 1:1 or 4:3)
               aspectRatio: 1.0, // Changed aspect ratio
             ),

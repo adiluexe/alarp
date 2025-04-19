@@ -8,7 +8,7 @@ final List<Lesson> allStaticLessons = [
     title: 'Shoulder Radiography',
     bodyRegion: 'Upper Extremity',
     projectionName: 'Various Projections',
-    imageUrl: 'assets/images/practice/shoulder.png', // General image
+    // imageUrl: 'assets/images/practice/shoulder.png', // General image
     modelPath: 'assets/models/shoulder.glb', // Placeholder
     content: """
 # Shoulder Radiography Guide
@@ -68,7 +68,7 @@ This guide covers common radiographic projections for the shoulder joint.
     title: 'Humerus Radiography',
     bodyRegion: 'Upper Extremity',
     projectionName: 'Various Projections',
-    imageUrl: 'assets/images/practice/humerus.png', // General image
+    // imageUrl: 'assets/images/practice/humerus.png', // General image
     modelPath: 'assets/models/humerus.glb', // Placeholder
     content: """
 # Humerus Radiography Guide
@@ -103,7 +103,7 @@ This guide covers standard AP and Lateral projections of the humerus.
     title: 'Elbow Radiography',
     bodyRegion: 'Upper Extremity',
     projectionName: 'Various Projections',
-    imageUrl: 'assets/images/practice/elbow.png', // General image
+    // imageUrl: 'assets/images/practice/elbow.png', // General image
     modelPath: 'assets/models/elbow.glb', // Placeholder
     content: """
 # Elbow Radiography Guide
@@ -154,7 +154,7 @@ This guide covers standard projections for the elbow joint.
     title: 'Forearm Radiography',
     bodyRegion: 'Upper Extremity',
     projectionName: 'Various Projections',
-    imageUrl: 'assets/images/practice/forearm/forearm_ap.jpeg', // General image
+    // imageUrl: 'assets/images/practice/forearm/forearm_ap.jpeg', // General image
     modelPath: 'assets/models/forearm.glb', // Placeholder
     content: """
 # Forearm Radiography Guide
@@ -192,7 +192,7 @@ Standard forearm radiography includes AP and Lateral projections to visualize th
     title: 'Wrist Radiography',
     bodyRegion: 'Upper Extremity',
     projectionName: 'Various Projections',
-    imageUrl: 'assets/images/practice/wrist.png', // General image
+    // imageUrl: 'assets/images/practice/wrist.png', // General image
     modelPath: 'assets/models/wrist.glb', // Placeholder
     content: """
 # Wrist Radiography Guide
@@ -267,7 +267,7 @@ This guide covers common projections for the wrist joint and carpal bones.
     title: 'Hand Radiography',
     bodyRegion: 'Upper Extremity',
     projectionName: 'Various Projections',
-    imageUrl: 'assets/images/practice/hand.png', // General image
+    // imageUrl: 'assets/images/practice/hand.png', // General image
     modelPath: 'assets/models/hand.glb', // Placeholder
     content: """
 # Hand Radiography Guide

@@ -21,8 +21,7 @@ class _LearnModelViewerState extends State<LearnModelViewer> {
 
   @override
   void dispose() {
-    // Remove controller.dispose() as it's not defined
-    // The viewer likely handles its own cleanup.
+    // Dispose the controller to release resources - Removed as Flutter3DController has no dispose method
     super.dispose();
   }
 
