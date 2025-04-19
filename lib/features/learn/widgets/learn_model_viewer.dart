@@ -5,7 +5,8 @@ import 'package:alarp/core/theme/app_theme.dart';
 class LearnModelViewer extends StatefulWidget {
   final String src; // Path to the model file
 
-  const LearnModelViewer({Key? key, required this.src}) : super(key: key);
+  // Use super parameters for key
+  const LearnModelViewer({super.key, required this.src});
 
   @override
   State<LearnModelViewer> createState() => _LearnModelViewerState();
@@ -13,10 +14,17 @@ class LearnModelViewer extends StatefulWidget {
 
 class _LearnModelViewerState extends State<LearnModelViewer> {
   // Controller reference (optional for Learn, but can be useful)
-  Flutter3DController? controller = Flutter3DController();
+  final Flutter3DController controller = Flutter3DController();
   bool isInitialized = false;
   bool hasError = false;
   String errorMessage = '';
+
+  @override
+  void dispose() {
+    // Remove controller.dispose() as it's not defined
+    // The viewer likely handles its own cleanup.
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +35,8 @@ class _LearnModelViewerState extends State<LearnModelViewer> {
       // height: 350, // Height is controlled by AspectRatio in parent
       decoration: BoxDecoration(
         // Make background much lighter or transparent
-        color: AppTheme.primaryColor, // Changed from black.withOpacity(0.50)
+        // Replace deprecated withOpacity
+        color: AppTheme.primaryColor.withAlpha((255 * 0.8).round()),
         borderRadius: BorderRadius.circular(12), // Match parent ClipRRect
       ),
       child: ClipRRect(
