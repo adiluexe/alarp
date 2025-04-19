@@ -43,11 +43,3 @@
     ```bash
     flutter run
     ```
-
-## 🤝 Contributing
-
-Contributions are welcome! Please read our [CONTRIBUTING.md](CONTRIBUTING.md) (to be created) for guidelines on how to contribute to the project.
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file (to be created) for details.
