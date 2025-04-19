@@ -148,9 +148,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     icon: SolarIconsBold.medalStar,
                     color: AppTheme.secondaryColor,
                     onTap: () {
-                      context.go(
-                        // Use the correct challenge ID variable
-                        '${AppRoutes.challenge}/${AppRoutes.challengeStart.replaceFirst(':challengeId', dailyChallengeId)}',
+                      // Use the helper method to generate the correct route
+                      // Use push for consistency
+                      context.push(
+                        AppRoutes.challengeStartRoute(dailyChallengeId),
                       );
                     },
                   ),
