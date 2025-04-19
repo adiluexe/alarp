@@ -33,23 +33,36 @@ class CollimationController {
     final targetCenterY = _targets['centerY']!;
     final targetAngle = _targets['angle']!;
 
-    final widthDiff = (_collimationState.width - targetWidth).abs();
-    final heightDiff = (_collimationState.height - targetHeight).abs();
-    final centerXDiff = (_collimationState.centerX - targetCenterX).abs();
-    final centerYDiff = (_collimationState.centerY - targetCenterY).abs();
-    final angleDiff = (_collimationState.angle - targetAngle).abs();
+    // Define tolerances for each parameter (adjust these for desired strictness)
+    const double widthTolerance = 0.05; // e.g., +/- 5% of the total range (0.9)
+    const double heightTolerance = 0.05;
+    const double centerTolerance = 0.1; // e.g., +/- 5% of the total range (2.0)
+    const double angleTolerance = 5.0; // e.g., +/- 5 degrees
 
-    final totalDiff =
-        widthDiff + heightDiff + centerXDiff + centerYDiff + angleDiff;
+    // Calculate normalized error for each parameter (clamped between 0 and 1)
+    final widthError = ((_collimationState.width - targetWidth).abs() /
+            widthTolerance)
+        .clamp(0.0, 1.0);
+    final heightError = ((_collimationState.height - targetHeight).abs() /
+            heightTolerance)
+        .clamp(0.0, 1.0);
+    final centerXError = ((_collimationState.centerX - targetCenterX).abs() /
+            centerTolerance)
+        .clamp(0.0, 1.0);
+    final centerYError = ((_collimationState.centerY - targetCenterY).abs() /
+            centerTolerance)
+        .clamp(0.0, 1.0);
+    final angleError = ((_collimationState.angle - targetAngle).abs() /
+            angleTolerance)
+        .clamp(0.0, 1.0);
 
-    final maxDiff =
-        (1.0 - 0.1) + // width range
-        (1.0 - 0.1) + // height range
-        (1.0 - (-1.0)) + // centerX range
-        (1.0 - (-1.0)) + // centerY range
-        (45.0 - (-45.0)); // angle range
+    // Calculate the average error
+    final averageError =
+        (widthError + heightError + centerXError + centerYError + angleError) /
+        5.0;
 
-    final accuracy = max(0.0, 100.0 * (1.0 - (totalDiff / maxDiff)));
+    // Accuracy is 100% minus the average error percentage
+    final accuracy = max(0.0, 100.0 * (1.0 - averageError));
     return accuracy;
   }
 
