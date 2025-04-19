@@ -56,7 +56,7 @@ const Map<String, Map<String, double>> _targetData = {
   },
 
   // Humerus (Updated - using 'humerus_ap' and 'humerus_lateral' keys)
-  'humerus_ap': {
+  'humerus_ap_upright': {
     // Changed key from humerus_ap_upright
     'width': 0.3, // Updated width
     'height': 0.4, // Updated height
@@ -64,7 +64,7 @@ const Map<String, Map<String, double>> _targetData = {
     'centerY': -0.4, // Updated vertical
     'angle': 0.0,
   },
-  'humerus_lateral': {
+  'humerus_lateral_upright': {
     // Changed key from humerus_lateral_upright
     'width': 0.4,
     'height': 0.4,
@@ -81,7 +81,7 @@ const Map<String, Map<String, double>> _targetData = {
     'centerY': 0.3, // Updated vertical
     'angle': 0.0,
   },
-  'elbow_ap_oblique_lateral': {
+  'elbow_ap_oblique_lateral_rotation': {
     // New
     'width': 0.3,
     'height': 0.3, // Assuming typo 'heigth'
@@ -89,7 +89,7 @@ const Map<String, Map<String, double>> _targetData = {
     'centerY': 0.6,
     'angle': 0.0,
   },
-  'elbow_ap_oblique_medial': {
+  'elbow_ap_oblique_medial_rotation': {
     // New
     'width': 0.3,
     'height': 0.3, // Assuming typo 'heigth'
@@ -307,12 +307,12 @@ const Map<String, TargetInfo> _targetInfoData = {
     pxPosition: 'standing',
   ), // Corrected typo 'legthwise'
   // Humerus
-  'humerus_ap': TargetInfo(
+  'humerus_ap_upright': TargetInfo(
     irSize: '14x17',
     irOrientation: 'crosswise',
     pxPosition: 'standing',
   ),
-  'humerus_lateral': TargetInfo(
+  'humerus_lateral_upright': TargetInfo(
     irSize: '14x17',
     irOrientation: 'crosswise',
     pxPosition: 'standing',
@@ -346,12 +346,12 @@ const Map<String, TargetInfo> _targetInfoData = {
     irOrientation: 'lengthwise',
     pxPosition: 'Seated',
   ),
-  'elbow_ap_oblique_lateral': TargetInfo(
+  'elbow_ap_oblique_lateral_rotation': TargetInfo(
     irSize: '8x10',
     irOrientation: 'lengthwise',
     pxPosition: 'Seated',
   ),
-  'elbow_ap_oblique_medial': TargetInfo(
+  'elbow_ap_oblique_medial_rotation': TargetInfo(
     irSize: '8x10',
     irOrientation: 'lengthwise',
     pxPosition: 'Seated',
