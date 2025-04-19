@@ -1,6 +1,6 @@
 # ALARP - A Learning Aid In Radiographic Positioning
 
-**ALARP is a Flutter mobile application designed to help Radiologic Technology students learn radiographic positioning concepts and practice essential 2D collimation skills.**
+**ALARP (A Learning Aid In Radiographic Positioning) is a Flutter app designed to help Radiologic Technology students to master positioning concepts and hone 2D collimation skills through interactive learning and practice.**
 
 ## ✨ Core Features
 
@@ -9,6 +9,8 @@
 - **Challenge:** Test your knowledge and speed in gamified, timed tasks. Challenges involve selecting the correct positioning, IR size, IR orientation, patient position, and performing accurate collimation under time pressure.
 - **Profile:** Track your progress, view statistics, and potentially compete on leaderboards _(future feature)_.
 - **Authentication:** Secure user accounts using Supabase (Email/Password, Google) - _(Future Implementation)_.
+
+## 📸 Screenshots
 
 ## 🛠️ Tech Stack
 
@@ -19,7 +21,7 @@
 - **Routing:** GoRouter
 - **UI:** Material Design 3
 - **2D Graphics:** Flutter `CustomPaint` for collimation overlay
-- **3D Viewer (Learn):** `flutter_3d_controller` (non-interactive)
+- **3D Viewer:** `flutter_3d_controller`
 
 ## 🚀 Getting Started
 
@@ -41,3 +43,11 @@
     ```bash
     flutter run
     ```
+
+## 🤝 Contributing
+
+Contributions are welcome! Please read our [CONTRIBUTING.md](CONTRIBUTING.md) (to be created) for guidelines on how to contribute to the project.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file (to be created) for details.
