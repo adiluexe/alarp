@@ -15,7 +15,7 @@ class ChallengeController extends StateNotifier<ChallengeState> {
     : super(
         ChallengeState(
           challenge: initialChallenge,
-          status: ChallengeStatus.notStarted,
+          status: ChallengeStatus.initial,
           currentStepIndex: -1,
           remainingTime: initialChallenge.timeLimit,
         ),
@@ -26,31 +26,38 @@ class ChallengeController extends StateNotifier<ChallengeState> {
     ref.read(collimationStateProvider.notifier).reset();
     state = ChallengeState(
       challenge: initialChallenge,
-      status: ChallengeStatus.notStarted,
+      status: ChallengeStatus.initial,
       currentStepIndex: -1,
       remainingTime: initialChallenge.timeLimit,
       selectedPositioningIndex: null,
+      selectedIRSizeIndex: null,
+      selectedIROrientationIndex: null,
+      selectedPatientPositionIndex: null,
+      score: 0,
     );
-    print("Challenge state reset.");
   }
 
   void startChallenge() {
-    if (state.status != ChallengeStatus.notStarted) {
-      print(
-        "Challenge cannot start, status is ${state.status}. Call resetChallenge() first.",
-      );
-      return;
+    if (state.status != ChallengeStatus.initial) {
+      resetChallenge();
     }
-
-    ref.read(collimationStateProvider.notifier).reset();
 
     state = state.copyWith(
       status: ChallengeStatus.inProgress,
       currentStepIndex: 0,
       remainingTime: state.challenge.timeLimit,
+      score: 0,
+      selectedPositioningIndex: null,
+      selectedIRSizeIndex: null,
+      selectedIROrientationIndex: null,
+      selectedPatientPositionIndex: null,
+      resetSelections: true,
     );
     _startTimer();
-    print("Challenge started.");
+
+    if (state.currentStep is CollimationStep) {
+      ref.read(collimationStateProvider.notifier).reset();
+    }
   }
 
   void _startTimer() {
@@ -73,15 +80,91 @@ class ChallengeController extends StateNotifier<ChallengeState> {
       return;
     }
 
-    final step = state.currentStep as PositioningSelectionStep;
-    state = state.copyWith(selectedPositioningIndex: () => index);
+    if (state.selectedPositioningIndex != null) return;
 
-    if (index == step.correctImageIndex) {
-      _moveToNextStep();
-    } else {
-      _timer?.cancel();
-      state = state.copyWith(status: ChallengeStatus.completedFailureIncorrect);
+    final step = state.currentStep as PositioningSelectionStep;
+    state = state.copyWith(
+      selectedPositioningIndex: index,
+      resetSelections: false,
+    );
+
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (!mounted) return;
+      if (index == step.correctAnswerIndex) {
+        _advanceStep(correct: true);
+      } else {
+        _failChallenge(ChallengeStatus.completedFailureIncorrect);
+      }
+    });
+  }
+
+  void selectIRSizeAnswer(int index) {
+    if (state.status != ChallengeStatus.inProgress ||
+        state.currentStep is! IRSizeQuizStep) {
+      return;
     }
+
+    if (state.selectedIRSizeIndex != null) return;
+
+    final step = state.currentStep as IRSizeQuizStep;
+    state = state.copyWith(selectedIRSizeIndex: index, resetSelections: false);
+
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (!mounted) return;
+      if (index == step.correctAnswerIndex) {
+        _advanceStep(correct: true);
+      } else {
+        _failChallenge(ChallengeStatus.completedFailureIncorrect);
+      }
+    });
+  }
+
+  void selectIROrientationAnswer(int index) {
+    if (state.status != ChallengeStatus.inProgress ||
+        state.currentStep is! IROrientationQuizStep) {
+      return;
+    }
+
+    if (state.selectedIROrientationIndex != null) return;
+
+    final step = state.currentStep as IROrientationQuizStep;
+    state = state.copyWith(
+      selectedIROrientationIndex: index,
+      resetSelections: false,
+    );
+
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (!mounted) return;
+      if (index == step.correctAnswerIndex) {
+        _advanceStep(correct: true);
+      } else {
+        _failChallenge(ChallengeStatus.completedFailureIncorrect);
+      }
+    });
+  }
+
+  void selectPatientPositionAnswer(int index) {
+    if (state.status != ChallengeStatus.inProgress ||
+        state.currentStep is! PatientPositionQuizStep) {
+      return;
+    }
+
+    if (state.selectedPatientPositionIndex != null) return;
+
+    final step = state.currentStep as PatientPositionQuizStep;
+    state = state.copyWith(
+      selectedPatientPositionIndex: index,
+      resetSelections: false,
+    );
+
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (!mounted) return;
+      if (index == step.correctAnswerIndex) {
+        _advanceStep(correct: true);
+      } else {
+        _failChallenge(ChallengeStatus.completedFailureIncorrect);
+      }
+    });
   }
 
   void submitCollimation() {
@@ -99,27 +182,79 @@ class ChallengeController extends StateNotifier<ChallengeState> {
       collimationControllerProvider(params),
     );
 
-    if (collimationController.isCorrect) {
-      _moveToNextStep();
-    } else {
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (!mounted) return;
+      if (collimationController.isCorrect) {
+        _advanceStep(correct: true);
+      } else {
+        _failChallenge(ChallengeStatus.completedFailureIncorrect);
+      }
+    });
+  }
+
+  void _advanceStep({required bool correct}) {
+    if (state.status != ChallengeStatus.inProgress) return;
+    if (!mounted) return;
+
+    int updatedScore = state.score + (correct ? 1 : 0);
+    int nextStepIndex = state.currentStepIndex + 1;
+
+    print(
+      'Advancing Step: Current Index=${state.currentStepIndex}, Next Index=$nextStepIndex, Steps Total=${state.challenge.steps.length}',
+    );
+
+    if (nextStepIndex >= state.challenge.steps.length) {
+      print('Advancing Step: Reached end of challenge.');
       _timer?.cancel();
-      state = state.copyWith(status: ChallengeStatus.completedFailureIncorrect);
+      state = state.copyWith(
+        status: ChallengeStatus.completedSuccess,
+        score: updatedScore,
+        currentStepIndex: state.currentStepIndex,
+        selectedPositioningIndex: null,
+        selectedIRSizeIndex: null,
+        selectedIROrientationIndex: null,
+        selectedPatientPositionIndex: null,
+        resetSelections: true,
+      );
+    } else {
+      print('Advancing Step: Moving to step index $nextStepIndex.');
+      ChallengeState nextState = state.copyWith(
+        currentStepIndex: nextStepIndex,
+        score: updatedScore,
+        selectedPositioningIndex: null,
+        selectedIRSizeIndex: null,
+        selectedIROrientationIndex: null,
+        selectedPatientPositionIndex: null,
+        resetSelections: true,
+      );
+
+      state = nextState;
+
+      if (state.currentStep is CollimationStep) {
+        print(
+          'Advancing Step: Next step is Collimation, resetting collimation state.',
+        );
+        ref.read(collimationStateProvider.notifier).reset();
+      } else {
+        print(
+          'Advancing Step: Next step is ${state.currentStep?.runtimeType}, not resetting collimation.',
+        );
+      }
     }
   }
 
-  void _moveToNextStep() {
-    if (state.currentStepIndex + 1 < state.challenge.steps.length) {
-      state = state.copyWith(
-        currentStepIndex: state.currentStepIndex + 1,
-        selectedPositioningIndex: () => null,
-      );
-      if (state.currentStep is CollimationStep) {
-        ref.read(collimationStateProvider.notifier).reset();
-      }
-    } else {
-      _timer?.cancel();
-      state = state.copyWith(status: ChallengeStatus.completedSuccess);
-    }
+  void _failChallenge(ChallengeStatus failureStatus) {
+    if (state.status != ChallengeStatus.inProgress) return;
+    if (!mounted) return;
+    _timer?.cancel();
+    state = state.copyWith(
+      status: failureStatus,
+      selectedPositioningIndex: null,
+      selectedIRSizeIndex: null,
+      selectedIROrientationIndex: null,
+      selectedPatientPositionIndex: null,
+      resetSelections: true,
+    );
   }
 
   @override

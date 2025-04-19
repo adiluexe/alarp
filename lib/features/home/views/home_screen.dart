@@ -96,7 +96,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildQuickActions() {
     // Get today's challenge ID for navigation
-    final String dailyChallengeId = Challenge.apForearmChallenge.id;
+    // Use the 5-step challenge ID
+    final String dailyChallengeId = Challenge.forearmApChallenge.id;
     // Define a width for the cards
     const double cardWidth = 280.0;
 
@@ -141,13 +142,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   width: cardWidth,
                   child: ActionCard(
                     title: 'Daily Challenge',
-                    subtitle:
-                        Challenge.apForearmChallenge.title, // Use actual title
+                    // Use the 5-step challenge title
+                    subtitle: Challenge.forearmApChallenge.title,
                     description: 'Complete today\'s challenge',
                     icon: SolarIconsBold.medalStar,
                     color: AppTheme.secondaryColor,
                     onTap: () {
                       context.go(
+                        // Use the correct challenge ID variable
                         '${AppRoutes.challenge}/${AppRoutes.challengeStart.replaceFirst(':challengeId', dailyChallengeId)}',
                       );
                     },

@@ -5,8 +5,6 @@ import 'challenge_step.dart';
 const String _handLateral = 'assets/images/practice/hand/hand_lateral.webp';
 const String _elbowLateral = 'assets/images/practice/elbow/elbow_lateral.webp';
 const String _elbowAP = 'assets/images/practice/elbow/elbow_ap.webp';
-const String _forearmLateral =
-    'assets/images/practice/forearm/forearm_lateral.webp';
 // Define the specific image path
 const String _apForearmCorrectImage =
     'assets/images/practice/forearm/forearm_ap.webp';
@@ -54,31 +52,85 @@ class Challenge {
     isTodaysChallenge: true, // Set flag for today's challenge
     steps: [
       PositioningSelectionStep(
-        instruction:
-            'Select the image showing the correct AP Forearm position.',
-        imageOptions: [
-          // Use placeholder image paths for incorrect options
+        id: 'step1_pos',
+        question: 'Select the correct AP Forearm position:',
+        imageAssets: [
           _handLateral,
           _apForearmCorrectImage, // Use the specific correct image path
           _elbowLateral,
           _elbowAP,
         ],
-        correctImageIndex: 1, // Index of the correct image
+        correctAnswerIndex: 1, // Index of the correct image
+        instruction: 'Step 1: Choose the Positioning',
       ),
       CollimationStep(
+        id: 'step5_collimation',
         bodyPartId: 'forearm', // Pass necessary info
         projectionName: 'AP',
-        // Target values will be fetched by CollimationController using projectionName
+        instruction: 'Step 5: Adjust Collimation',
       ),
     ],
   );
 
-  // --- Add more static challenges later ---
-  static Challenge getChallengeById(String id) {
-    // In a real app, fetch from a list or DB
-    if (id == apForearmChallenge.id) {
-      return apForearmChallenge;
+  static final Challenge forearmApChallenge = Challenge(
+    id: 'forearm_ap_1',
+    title: 'Forearm AP Basics',
+    description: 'Positioning and Collimation for Forearm AP',
+    difficulty: 'Beginner',
+    timeLimit: const Duration(minutes: 3), // Updated time limit
+    regionId: 'upper_limb', // Example region ID
+    bodyPartId: 'forearm', // Example body part ID
+    projectionName: 'AP',
+    steps: [
+      PositioningSelectionStep(
+        id: 'step1_pos',
+        question: 'Select the correct AP Forearm position:',
+        imageAssets: [
+          'assets/images/practice/forearm/forearm_ap.webp', // Correct
+          'assets/images/practice/forearm/forearm_lateral.webp', // Incorrect
+          'assets/images/practice/elbow/elbow_ap.webp', // Incorrect
+          'assets/images/practice/elbow/elbow_lateral.webp', // Incorrect
+        ],
+        correctAnswerIndex: 0,
+        instruction: 'Step 1: Choose the Positioning',
+      ),
+      IRSizeQuizStep(
+        id: 'step2_ir_size',
+        options: ["8x10\"", "10x12\"", "7x17\"", "14x17\""],
+        correctAnswerIndex: 2, // Index for "7x17"
+        instruction: 'Step 2: Select IR Size',
+      ),
+      IROrientationQuizStep(
+        id: 'step3_ir_orient',
+        options: ["Crosswise", "Lengthwise"],
+        correctAnswerIndex: 1, // Index for "Lengthwise"
+        instruction: 'Step 3: Select IR Orientation',
+      ),
+      PatientPositionQuizStep(
+        id: 'step4_px_pos',
+        options: ["Upright", "Seated", "Supine"],
+        correctAnswerIndex: 1, // Index for "Seated"
+        instruction: 'Step 4: Select Patient Position',
+      ),
+      CollimationStep(
+        id: 'step5_collimation',
+        bodyPartId: 'forearm',
+        projectionName: 'AP',
+        instruction: 'Step 5: Adjust Collimation',
+      ),
+    ],
+  );
+
+  static List<Challenge> get challenges => [
+    apForearmChallenge,
+    forearmApChallenge,
+  ];
+
+  static Challenge? getChallengeById(String id) {
+    try {
+      return challenges.firstWhere((c) => c.id == id);
+    } catch (e) {
+      return null;
     }
-    throw Exception('Challenge with id $id not found');
   }
 }

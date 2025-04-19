@@ -1,153 +1,109 @@
 import 'package:flutter/material.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import 'package:solar_icons/solar_icons.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_theme.dart';
 import '../models/challenge_step.dart';
 
-class PositioningSelectionWidget extends StatefulWidget {
+class PositioningSelectionWidget extends ConsumerWidget {
   final PositioningSelectionStep step;
   final Function(int) onSelected;
-  final int? selectedIndex; // Make nullable
+  final int? selectedIndex;
 
   const PositioningSelectionWidget({
     super.key,
     required this.step,
     required this.onSelected,
-    this.selectedIndex, // Updated
+    this.selectedIndex,
   });
 
   @override
-  State<PositioningSelectionWidget> createState() =>
-      _PositioningSelectionWidgetState();
-}
-
-class _PositioningSelectionWidgetState
-    extends State<PositioningSelectionWidget> {
-  late final PageController _pageController;
-  int _currentPageIndex = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _pageController = PageController();
-    _pageController.addListener(() {
-      final newIndex = _pageController.page?.round() ?? 0;
-      if (newIndex != _currentPageIndex) {
-        setState(() {
-          _currentPageIndex = newIndex;
-        });
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16.0),
+      padding: const EdgeInsets.all(16.0),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Text(
-              widget.step.instruction,
+          if (step.instruction != null) ...[
+            Text(
+              step.instruction!,
               style: Theme.of(
                 context,
-              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w600),
-              textAlign: TextAlign.center,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
             ),
-          ),
+            const SizedBox(height: 8),
+          ],
+          Text(step.question, style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 24),
-          // Constrain the PageView instead of using Center(Expanded(...))
-          SizedBox(
-            // Adjust height as needed, e.g., based on screen size or fixed value
-            height: MediaQuery.of(context).size.height * 0.5,
-            child: PageView.builder(
-              controller: _pageController,
-              itemCount: widget.step.imageOptions.length,
+          Expanded(
+            child: GridView.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: 0.8,
+              ),
+              itemCount: step.imageAssets.length,
               itemBuilder: (context, index) {
-                String imagePath = widget.step.imageOptions[index];
-                bool isSelected = widget.selectedIndex == index;
+                final imagePath = step.imageAssets[index];
+                final isSelected = selectedIndex == index;
 
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 32.0),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      border:
-                          isSelected
-                              ? Border.all(
-                                color: AppTheme.primaryColor,
-                                width: 3,
-                              ) // Highlight if selected
-                              : null,
-                      boxShadow: [
-                        BoxShadow(
-                          // Fix deprecated withOpacity
-                          color: Colors.black.withAlpha((255 * 0.1).round()),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
+                return GestureDetector(
+                  onTap: () => onSelected(index),
+                  child: Card(
+                    elevation: isSelected ? 6 : 1,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(
+                        color:
+                            isSelected
+                                ? AppTheme.primaryColor
+                                : Colors.grey.shade300,
+                        width: isSelected ? 2.5 : 1,
+                      ),
                     ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: Image.asset(
-                        imagePath,
-                        fit: BoxFit.cover, // Changed from BoxFit.contain
-                        errorBuilder:
-                            (context, error, stackTrace) => Container(
-                              color: Colors.grey[200],
-                              child: const Center(
+                    clipBehavior: Clip.antiAlias,
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        Image.asset(
+                          imagePath,
+                          fit: BoxFit.cover,
+                          errorBuilder:
+                              (context, error, stackTrace) => Center(
                                 child: Icon(
-                                  Icons.image_not_supported,
-                                  size: 50,
-                                  color: Colors.grey,
+                                  Icons.broken_image,
+                                  color: Colors.grey[400],
+                                  size: 40,
                                 ),
                               ),
+                        ),
+                        if (isSelected)
+                          Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(11),
+                              color: AppTheme.primaryColor.withOpacity(0.3),
                             ),
-                      ),
+                          ),
+                        if (isSelected)
+                          const Positioned(
+                            top: 8,
+                            right: 8,
+                            child: CircleAvatar(
+                              radius: 12,
+                              backgroundColor: AppTheme.primaryColor,
+                              child: Icon(
+                                Icons.check,
+                                size: 16,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                   ),
                 );
               },
             ),
           ),
-          const SizedBox(height: 16),
-          SmoothPageIndicator(
-            controller: _pageController,
-            count: widget.step.imageOptions.length,
-            effect: WormEffect(
-              dotHeight: 10,
-              dotWidth: 10,
-              activeDotColor: AppTheme.primaryColor,
-              dotColor: Colors.grey.shade300,
-            ),
-          ),
-          const SizedBox(height: 24),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32.0),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                icon: const Icon(SolarIconsBold.checkCircle),
-                label: const Text('Select This Image'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryColor,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                ),
-                onPressed: () => widget.onSelected(_currentPageIndex),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
         ],
       ),
     );

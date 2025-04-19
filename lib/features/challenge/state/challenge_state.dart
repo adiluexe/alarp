@@ -1,33 +1,43 @@
-import 'package:flutter/foundation.dart'; // Keep this for Flutter's ValueGetter
+import 'package:flutter/foundation.dart'; // For immutable annotation
 import '../models/challenge.dart';
 import '../models/challenge_step.dart';
 
 enum ChallengeStatus {
-  notStarted,
+  initial,
   inProgress,
-  paused, // Optional
+  paused,
   completedSuccess,
   completedFailureTime,
   completedFailureIncorrect,
 }
 
+@immutable
 class ChallengeState {
   final Challenge challenge;
   final ChallengeStatus status;
   final int currentStepIndex;
   final Duration remainingTime;
-  final int? selectedPositioningIndex; // User's selection in positioning step
-  // Add score, accuracy etc. later
+  final int score;
+  // Store selected answers for each step type
+  final int? selectedPositioningIndex;
+  final int? selectedIRSizeIndex; // New
+  final int? selectedIROrientationIndex; // New
+  final int? selectedPatientPositionIndex; // New
+  // Collimation state is handled separately via collimationStateProvider
 
   const ChallengeState({
     required this.challenge,
-    required this.status,
-    required this.currentStepIndex,
+    this.status = ChallengeStatus.initial,
+    this.currentStepIndex = 0,
     required this.remainingTime,
+    this.score = 0,
     this.selectedPositioningIndex,
+    this.selectedIRSizeIndex, // New
+    this.selectedIROrientationIndex, // New
+    this.selectedPatientPositionIndex, // New
   });
 
-  // Helper getter for the current step object
+  // Helper to get the current step object
   ChallengeStep? get currentStep {
     if (currentStepIndex >= 0 && currentStepIndex < challenge.steps.length) {
       return challenge.steps[currentStepIndex];
@@ -35,25 +45,41 @@ class ChallengeState {
     return null;
   }
 
-  // Manually add copyWith
   ChallengeState copyWith({
-    Challenge? challenge,
     ChallengeStatus? status,
     int? currentStepIndex,
     Duration? remainingTime,
-    // Change type to a nullable function returning nullable int
-    int? Function()? selectedPositioningIndex,
+    int? score,
+    int? selectedPositioningIndex,
+    int? selectedIRSizeIndex, // New
+    int? selectedIROrientationIndex, // New
+    int? selectedPatientPositionIndex, // New
+    bool resetSelections = false, // Helper to clear selections on step change
   }) {
     return ChallengeState(
-      challenge: challenge ?? this.challenge,
+      challenge: challenge,
       status: status ?? this.status,
       currentStepIndex: currentStepIndex ?? this.currentStepIndex,
       remainingTime: remainingTime ?? this.remainingTime,
-      // If the function is provided, call it to get the new value
+      score: score ?? this.score,
+      // Reset specific selections if moving to a new step or explicitly requested
       selectedPositioningIndex:
-          selectedPositioningIndex != null
-              ? selectedPositioningIndex()
-              : this.selectedPositioningIndex,
+          resetSelections
+              ? null
+              : (selectedPositioningIndex ?? this.selectedPositioningIndex),
+      selectedIRSizeIndex:
+          resetSelections
+              ? null
+              : (selectedIRSizeIndex ?? this.selectedIRSizeIndex),
+      selectedIROrientationIndex:
+          resetSelections
+              ? null
+              : (selectedIROrientationIndex ?? this.selectedIROrientationIndex),
+      selectedPatientPositionIndex:
+          resetSelections
+              ? null
+              : (selectedPatientPositionIndex ??
+                  this.selectedPatientPositionIndex),
     );
   }
 }

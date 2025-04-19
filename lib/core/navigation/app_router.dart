@@ -99,11 +99,23 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.challengeStart, // Use the absolute path constant
         builder: (context, state) {
           final challengeId = state.pathParameters['challengeId']!;
-          // Fetch challenge data (using static method for now)
           final challenge = Challenge.getChallengeById(challengeId);
+
+          // Handle case where challenge is not found
+          if (challenge == null) {
+            return Scaffold(
+              appBar: AppBar(title: const Text('Error')),
+              body: Center(
+                child: Text('Challenge with ID \'$challengeId\' not found.'),
+              ),
+            );
+          }
+
           // Override the provider for this specific route
           return ProviderScope(
-            overrides: [currentChallengeProvider.overrideWithValue(challenge)],
+            overrides: [
+              currentChallengeProvider.overrideWithValue(challenge),
+            ], // Now safe
             child: ChallengeStartScreen(challengeId: challengeId),
           );
         },
@@ -114,9 +126,22 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final challengeId = state.pathParameters['challengeId']!;
           final challenge = Challenge.getChallengeById(challengeId);
+
+          // Handle case where challenge is not found
+          if (challenge == null) {
+            return Scaffold(
+              appBar: AppBar(title: const Text('Error')),
+              body: Center(
+                child: Text('Challenge with ID \'$challengeId\' not found.'),
+              ),
+            );
+          }
+
           // Override the provider for this specific route
           return ProviderScope(
-            overrides: [activeChallengeProvider.overrideWithValue(challenge)],
+            overrides: [
+              activeChallengeProvider.overrideWithValue(challenge),
+            ], // Now safe
             child: ChallengeActiveScreen(challengeId: challengeId),
           );
         },

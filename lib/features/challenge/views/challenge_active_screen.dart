@@ -8,6 +8,9 @@ import '../models/challenge_step.dart';
 import '../state/challenge_state.dart';
 import '../controllers/challenge_controller.dart';
 import '../widgets/positioning_selection_widget.dart';
+import '../widgets/ir_size_quiz_widget.dart'; // New import
+import '../widgets/ir_orientation_quiz_widget.dart'; // New import
+import '../widgets/patient_position_quiz_widget.dart'; // New import
 import '../../practice/widgets/collimation_painter.dart';
 import '../../practice/widgets/collimation_controls_widget.dart';
 import '../../practice/models/collimation_state.dart';
@@ -149,6 +152,8 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
       return const Center(child: CircularProgressIndicator());
     }
 
+    // --- Handle Different Step Types ---
+
     if (step is PositioningSelectionStep) {
       return PositioningSelectionWidget(
         step: step,
@@ -157,11 +162,42 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
       );
     }
 
+    if (step is IRSizeQuizStep) {
+      // New
+      return IRSizeQuizWidget(
+        step: step,
+        onSelected: (index) => notifier.selectIRSizeAnswer(index),
+        selectedIndex: challengeState.selectedIRSizeIndex,
+      );
+    }
+
+    if (step is IROrientationQuizStep) {
+      // New
+      return IROrientationQuizWidget(
+        step: step,
+        onSelected: (index) => notifier.selectIROrientationAnswer(index),
+        selectedIndex: challengeState.selectedIROrientationIndex,
+      );
+    }
+
+    if (step is PatientPositionQuizStep) {
+      // New
+      return PatientPositionQuizWidget(
+        step: step,
+        onSelected: (index) => notifier.selectPatientPositionAnswer(index),
+        selectedIndex: challengeState.selectedPatientPositionIndex,
+      );
+    }
+
     if (step is CollimationStep) {
       // Use practice screen's layout structure for collimation
       final colState = ref.watch(collimationStateProvider);
-      // Force imageAsset to use forearm_ap.webp
-      const imageAsset = 'assets/images/practice/forearm/forearm_ap.webp';
+      // TODO: Dynamically determine imageAsset based on step.bodyPartId/projectionName
+      // For now, using the placeholder:
+      final imageAsset = _getImagePathForCollimation(
+        step.bodyPartId,
+        step.projectionName,
+      );
 
       // Create params needed for controls widget
       final params = (
@@ -172,11 +208,28 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
       // Simplified layout for collimation step without tabs or accuracy overlay
       return Column(
         children: [
+          // Optional Instruction Text
+          if (step.instruction != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              child: Text(
+                step.instruction!,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                textAlign: TextAlign.center,
+              ),
+            ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+            padding: const EdgeInsets.fromLTRB(
+              16.0,
+              8.0,
+              16.0,
+              8.0,
+            ), // Adjusted top padding
             // Remove AspectRatio wrapper
             child: Container(
-              height: 450, // Set fixed height
+              height: 400, // Adjusted height slightly
               decoration: BoxDecoration(
                 color: Colors.grey[200],
                 borderRadius: BorderRadius.circular(16),
@@ -187,8 +240,8 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
                   fit: StackFit.expand,
                   children: [
                     Image.asset(
-                      imageAsset, // Use the hardcoded path
-                      fit: BoxFit.cover, // Change fit to cover
+                      imageAsset, // Use the determined path
+                      fit: BoxFit.contain, // Changed fit to contain
                       errorBuilder:
                           (context, error, stackTrace) => const Center(
                             // Consistent placeholder icon
@@ -246,7 +299,9 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
     }
 
     // Fallback for unknown step type
-    return const Center(child: Text('Unknown challenge step'));
+    return Center(
+      child: Text('Unknown challenge step type: ${step.runtimeType}'),
+    );
   }
 
   // Helper to format duration (MM:SS)
@@ -334,5 +389,20 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
       ); // Add logging
       return null;
     }
+  }
+
+  // Helper function to get image path (Placeholder - needs proper implementation)
+  String _getImagePathForCollimation(String bodyPartId, String projectionName) {
+    // TODO: Implement logic to map bodyPartId and projectionName to the correct image asset path
+    // This might involve looking up data similar to how it's done in CollimationPracticeScreen
+    // For now, return the placeholder or a specific example
+    if (bodyPartId == 'forearm' && projectionName == 'AP') {
+      return 'assets/images/practice/forearm/forearm_ap.webp';
+    }
+    // Add more mappings as needed...
+    print(
+      "Warning: Using default placeholder image for collimation step: $bodyPartId / $projectionName",
+    );
+    return 'assets/images/alarp_icon.png'; // Default placeholder
   }
 }
