@@ -96,8 +96,8 @@ class Challenge {
       ),
       IRSizeQuizStep(
         id: 'step2_ir_size',
-        options: ["8x10\"", "10x12\"", "7x17\"", "14x17\""],
-        correctAnswerIndex: 2, // Index for "7x17"
+        options: ["8x10\"", "10x12\"", "14x17\" divided", "7x17\""],
+        correctAnswerIndex: 2, // Index for "14x17 divided\""
         instruction: 'Step 2: Select IR Size',
       ),
       IROrientationQuizStep(
