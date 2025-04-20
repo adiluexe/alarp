@@ -462,7 +462,7 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
     // This might involve looking up data similar to how it's done in CollimationPracticeScreen
     // For now, return the placeholder or a specific example
     if (bodyPartId == 'forearm' && projectionName == 'AP') {
-      return 'assets/images/practice/forearm/forearm_ap.webp';
+      return 'assets/images/challenge/ap_forearm.webp';
     }
     // Add more mappings as needed...
     return 'assets/images/alarp_icon.png'; // Default placeholder

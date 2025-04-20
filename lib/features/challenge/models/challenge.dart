@@ -86,17 +86,17 @@ class Challenge {
         id: 'step1_pos',
         question: 'Select the correct AP Forearm position:',
         imageAssets: [
-          'assets/images/practice/forearm/forearm_ap.webp', // Correct
-          'assets/images/practice/forearm/forearm_lateral.webp', // Incorrect
-          'assets/images/practice/elbow/elbow_ap.webp', // Incorrect
-          'assets/images/practice/elbow/elbow_lateral.webp', // Incorrect
+          'assets/images/challenge/ap_forearm.webp', // Correct
+          'assets/images/challenge/ap_elbow.webp', // Incorrect
+          'assets/images/challenge/lateral_elbow.webp', // Incorrect
+          'assets/images/challenge/lateral_forearm.webp', // Incorrect
         ],
         correctAnswerIndex: 0,
         instruction: 'Step 1: Choose the Positioning',
       ),
       IRSizeQuizStep(
         id: 'step2_ir_size',
-        options: ["8x10\"", "10x12\"", "14x17\" divided", "7x17\""],
+        options: ["8x10\"", "10x12\"", "14x17\" divided", "14x17\""],
         correctAnswerIndex: 2, // Index for "14x17 divided\""
         instruction: 'Step 2: Select IR Size',
       ),
@@ -108,7 +108,7 @@ class Challenge {
       ),
       PatientPositionQuizStep(
         id: 'step4_px_pos',
-        options: ["Upright", "Seated", "Supine"],
+        options: ["Upright", "Seated"],
         correctAnswerIndex: 1, // Index for "Seated"
         instruction: 'Step 4: Select Patient Position',
       ),
