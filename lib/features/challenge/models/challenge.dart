@@ -121,9 +121,396 @@ class Challenge {
     ],
   );
 
+  static final Challenge upperExtremitiesChallenge = Challenge(
+    id: 'upper_extremities_10rounds',
+    title: 'Upper Extremities Challenge',
+    description:
+        'Test your knowledge of upper extremity positioning and collimation across 10 projections. Each round features 5 steps: Positioning, IR Size, IR Orientation, Patient Position, and Collimation.',
+    difficulty: 'Intermediate',
+    timeLimit: const Duration(minutes: 10),
+    regionId: 'upper_extremity',
+    bodyPartId: 'multi',
+    projectionName: 'multi',
+    backgroundColor: Colors.indigo,
+    steps: [
+      // 1. Forearm AP
+      PositioningSelectionStep(
+        id: '1_pos',
+        question: 'Select the correct AP Forearm position:',
+        imageAssets: [
+          'assets/images/practice/forearm/forearm_lateral.webp',
+          'assets/images/practice/forearm/forearm_ap.webp',
+          'assets/images/practice/elbow/elbow_ap.webp',
+          'assets/images/practice/hand/hand_pa.webp',
+        ],
+        correctAnswerIndex: 1,
+        instruction: 'Step 1: Choose the Positioning',
+      ),
+      IRSizeQuizStep(
+        id: '1_ir_size',
+        options: ["8x10", "10x12", "14x17 divided", "14x17"],
+        correctAnswerIndex: 2,
+        instruction: 'Step 2: Select IR Size',
+      ),
+      IROrientationQuizStep(
+        id: '1_ir_orient',
+        options: ["Crosswise", "Lengthwise"],
+        correctAnswerIndex: 1,
+        instruction: 'Step 3: Select IR Orientation',
+      ),
+      PatientPositionQuizStep(
+        id: '1_px_pos',
+        options: ["Upright", "Seated"],
+        correctAnswerIndex: 1,
+        instruction: 'Step 4: Select Patient Position',
+      ),
+      CollimationStep(
+        id: '1_collimation',
+        bodyPartId: 'forearm',
+        projectionName: 'AP',
+        instruction: 'Step 5: Adjust Collimation',
+      ),
+      // 2. Forearm Lateral
+      PositioningSelectionStep(
+        id: '2_pos',
+        question: 'Select the correct Lateral Forearm position:',
+        imageAssets: [
+          'assets/images/practice/forearm/forearm_ap.webp',
+          'assets/images/practice/forearm/forearm_lateral.webp',
+          'assets/images/practice/elbow/elbow_lateral.webp',
+          'assets/images/practice/hand/hand_lateral.webp',
+        ],
+        correctAnswerIndex: 1,
+        instruction: 'Step 1: Choose the Positioning',
+      ),
+      IRSizeQuizStep(
+        id: '2_ir_size',
+        options: ["8x10", "10x12", "14x17 divided", "14x17"],
+        correctAnswerIndex: 2,
+        instruction: 'Step 2: Select IR Size',
+      ),
+      IROrientationQuizStep(
+        id: '2_ir_orient',
+        options: ["Crosswise", "Lengthwise"],
+        correctAnswerIndex: 1,
+        instruction: 'Step 3: Select IR Orientation',
+      ),
+      PatientPositionQuizStep(
+        id: '2_px_pos',
+        options: ["Upright", "Seated"],
+        correctAnswerIndex: 1,
+        instruction: 'Step 4: Select Patient Position',
+      ),
+      CollimationStep(
+        id: '2_collimation',
+        bodyPartId: 'forearm',
+        projectionName: 'Lateral',
+        instruction: 'Step 5: Adjust Collimation',
+      ),
+      // 3. Elbow AP
+      PositioningSelectionStep(
+        id: '3_pos',
+        question: 'Select the correct AP Elbow position:',
+        imageAssets: [
+          'assets/images/practice/elbow/elbow_lateral.webp',
+          'assets/images/practice/elbow/elbow_ap.webp',
+          'assets/images/practice/forearm/forearm_ap.webp',
+          'assets/images/practice/hand/hand_pa.webp',
+        ],
+        correctAnswerIndex: 1,
+        instruction: 'Step 1: Choose the Positioning',
+      ),
+      IRSizeQuizStep(
+        id: '3_ir_size',
+        options: ["8x10", "10x12", "14x17 divided", "14x17"],
+        correctAnswerIndex: 0,
+        instruction: 'Step 2: Select IR Size',
+      ),
+      IROrientationQuizStep(
+        id: '3_ir_orient',
+        options: ["Crosswise", "Lengthwise"],
+        correctAnswerIndex: 1,
+        instruction: 'Step 3: Select IR Orientation',
+      ),
+      PatientPositionQuizStep(
+        id: '3_px_pos',
+        options: ["Upright", "Seated"],
+        correctAnswerIndex: 1,
+        instruction: 'Step 4: Select Patient Position',
+      ),
+      CollimationStep(
+        id: '3_collimation',
+        bodyPartId: 'elbow',
+        projectionName: 'AP',
+        instruction: 'Step 5: Adjust Collimation',
+      ),
+      // 4. Elbow Lateral
+      PositioningSelectionStep(
+        id: '4_pos',
+        question: 'Select the correct Lateral Elbow position:',
+        imageAssets: [
+          'assets/images/practice/elbow/elbow_ap.webp',
+          'assets/images/practice/elbow/elbow_lateral.webp',
+          'assets/images/practice/forearm/forearm_lateral.webp',
+          'assets/images/practice/hand/hand_lateral.webp',
+        ],
+        correctAnswerIndex: 1,
+        instruction: 'Step 1: Choose the Positioning',
+      ),
+      IRSizeQuizStep(
+        id: '4_ir_size',
+        options: ["8x10", "10x12", "14x17 divided", "14x17"],
+        correctAnswerIndex: 0,
+        instruction: 'Step 2: Select IR Size',
+      ),
+      IROrientationQuizStep(
+        id: '4_ir_orient',
+        options: ["Crosswise", "Lengthwise"],
+        correctAnswerIndex: 1,
+        instruction: 'Step 3: Select IR Orientation',
+      ),
+      PatientPositionQuizStep(
+        id: '4_px_pos',
+        options: ["Upright", "Seated"],
+        correctAnswerIndex: 1,
+        instruction: 'Step 4: Select Patient Position',
+      ),
+      CollimationStep(
+        id: '4_collimation',
+        bodyPartId: 'elbow',
+        projectionName: 'Lateral',
+        instruction: 'Step 5: Adjust Collimation',
+      ),
+      // 5. Wrist PA
+      PositioningSelectionStep(
+        id: '5_pos',
+        question: 'Select the correct PA Wrist position:',
+        imageAssets: [
+          'assets/images/practice/wrist/wrist_pa_oblique.webp',
+          'assets/images/practice/wrist/wrist_pa.webp',
+          'assets/images/practice/hand/hand_pa.webp',
+          'assets/images/practice/forearm/forearm_ap.webp',
+        ],
+        correctAnswerIndex: 1,
+        instruction: 'Step 1: Choose the Positioning',
+      ),
+      IRSizeQuizStep(
+        id: '5_ir_size',
+        options: ["8x10", "10x12", "14x17 divided", "14x17"],
+        correctAnswerIndex: 0,
+        instruction: 'Step 2: Select IR Size',
+      ),
+      IROrientationQuizStep(
+        id: '5_ir_orient',
+        options: ["Crosswise", "Lengthwise"],
+        correctAnswerIndex: 1,
+        instruction: 'Step 3: Select IR Orientation',
+      ),
+      PatientPositionQuizStep(
+        id: '5_px_pos',
+        options: ["Upright", "Seated"],
+        correctAnswerIndex: 1,
+        instruction: 'Step 4: Select Patient Position',
+      ),
+      CollimationStep(
+        id: '5_collimation',
+        bodyPartId: 'wrist',
+        projectionName: 'PA',
+        instruction: 'Step 5: Adjust Collimation',
+      ),
+      // 6. Wrist Lateral
+      PositioningSelectionStep(
+        id: '6_pos',
+        question: 'Select the correct Lateral Wrist position:',
+        imageAssets: [
+          'assets/images/practice/wrist/wrist_pa.webp',
+          'assets/images/practice/wrist/wrist_lateral.webp',
+          'assets/images/practice/hand/hand_lateral.webp',
+          'assets/images/practice/forearm/forearm_lateral.webp',
+        ],
+        correctAnswerIndex: 1,
+        instruction: 'Step 1: Choose the Positioning',
+      ),
+      IRSizeQuizStep(
+        id: '6_ir_size',
+        options: ["8x10", "10x12", "14x17 divided", "14x17"],
+        correctAnswerIndex: 0,
+        instruction: 'Step 2: Select IR Size',
+      ),
+      IROrientationQuizStep(
+        id: '6_ir_orient',
+        options: ["Crosswise", "Lengthwise"],
+        correctAnswerIndex: 1,
+        instruction: 'Step 3: Select IR Orientation',
+      ),
+      PatientPositionQuizStep(
+        id: '6_px_pos',
+        options: ["Upright", "Seated"],
+        correctAnswerIndex: 1,
+        instruction: 'Step 4: Select Patient Position',
+      ),
+      CollimationStep(
+        id: '6_collimation',
+        bodyPartId: 'wrist',
+        projectionName: 'Lateral',
+        instruction: 'Step 5: Adjust Collimation',
+      ),
+      // 7. Hand PA
+      PositioningSelectionStep(
+        id: '7_pos',
+        question: 'Select the correct PA Hand position:',
+        imageAssets: [
+          'assets/images/practice/hand/hand_pa_oblique.webp',
+          'assets/images/practice/hand/hand_pa.webp',
+          'assets/images/practice/wrist/wrist_pa.webp',
+          'assets/images/practice/forearm/forearm_ap.webp',
+        ],
+        correctAnswerIndex: 1,
+        instruction: 'Step 1: Choose the Positioning',
+      ),
+      IRSizeQuizStep(
+        id: '7_ir_size',
+        options: ["8x10", "10x12", "14x17 divided", "14x17"],
+        correctAnswerIndex: 1,
+        instruction: 'Step 2: Select IR Size',
+      ),
+      IROrientationQuizStep(
+        id: '7_ir_orient',
+        options: ["Crosswise", "Lengthwise"],
+        correctAnswerIndex: 1,
+        instruction: 'Step 3: Select IR Orientation',
+      ),
+      PatientPositionQuizStep(
+        id: '7_px_pos',
+        options: ["Upright", "Seated"],
+        correctAnswerIndex: 1,
+        instruction: 'Step 4: Select Patient Position',
+      ),
+      CollimationStep(
+        id: '7_collimation',
+        bodyPartId: 'hand',
+        projectionName: 'PA',
+        instruction: 'Step 5: Adjust Collimation',
+      ),
+      // 8. Hand Lateral
+      PositioningSelectionStep(
+        id: '8_pos',
+        question: 'Select the correct Lateral Hand position:',
+        imageAssets: [
+          'assets/images/practice/hand/hand_pa.webp',
+          'assets/images/practice/hand/hand_lateral.webp',
+          'assets/images/practice/wrist/wrist_lateral.webp',
+          'assets/images/practice/forearm/forearm_lateral.webp',
+        ],
+        correctAnswerIndex: 1,
+        instruction: 'Step 1: Choose the Positioning',
+      ),
+      IRSizeQuizStep(
+        id: '8_ir_size',
+        options: ["8x10", "10x12", "14x17 divided", "14x17"],
+        correctAnswerIndex: 1,
+        instruction: 'Step 2: Select IR Size',
+      ),
+      IROrientationQuizStep(
+        id: '8_ir_orient',
+        options: ["Crosswise", "Lengthwise"],
+        correctAnswerIndex: 1,
+        instruction: 'Step 3: Select IR Orientation',
+      ),
+      PatientPositionQuizStep(
+        id: '8_px_pos',
+        options: ["Upright", "Seated"],
+        correctAnswerIndex: 1,
+        instruction: 'Step 4: Select Patient Position',
+      ),
+      CollimationStep(
+        id: '8_collimation',
+        bodyPartId: 'hand',
+        projectionName: 'Lateral',
+        instruction: 'Step 5: Adjust Collimation',
+      ),
+      // 9. Shoulder AP External Rotation
+      PositioningSelectionStep(
+        id: '9_pos',
+        question:
+            'Select the correct AP Shoulder (External Rotation) position:',
+        imageAssets: [
+          'assets/images/practice/shoulder/shoulder_ap_internal_rotation.webp',
+          'assets/images/practice/shoulder/shoulder_ap_external_rotation.webp',
+          'assets/images/practice/shoulder/shoulder_ap_neutral_rotation.webp',
+          'assets/images/practice/shoulder/shoulder_scapular_y.webp',
+        ],
+        correctAnswerIndex: 1,
+        instruction: 'Step 1: Choose the Positioning',
+      ),
+      IRSizeQuizStep(
+        id: '9_ir_size',
+        options: ["8x10", "10x12", "14x17 divided", "14x17"],
+        correctAnswerIndex: 1,
+        instruction: 'Step 2: Select IR Size',
+      ),
+      IROrientationQuizStep(
+        id: '9_ir_orient',
+        options: ["Crosswise", "Lengthwise"],
+        correctAnswerIndex: 0,
+        instruction: 'Step 3: Select IR Orientation',
+      ),
+      PatientPositionQuizStep(
+        id: '9_px_pos',
+        options: ["Standing", "Seated"],
+        correctAnswerIndex: 0,
+        instruction: 'Step 4: Select Patient Position',
+      ),
+      CollimationStep(
+        id: '9_collimation',
+        bodyPartId: 'shoulder',
+        projectionName: 'AP External Rotation',
+        instruction: 'Step 5: Adjust Collimation',
+      ),
+      // 10. Humerus AP Upright
+      PositioningSelectionStep(
+        id: '10_pos',
+        question: 'Select the correct AP Humerus (Upright) position:',
+        imageAssets: [
+          'assets/images/practice/humerus/humerus_lateral_upright.webp',
+          'assets/images/practice/humerus/humerus_ap_upright.webp',
+          'assets/images/practice/shoulder/shoulder_ap_external_rotation.webp',
+          'assets/images/practice/forearm/forearm_ap.webp',
+        ],
+        correctAnswerIndex: 1,
+        instruction: 'Step 1: Choose the Positioning',
+      ),
+      IRSizeQuizStep(
+        id: '10_ir_size',
+        options: ["8x10", "10x12", "14x17 divided", "14x17"],
+        correctAnswerIndex: 3,
+        instruction: 'Step 2: Select IR Size',
+      ),
+      IROrientationQuizStep(
+        id: '10_ir_orient',
+        options: ["Crosswise", "Lengthwise"],
+        correctAnswerIndex: 0,
+        instruction: 'Step 3: Select IR Orientation',
+      ),
+      PatientPositionQuizStep(
+        id: '10_px_pos',
+        options: ["Standing", "Seated"],
+        correctAnswerIndex: 0,
+        instruction: 'Step 4: Select Patient Position',
+      ),
+      CollimationStep(
+        id: '10_collimation',
+        bodyPartId: 'humerus',
+        projectionName: 'AP Upright',
+        instruction: 'Step 5: Adjust Collimation',
+      ),
+    ],
+  );
+
   static List<Challenge> get challenges => [
     apForearmChallenge,
     forearmApChallenge,
+    upperExtremitiesChallenge,
   ];
 
   static Challenge? getChallengeById(String id) {

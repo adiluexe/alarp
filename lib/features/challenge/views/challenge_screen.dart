@@ -14,8 +14,8 @@ class ChallengeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Get the placeholder challenge data
-    // Use the 5-step challenge
-    final todayChallenge = Challenge.forearmApChallenge;
+    // Use the 10-round Upper Extremities Challenge as today's challenge
+    final todayChallenge = Challenge.upperExtremitiesChallenge;
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
@@ -101,7 +101,7 @@ class ChallengeScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     // Pass gradient directly to the card
-                    // Use the 5-step challenge data
+                    // Use the 10-round Upper Extremities Challenge data
                     ChallengeCard(
                       title: todayChallenge.title,
                       description: todayChallenge.description,
