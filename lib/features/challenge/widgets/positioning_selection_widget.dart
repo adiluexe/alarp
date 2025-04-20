@@ -95,6 +95,7 @@ class PositioningSelectionWidget extends StatelessWidget {
                             Expanded(
                               child: Image.asset(
                                 optionAssetPath,
+                                // Change fit to cover the container
                                 fit: BoxFit.cover,
                                 errorBuilder:
                                     (context, error, stackTrace) =>

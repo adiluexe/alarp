@@ -253,7 +253,7 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
                   children: [
                     Image.asset(
                       imageAsset, // Use the determined path
-                      fit: BoxFit.contain, // Changed fit to contain
+                      fit: BoxFit.cover, // Changed fit to contain
                       errorBuilder:
                           (context, error, stackTrace) => const Center(
                             // Consistent placeholder icon
