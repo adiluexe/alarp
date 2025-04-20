@@ -14,7 +14,6 @@ import '../widgets/patient_position_quiz_widget.dart'; // New import
 import '../../practice/widgets/collimation_painter.dart';
 import '../../practice/widgets/collimation_controls_widget.dart';
 import '../../practice/models/collimation_state.dart';
-import '../../practice/models/body_region.dart'; // Import BodyRegions
 
 // Provider to get the specific challenge instance for this screen
 final activeChallengeProvider = Provider<Challenge>((ref) {
@@ -412,9 +411,12 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
                     vertical: 10,
                   ),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
+                    color: color.withAlpha((255 * 0.1).round()),
                     borderRadius: BorderRadius.circular(30),
-                    border: Border.all(color: color.withOpacity(0.3), width: 1),
+                    border: Border.all(
+                      color: color.withAlpha((255 * 0.3).round()),
+                      width: 1,
+                    ),
                   ),
                   child: Text(
                     '$finalScore',
@@ -456,15 +458,23 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
     );
   }
 
-  // Helper function to get image path (Placeholder - needs proper implementation)
+  // Helper function to get image path for collimation step
   String _getImagePathForCollimation(String bodyPartId, String projectionName) {
-    // TODO: Implement logic to map bodyPartId and projectionName to the correct image asset path
-    // This might involve looking up data similar to how it's done in CollimationPracticeScreen
-    // For now, return the placeholder or a specific example
-    if (bodyPartId == 'forearm' && projectionName == 'AP') {
-      return 'assets/images/challenge/ap_forearm.webp';
-    }
-    // Add more mappings as needed...
-    return 'assets/images/alarp_icon.png'; // Default placeholder
+    // Standardize the projection name to match asset folder/file naming conventions
+    final standardizedProjection = projectionName
+        .toLowerCase()
+        .replaceAll(' ', '_')
+        .replaceAll('(', '')
+        .replaceAll(')', '');
+    final standardizedBodyPart = bodyPartId.toLowerCase();
+
+    // Construct the expected path
+    final imagePath =
+        'assets/images/practice/$standardizedBodyPart/${standardizedBodyPart}_$standardizedProjection.webp';
+
+    // TODO: Add error handling or a check to see if the file actually exists.
+    // For now, assume the path constructed is correct based on naming conventions.
+    print('Loading collimation image: $imagePath'); // Add print for debugging
+    return imagePath;
   }
 }

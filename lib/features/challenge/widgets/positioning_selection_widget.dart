@@ -26,13 +26,30 @@ class PositioningSelectionWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // Always show a clear, descriptive question at the top
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8.0),
+            child: Text(
+              step.question.isNotEmpty
+                  ? step.question
+                  : 'Which image shows the correct positioning for this projection?',
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+                fontFamily: 'Chillax',
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          // Show a more descriptive instruction below the question
           if (step.instruction != null)
             Padding(
               padding: const EdgeInsets.only(bottom: 16.0),
               child: Text(
                 step.instruction!,
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  fontWeight: FontWeight.w500,
+                  fontFamily: 'Satoshi',
+                  color: theme.textTheme.bodyLarge?.color?.withOpacity(0.8),
                 ),
                 textAlign: TextAlign.center,
               ),
