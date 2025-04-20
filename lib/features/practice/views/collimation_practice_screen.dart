@@ -481,8 +481,8 @@ class _CollimationPracticeScreenState
     bool isTotal = false,
   }) {
     Color color;
-    // Update threshold to 98
-    if (value >= 98) {
+    // Update threshold to 90
+    if (value >= 90) {
       color = Colors.green;
     } else if (value >= 70) {
       color = Colors.orange;
@@ -546,7 +546,7 @@ class _CollimationPracticeScreenState
   // Add _getAccuracyColor helper (can be moved to a utility file later)
   Color _getAccuracyColor(double accuracy) {
     // Update threshold to 98
-    if (accuracy >= 98) return Colors.green;
+    if (accuracy >= 90) return Colors.green;
     if (accuracy >= 70) return Colors.orange;
     return Colors.red;
   }
