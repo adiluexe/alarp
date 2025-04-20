@@ -100,20 +100,20 @@ class ChallengeController extends StateNotifier<ChallengeState> {
       }
       // Collimation Correctness/Accuracy Scoring
       if (isCorrect && collimationAccuracy != null) {
-        if (collimationAccuracy >= 98.0) {
+        if (collimationAccuracy >= 90.0) {
           correctnessScore = 500;
-        } else if (collimationAccuracy >= 92.0) {
+        } else if (collimationAccuracy >= 85.0) {
           correctnessScore = 250;
-        } else if (collimationAccuracy >= 86.0) {
+        } else if (collimationAccuracy >= 80.0) {
           correctnessScore = 200;
         } else {
           correctnessScore = 150;
         }
       } else {
         if (collimationAccuracy != null) {
-          if (collimationAccuracy >= 92.0) {
+          if (collimationAccuracy >= 85.0) {
             correctnessScore = 250;
-          } else if (collimationAccuracy >= 86.0) {
+          } else if (collimationAccuracy >= 80.0) {
             correctnessScore = 200;
           } else {
             correctnessScore = 150;
