@@ -124,10 +124,10 @@ class _SplashScreenState extends State<SplashScreen>
                       ),
                       Text(
                         'A Learning Aid In Radiographic Positioning',
-                        style: theme.textTheme.titleMedium?.copyWith(
+                        style: theme.textTheme.titleSmall?.copyWith(
                           fontFamily: 'Satoshi',
                           fontWeight: FontWeight.w500,
-                          color: AppTheme.textColor.withOpacity(0.8),
+                          color: AppTheme.primaryColor.withOpacity(0.8),
                         ),
                         textAlign: TextAlign.center,
                       ),

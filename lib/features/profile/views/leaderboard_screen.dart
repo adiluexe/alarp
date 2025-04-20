@@ -24,21 +24,21 @@ class LeaderboardScreen extends StatelessWidget {
 
   // Updated mock data with "FirstName, Initial." format
   final List<LeaderboardEntry> mockLeaderboardData = const [
-    LeaderboardEntry(rank: 1, name: 'Sebastian, B.', score: 15200),
-    LeaderboardEntry(rank: 2, name: 'Michael, B.', score: 14850),
+    LeaderboardEntry(rank: 1, name: 'Sebastian, B.', score: 5000),
+    LeaderboardEntry(rank: 2, name: 'Michael, B.', score: 4850),
     LeaderboardEntry(
       rank: 3,
       name: 'You', // Keep 'You' for the current user
-      score: 14500,
+      score: 4700,
       isCurrentUser: true,
     ),
-    LeaderboardEntry(rank: 4, name: 'David, L.', score: 13900),
-    LeaderboardEntry(rank: 5, name: 'Emily, C.', score: 13550),
-    LeaderboardEntry(rank: 6, name: 'James, R.', score: 13100),
-    LeaderboardEntry(rank: 7, name: 'Olivia, M.', score: 12800),
-    LeaderboardEntry(rank: 8, name: 'Daniel, P.', score: 12500),
-    LeaderboardEntry(rank: 9, name: 'Sophia, T.', score: 12150),
-    LeaderboardEntry(rank: 10, name: 'Chris, J.', score: 11800),
+    LeaderboardEntry(rank: 4, name: 'David, L.', score: 4450),
+    LeaderboardEntry(rank: 5, name: 'Emily, C.', score: 4350),
+    LeaderboardEntry(rank: 6, name: 'James, R.', score: 4100),
+    LeaderboardEntry(rank: 7, name: 'Olivia, M.', score: 3800),
+    LeaderboardEntry(rank: 8, name: 'Daniel, P.', score: 3500),
+    LeaderboardEntry(rank: 9, name: 'Sophia, T.', score: 3200),
+    LeaderboardEntry(rank: 10, name: 'Chris, J.', score: 3000),
   ];
 
   @override

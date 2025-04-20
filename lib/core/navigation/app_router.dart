@@ -19,9 +19,11 @@ import 'package:alarp/features/challenge/models/challenge.dart'; // Import Chall
 import 'package:alarp/features/anatomy/views/skeleton_viewer_screen.dart'; // Import the new screen
 import 'package:alarp/features/practice/views/recent_practice_list_screen.dart'; // Ensure this import is present
 import 'package:alarp/features/profile/views/leaderboard_screen.dart'; // Import the new leaderboard screen
+import 'package:alarp/features/onboarding/splash_screen.dart'; // Import SplashScreen
 
 // Define route paths
 class AppRoutes {
+  static const splash = '/splash'; // New splash route
   static const home = '/';
   static const learn = '/learn';
   static const learnRegionDetail = 'region/:regionId'; // Relative to /learn
@@ -59,9 +61,19 @@ final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
 final goRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
-    initialLocation: AppRoutes.home,
+    initialLocation: AppRoutes.splash, // Set splash as initial location
     navigatorKey: _rootNavigatorKey,
     routes: [
+      // Add Splash Screen Route (top-level, outside shell)
+      GoRoute(
+        path: AppRoutes.splash,
+        builder:
+            (context, state) => SplashScreen(
+              // Navigate to home after splash completes
+              onComplete: () => context.pushReplacement(AppRoutes.home),
+            ),
+      ),
+
       // Routes accessible without bottom nav bar
       GoRoute(
         path: AppRoutes.skeletonViewer,
