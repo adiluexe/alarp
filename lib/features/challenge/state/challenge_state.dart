@@ -18,6 +18,8 @@ class ChallengeState {
   final Duration remainingTime;
   final int score;
   final DateTime? stepStartTime; // Added: Track start time of the current step
+  final bool?
+  wasLastAnswerCorrect; // Added: Track correctness of the last answer
   // Store selected answers for each step type
   final int? selectedPositioningIndex;
   final int? selectedIRSizeIndex; // New
@@ -32,6 +34,7 @@ class ChallengeState {
     required this.remainingTime,
     this.score = 0,
     this.stepStartTime, // Added
+    this.wasLastAnswerCorrect, // Added
     this.selectedPositioningIndex,
     this.selectedIRSizeIndex, // New
     this.selectedIROrientationIndex, // New
@@ -52,11 +55,14 @@ class ChallengeState {
     Duration? remainingTime,
     int? score,
     DateTime? stepStartTime, // Added
+    bool? wasLastAnswerCorrect, // Added
     int? selectedPositioningIndex,
     int? selectedIRSizeIndex, // New
     int? selectedIROrientationIndex, // New
     int? selectedPatientPositionIndex, // New
     bool resetSelections = false, // Helper to clear selections on step change
+    bool clearLastAnswerStatus =
+        false, // Helper to explicitly clear wasLastAnswerCorrect
   }) {
     return ChallengeState(
       challenge: challenge,
@@ -65,6 +71,11 @@ class ChallengeState {
       remainingTime: remainingTime ?? this.remainingTime,
       score: score ?? this.score,
       stepStartTime: stepStartTime ?? this.stepStartTime, // Added
+      // Handle resetting/updating wasLastAnswerCorrect
+      wasLastAnswerCorrect:
+          clearLastAnswerStatus
+              ? null
+              : (wasLastAnswerCorrect ?? this.wasLastAnswerCorrect),
       // Reset specific selections if moving to a new step or explicitly requested
       selectedPositioningIndex:
           resetSelections

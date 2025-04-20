@@ -144,6 +144,7 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
     ChallengeController notifier,
   ) {
     final step = challengeState.currentStep;
+    final wasCorrect = challengeState.wasLastAnswerCorrect; // Get the status
 
     if (challengeState.status != ChallengeStatus.inProgress || step == null) {
       // Show loading or initial state before challenge starts
@@ -157,33 +158,34 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
         step: step,
         onSelected: (index) => notifier.selectPositioningAnswer(index),
         selectedIndex: challengeState.selectedPositioningIndex,
+        wasCorrect: wasCorrect, // Pass the status
       );
     }
 
     if (step is IRSizeQuizStep) {
-      // New
       return IRSizeQuizWidget(
         step: step,
         onSelected: (index) => notifier.selectIRSizeAnswer(index),
         selectedIndex: challengeState.selectedIRSizeIndex,
+        wasCorrect: wasCorrect, // Pass the status
       );
     }
 
     if (step is IROrientationQuizStep) {
-      // New
       return IROrientationQuizWidget(
         step: step,
         onSelected: (index) => notifier.selectIROrientationAnswer(index),
         selectedIndex: challengeState.selectedIROrientationIndex,
+        wasCorrect: wasCorrect, // Pass the status
       );
     }
 
     if (step is PatientPositionQuizStep) {
-      // New
       return PatientPositionQuizWidget(
         step: step,
         onSelected: (index) => notifier.selectPatientPositionAnswer(index),
         selectedIndex: challengeState.selectedPatientPositionIndex,
+        wasCorrect: wasCorrect, // Pass the status
       );
     }
 
@@ -216,6 +218,18 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
                   context,
                 ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
                 textAlign: TextAlign.center,
+              ),
+            ),
+          // Display Correct/Incorrect Icon *after* submission (if wasCorrect is not null)
+          if (wasCorrect != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Icon(
+                wasCorrect
+                    ? SolarIconsBold.checkCircle
+                    : SolarIconsBold.closeCircle,
+                color: wasCorrect ? Colors.green.shade600 : Colors.red.shade600,
+                size: 30,
               ),
             ),
           Padding(
@@ -275,20 +289,26 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
             ),
           ),
           // Add Submit Button for Collimation Step
+          // Disable button if an answer (correct/incorrect) has already been registered for this step
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                // Corrected Icon: Use checkCircle or similar
                 icon: const Icon(SolarIconsBold.checkCircle),
                 label: const Text('Submit Collimation'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.primaryColor,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
+                  // Disable button if wasCorrect is not null (meaning already submitted)
+                  disabledBackgroundColor: Colors.grey.shade400,
                 ),
-                onPressed: () => notifier.submitCollimation(),
+                // Disable onPressed if wasCorrect is not null
+                onPressed:
+                    wasCorrect == null
+                        ? () => notifier.submitCollimation()
+                        : null,
               ),
             ),
           ),

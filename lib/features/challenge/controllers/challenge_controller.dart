@@ -36,6 +36,7 @@ class ChallengeController extends StateNotifier<ChallengeState> {
       selectedIROrientationIndex: null,
       selectedPatientPositionIndex: null,
       score: 0,
+      wasLastAnswerCorrect: null, // Reset correctness status
     );
   }
 
@@ -55,6 +56,7 @@ class ChallengeController extends StateNotifier<ChallengeState> {
       selectedIRSizeIndex: null,
       selectedIROrientationIndex: null,
       selectedPatientPositionIndex: null,
+      wasLastAnswerCorrect: null, // Ensure null at start
       resetSelections: true,
     );
     _startTimer();
@@ -188,8 +190,8 @@ class ChallengeController extends StateNotifier<ChallengeState> {
     final timeTaken = DateTime.now().difference(startTime);
     final scoreDelta = _calculateScore(step, isCorrect, timeTaken);
 
-    // Update state immediately to show selection
-    state = copyWithIndex(index);
+    // Update state immediately to show selection AND correctness
+    state = copyWithIndex(index).copyWith(wasLastAnswerCorrect: isCorrect);
 
     Future.delayed(const Duration(milliseconds: 500), () {
       if (!mounted) return;
@@ -280,6 +282,9 @@ class ChallengeController extends StateNotifier<ChallengeState> {
       collimationAccuracy: accuracy,
     );
 
+    // Update state to show correctness before advancing
+    state = state.copyWith(wasLastAnswerCorrect: isCorrect);
+
     Future.delayed(const Duration(milliseconds: 100), () {
       if (!mounted) return;
       if (state.currentStep == step) {
@@ -307,6 +312,7 @@ class ChallengeController extends StateNotifier<ChallengeState> {
         selectedIROrientationIndex: null,
         selectedPatientPositionIndex: null,
         resetSelections: true,
+        clearLastAnswerStatus: true, // Clear status on completion
       );
     } else {
       ChallengeState nextState = state.copyWith(
@@ -318,6 +324,7 @@ class ChallengeController extends StateNotifier<ChallengeState> {
         selectedIROrientationIndex: null,
         selectedPatientPositionIndex: null,
         resetSelections: true,
+        clearLastAnswerStatus: true, // Clear status for the new step
       );
 
       state = nextState;
