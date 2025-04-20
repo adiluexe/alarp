@@ -14,7 +14,6 @@ import '../widgets/patient_position_quiz_widget.dart'; // New import
 import '../../practice/widgets/collimation_painter.dart';
 import '../../practice/widgets/collimation_controls_widget.dart';
 import '../../practice/models/collimation_state.dart';
-import '../../practice/models/body_part.dart'; // Import BodyPart
 import '../../practice/models/body_region.dart'; // Import BodyRegions
 
 // Provider to get the specific challenge instance for this screen
@@ -65,8 +64,8 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
         challenge.isTodaysChallenge
             ? LinearGradient(
               colors: [
-                AppTheme.primaryColor.withOpacity(0.8),
-                AppTheme.accentColor.withOpacity(0.6),
+                AppTheme.primaryColor.withAlpha((255 * 0.8).round()),
+                AppTheme.accentColor.withAlpha((255 * 0.6).round()),
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -86,12 +85,12 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
     ) {
       // Ensure widget is mounted before showing dialog
       if (!mounted) return;
-      if (prev?.status != next.status) {
-        if (next.status == ChallengeStatus.completedSuccess ||
-            next.status == ChallengeStatus.completedFailureTime ||
-            next.status == ChallengeStatus.completedFailureIncorrect) {
-          _showResultDialog(context, next.status, challengeNotifier);
-        }
+      // Only show dialog when status changes *to* a completed state
+      if (prev?.status != next.status &&
+          (next.status == ChallengeStatus.completedSuccess ||
+              next.status == ChallengeStatus.completedFailureTime)) {
+        // Pass the final score from the state to the dialog function
+        _showResultDialog(context, next.status, next.score, challengeNotifier);
       }
     });
 
@@ -119,7 +118,6 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
               children: [
                 Icon(
                   SolarIconsOutline.clockCircle,
-                  // Replace deprecated withOpacity
                   color: Colors.white.withAlpha((255 * 0.8).round()),
                   size: 20,
                 ),
@@ -312,10 +310,11 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
     return '$minutes:$seconds';
   }
 
-  // Show result dialog
+  // Show result dialog - Updated to accept and display final score
   void _showResultDialog(
     BuildContext context,
     ChallengeStatus status,
+    int finalScore, // Added final score parameter
     ChallengeController notifier,
   ) {
     String title;
@@ -336,12 +335,6 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
         icon = SolarIconsBold.alarmTurnOff;
         color = Colors.orange;
         break;
-      case ChallengeStatus.completedFailureIncorrect:
-        title = 'Incorrect';
-        message = 'Your selection or collimation was incorrect.';
-        icon = SolarIconsBold.closeCircle;
-        color = Colors.red;
-        break;
       default:
         return; // Don't show dialog for other statuses
     }
@@ -361,34 +354,33 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
                 Icon(icon, color: color, size: 48),
                 const SizedBox(height: 16),
                 Text(message, textAlign: TextAlign.center),
-                // TODO: Add score/details later
+                const SizedBox(height: 16),
+                // Display Final Score
+                Text(
+                  'Final Score: $finalScore',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                ),
+                // TODO: Add more details like breakdown per step later
               ],
             ),
             actions: [
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop(); // Close dialog
-                  context.pop(); // Go back from active challenge screen
+                  // Optionally reset the challenge state if staying on the screen
+                  // notifier.resetChallenge();
+                  // Or pop the screen
+                  if (context.canPop()) {
+                    context.pop(); // Go back from active challenge screen
+                  }
                 },
                 child: const Text('OK'),
               ),
             ],
           ),
     );
-  }
-
-  // Temporary helper to find body part - replace later
-  BodyPart? _findBodyPart(String regionId, String bodyPartId) {
-    try {
-      // BodyRegions should now be available via import
-      final region = BodyRegions.getRegionById(regionId);
-      return region.bodyParts.firstWhere((part) => part.id == bodyPartId);
-    } catch (e) {
-      print(
-        'Error finding body part: regionId=$regionId, bodyPartId=$bodyPartId, error=$e',
-      ); // Add logging
-      return null;
-    }
   }
 
   // Helper function to get image path (Placeholder - needs proper implementation)
@@ -400,9 +392,6 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
       return 'assets/images/practice/forearm/forearm_ap.webp';
     }
     // Add more mappings as needed...
-    print(
-      "Warning: Using default placeholder image for collimation step: $bodyPartId / $projectionName",
-    );
     return 'assets/images/alarp_icon.png'; // Default placeholder
   }
 }

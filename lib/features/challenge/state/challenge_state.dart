@@ -8,7 +8,6 @@ enum ChallengeStatus {
   paused,
   completedSuccess,
   completedFailureTime,
-  completedFailureIncorrect,
 }
 
 @immutable
@@ -18,6 +17,7 @@ class ChallengeState {
   final int currentStepIndex;
   final Duration remainingTime;
   final int score;
+  final DateTime? stepStartTime; // Added: Track start time of the current step
   // Store selected answers for each step type
   final int? selectedPositioningIndex;
   final int? selectedIRSizeIndex; // New
@@ -31,6 +31,7 @@ class ChallengeState {
     this.currentStepIndex = 0,
     required this.remainingTime,
     this.score = 0,
+    this.stepStartTime, // Added
     this.selectedPositioningIndex,
     this.selectedIRSizeIndex, // New
     this.selectedIROrientationIndex, // New
@@ -50,6 +51,7 @@ class ChallengeState {
     int? currentStepIndex,
     Duration? remainingTime,
     int? score,
+    DateTime? stepStartTime, // Added
     int? selectedPositioningIndex,
     int? selectedIRSizeIndex, // New
     int? selectedIROrientationIndex, // New
@@ -62,6 +64,7 @@ class ChallengeState {
       currentStepIndex: currentStepIndex ?? this.currentStepIndex,
       remainingTime: remainingTime ?? this.remainingTime,
       score: score ?? this.score,
+      stepStartTime: stepStartTime ?? this.stepStartTime, // Added
       // Reset specific selections if moving to a new step or explicitly requested
       selectedPositioningIndex:
           resetSelections
