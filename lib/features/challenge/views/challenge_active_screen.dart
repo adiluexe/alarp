@@ -310,7 +310,7 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
     return '$minutes:$seconds';
   }
 
-  // Show result dialog - Updated to accept and display final score
+  // Show result dialog - Updated with improved UI
   void _showResultDialog(
     BuildContext context,
     ChallengeStatus status,
@@ -321,19 +321,22 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
     String message;
     IconData icon;
     Color color;
+    Color backgroundColor;
 
     switch (status) {
       case ChallengeStatus.completedSuccess:
         title = 'Challenge Complete!';
         message = 'Great job! You successfully completed the challenge.';
         icon = SolarIconsBold.checkCircle;
-        color = Colors.green;
+        color = Colors.green.shade700;
+        backgroundColor = Colors.green.shade50;
         break;
       case ChallengeStatus.completedFailureTime:
         title = 'Time\'s Up!';
         message = 'You ran out of time for this challenge.';
         icon = SolarIconsBold.alarmTurnOff;
-        color = Colors.orange;
+        color = Colors.orange.shade700;
+        backgroundColor = Colors.orange.shade50;
         break;
       default:
         return; // Don't show dialog for other statuses
@@ -344,39 +347,89 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
       barrierDismissible: false, // Prevent dismissing by tapping outside
       builder:
           (context) => AlertDialog(
-            title: Text(
-              title,
-              style: TextStyle(color: color, fontWeight: FontWeight.bold),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20.0),
+            ),
+            backgroundColor: backgroundColor,
+            titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+            contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
+            title: Center(
+              child: Text(
+                title,
+                style: TextStyle(
+                  color: color,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 22,
+                ),
+              ),
             ),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(icon, color: color, size: 48),
+                Icon(icon, color: color, size: 60),
                 const SizedBox(height: 16),
-                Text(message, textAlign: TextAlign.center),
-                const SizedBox(height: 16),
-                // Display Final Score
                 Text(
-                  'Final Score: $finalScore',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                  message,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 16, color: Colors.grey.shade800),
+                ),
+                const SizedBox(height: 24),
+                const Divider(),
+                const SizedBox(height: 24),
+                // Display Final Score with enhanced UI
+                Text(
+                  'Final Score', // Label for the score
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey.shade600,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(30),
+                    border: Border.all(color: color.withOpacity(0.3), width: 1),
+                  ),
+                  child: Text(
+                    '$finalScore',
+                    style: TextStyle(
+                      fontSize: 36, // Larger font for score
+                      fontWeight: FontWeight.bold,
+                      color: color,
+                    ),
+                  ),
                 ),
                 // TODO: Add more details like breakdown per step later
               ],
             ),
+            actionsAlignment: MainAxisAlignment.center,
+            actionsPadding: const EdgeInsets.only(bottom: 20),
             actions: [
-              TextButton(
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: color, // Button color matches status
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 30,
+                    vertical: 12,
+                  ),
+                ),
                 onPressed: () {
                   Navigator.of(context).pop(); // Close dialog
-                  // Optionally reset the challenge state if staying on the screen
-                  // notifier.resetChallenge();
-                  // Or pop the screen
                   if (context.canPop()) {
                     context.pop(); // Go back from active challenge screen
                   }
                 },
-                child: const Text('OK'),
+                child: const Text('OK', style: TextStyle(fontSize: 16)),
               ),
             ],
           ),
