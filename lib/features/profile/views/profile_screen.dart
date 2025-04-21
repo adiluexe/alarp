@@ -9,6 +9,8 @@ import 'package:go_router/go_router.dart';
 import 'package:alarp/features/auth/controllers/auth_controller.dart';
 import 'package:alarp/core/providers/supabase_providers.dart';
 import 'package:alarp/core/services/shared_preferences_service.dart';
+import 'package:alarp/features/profile/controllers/leaderboard_providers.dart';
+import 'package:alarp/data/repositories/profile_repository.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -32,6 +34,13 @@ class ProfileScreen extends ConsumerWidget {
     final userProfileAsync = ref.watch(userProfileProvider);
     final currentUser = ref.watch(currentUserProvider);
 
+    const String dailyChallengeId = 'upper_extremities_10rounds';
+
+    final leaderboardAsync = ref.watch(
+      dailyLeaderboardProvider(dailyChallengeId),
+    );
+    final userRankAsync = ref.watch(userDailyRankProvider(dailyChallengeId));
+
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       body: SafeArea(
@@ -49,8 +58,7 @@ class ProfileScreen extends ConsumerWidget {
             final completedLessons = 0;
             final totalLessons = 36;
             final averageAccuracy = 0.0;
-            final leaderboardRank = 0;
-            final leaderboardData = [];
+            final leaderboardRank = userRankAsync.asData?.value?.rank ?? 0;
             final achievementsData = [];
 
             String displayName = username;
@@ -88,10 +96,46 @@ class ProfileScreen extends ConsumerWidget {
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
-                    child: _buildLeaderboard(
-                      context,
-                      leaderboardRank,
-                      leaderboardData,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Daily Leaderboard',
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        const SizedBox(height: 12),
+                        leaderboardAsync.when(
+                          data: (leaderboardData) {
+                            return LeaderboardCard(
+                              currentUserRank:
+                                  leaderboardRank > 0 ? leaderboardRank : null,
+                              topUsers: leaderboardData,
+                            );
+                          },
+                          loading:
+                              () => const Center(
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 32.0),
+                                  child: CircularProgressIndicator(),
+                                ),
+                              ),
+                          error:
+                              (error, stack) => Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16.0,
+                                  ),
+                                  child: Text(
+                                    'Error loading leaderboard: $error',
+                                    style: TextStyle(
+                                      color:
+                                          Theme.of(context).colorScheme.error,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -259,29 +303,6 @@ class ProfileScreen extends ConsumerWidget {
               ),
             ),
           ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildLeaderboard(
-    BuildContext context,
-    int rank,
-    List<dynamic> leaderboardData,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Leaderboard', style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 12),
-        LeaderboardCard(
-          // TODO: Update LeaderboardCard widget to accept currentUserRank and topUsers
-          // currentUserRank: rank > 0 ? rank : null,
-          // topUsers: const [
-          //   {'name': 'Alex R.', 'score': 15200, 'avatarUrl': null},
-          //   {'name': 'Sam K.', 'score': 14850, 'avatarUrl': null},
-          //   {'name': 'Jordan P.', 'score': 13900, 'avatarUrl': null},
-          // ],
         ),
       ],
     );

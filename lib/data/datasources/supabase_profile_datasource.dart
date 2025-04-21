@@ -2,8 +2,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:alarp/core/providers/supabase_providers.dart'; // For supabaseClientProvider and userIdProvider
 
+// Define a type for leaderboard entry data using a record
+typedef LeaderboardEntry = ({int rank, String username, int score});
+
 /// Datasource responsible for direct interactions with Supabase
-/// regarding user profiles.
+/// regarding user profiles and related data like scores.
 class SupabaseProfileDataSource {
   final SupabaseClient _client;
   final String? _userId; // Get current user ID
@@ -64,6 +67,117 @@ class SupabaseProfileDataSource {
       throw Exception(
         "An unexpected error occurred while updating total app time.",
       );
+    }
+  }
+
+  /// Submits a challenge score for the current user.
+  /// Calls the 'submit_challenge_score' RPC function.
+  Future<void> submitChallengeScore(String challengeId, int score) async {
+    if (_userId == null) {
+      throw Exception("User not logged in. Cannot submit score.");
+    }
+    // Basic client-side validation
+    if (score < 0) {
+      print(
+        "Warning: Attempted to submit negative score: $score for challenge $challengeId",
+      );
+      // Optionally throw an error or return early depending on desired behavior
+      throw ArgumentError("Score cannot be negative.");
+    }
+
+    try {
+      await _client.rpc(
+        'submit_challenge_score',
+        params: {'p_challenge_id': challengeId, 'p_score': score},
+      );
+      print(
+        "Successfully submitted score $score for challenge $challengeId for user $_userId",
+      );
+    } on PostgrestException catch (e) {
+      print("Supabase error submitting challenge score: ${e.message}");
+      // Consider more specific error handling or re-throwing a custom exception
+      throw Exception("Failed to submit score: ${e.message}");
+    } catch (e) {
+      print("Unexpected error submitting challenge score: $e");
+      throw Exception("An unexpected error occurred while submitting score.");
+    }
+  }
+
+  /// Fetches the daily leaderboard for a given challenge.
+  /// Calls the 'get_daily_leaderboard' RPC function.
+  Future<List<LeaderboardEntry>> getDailyLeaderboard(
+    String challengeId, {
+    int limit = 10, // Default limit matches the RPC function
+  }) async {
+    try {
+      final response = await _client.rpc(
+        'get_daily_leaderboard',
+        params: {'p_challenge_id': challengeId, 'p_limit': limit},
+      );
+
+      // Response is List<dynamic>, each item is Map<String, dynamic>
+      if (response is List) {
+        return response.map((item) {
+          final map = item as Map<String, dynamic>;
+          // Use named record fields for clarity and type safety
+          return (
+            rank: map['rank'] as int? ?? 0, // Provide default if null
+            username:
+                map['username'] as String? ?? 'Unknown', // Provide default
+            score: map['score'] as int? ?? 0, // Provide default
+          );
+        }).toList();
+      }
+      // Return empty list if response is not a list (e.g., error or unexpected format)
+      print(
+        "Warning: Unexpected response format from get_daily_leaderboard: $response",
+      );
+      return [];
+    } on PostgrestException catch (e) {
+      print("Supabase error fetching leaderboard: ${e.message}");
+      throw Exception("Failed to fetch leaderboard: ${e.message}");
+    } catch (e) {
+      print("Unexpected error fetching leaderboard: $e");
+      throw Exception(
+        "An unexpected error occurred while fetching leaderboard.",
+      );
+    }
+  }
+
+  /// Fetches the current user's rank and score for a given challenge today.
+  /// Calls the 'get_user_daily_rank' RPC function.
+  /// Returns a record (rank, score) or null if the user hasn't played today or an error occurs.
+  Future<({int rank, int score})?> getUserDailyRank(String challengeId) async {
+    if (_userId == null) {
+      print("User not logged in. Cannot get rank.");
+      // Return null as rank is not applicable for non-logged-in users
+      return null;
+    }
+    try {
+      final response = await _client.rpc(
+        'get_user_daily_rank',
+        params: {'p_challenge_id': challengeId},
+      );
+
+      // Response is List<dynamic> with 0 or 1 item (Map<String, dynamic>)
+      if (response is List && response.isNotEmpty) {
+        final map = response.first as Map<String, dynamic>;
+        // Use named record fields
+        return (
+          rank: map['rank'] as int? ?? 0, // Provide default
+          score: map['score'] as int? ?? 0, // Provide default
+        );
+      }
+      // User has no rank for this challenge today (empty list returned from RPC)
+      return null;
+    } on PostgrestException catch (e) {
+      print("Supabase error fetching user rank: ${e.message}");
+      // Return null on error, as the rank is unavailable
+      return null;
+    } catch (e) {
+      print("Unexpected error fetching user rank: $e");
+      // Return null on unexpected errors
+      return null;
     }
   }
 }

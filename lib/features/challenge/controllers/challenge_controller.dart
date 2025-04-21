@@ -9,6 +9,7 @@ import '../../practice/data/collimation_target_data.dart'; // Corrected import p
 import '../../practice/models/collimation_state.dart'; // Import CollimationStateData and provider
 import '../models/projection.dart'; // Added correct import
 import '../models/step_result.dart'; // Import StepResult
+import '../../../data/repositories/profile_repository.dart'; // Import ProfileRepository
 
 class ChallengeController extends StateNotifier<ChallengeState> {
   final Ref ref;
@@ -73,6 +74,10 @@ class ChallengeController extends StateNotifier<ChallengeState> {
   void _startTimer() {
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
       if (state.remainingTime.inSeconds <= 0) {
         timer.cancel();
         state = state.copyWith(status: ChallengeStatus.completedFailureTime);
@@ -338,6 +343,7 @@ class ChallengeController extends StateNotifier<ChallengeState> {
         resetSelections: true,
         clearLastAnswerStatus: true,
       );
+      _submitScore(updatedScore);
     } else {
       ChallengeState nextState = state.copyWith(
         currentStepIndex: nextStepIndex,
@@ -357,6 +363,30 @@ class ChallengeController extends StateNotifier<ChallengeState> {
           }
         });
       }
+    }
+  }
+
+  Future<void> _submitScore(int score) async {
+    if (score < 0) {
+      print(
+        "ChallengeController: Attempted to submit negative score ($score) for ${initialChallenge.id}. Skipping.",
+      );
+      return;
+    }
+
+    try {
+      final profileRepo = ref.read(profileRepositoryProvider);
+      print(
+        "ChallengeController: Submitting score $score for challenge ${initialChallenge.id}",
+      );
+      await profileRepo.submitChallengeScore(initialChallenge.id, score);
+      print(
+        "ChallengeController: Score submitted successfully for ${initialChallenge.id}.",
+      );
+    } catch (e) {
+      print(
+        "ChallengeController: Failed to submit score for ${initialChallenge.id}: $e",
+      );
     }
   }
 
