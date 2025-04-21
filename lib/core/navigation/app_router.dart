@@ -1,3 +1,4 @@
+import 'dart:async'; // Import for StreamSubscription
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart'; // Import Riverpod
@@ -21,10 +22,16 @@ import 'package:alarp/features/practice/views/recent_practice_list_screen.dart';
 import 'package:alarp/features/profile/views/leaderboard_screen.dart'; // Import the new leaderboard screen
 import 'package:alarp/features/onboarding/splash_screen.dart'; // Import SplashScreen
 import '../../features/challenge/views/challenge_results_screen.dart'; // Import the new screen
+import 'package:alarp/features/auth/views/sign_in_screen.dart'; // Import Sign In Screen
+import 'package:alarp/features/auth/views/sign_up_screen.dart'; // Import Sign Up Screen
+import 'package:alarp/features/auth/controllers/auth_controller.dart'; // Import Auth Status Provider
+import 'package:alarp/core/providers/supabase_providers.dart'; // Import Supabase providers
 
 // Define route paths
 class AppRoutes {
   static const splash = '/splash'; // New splash route
+  static const signIn = '/signin'; // New sign in route
+  static const signUp = '/signup'; // New sign up route
   static const home = '/';
   static const learn = '/learn';
   static const learnRegionDetail = 'region/:regionId'; // Relative to /learn
@@ -67,9 +74,42 @@ final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
 final goRouterProvider = Provider<GoRouter>((ref) {
+  // Listen to the authentication status
+  final authState = ref.watch(
+    authStatusProvider,
+  ); // Use the simple boolean provider
+
   return GoRouter(
     initialLocation: AppRoutes.splash, // Set splash as initial location
     navigatorKey: _rootNavigatorKey,
+    redirect: (BuildContext context, GoRouterState state) {
+      final loggingIn =
+          state.matchedLocation == AppRoutes.signIn ||
+          state.matchedLocation == AppRoutes.signUp;
+      final splashing = state.matchedLocation == AppRoutes.splash;
+      final loggedIn = authState; // Directly use the boolean value
+
+      // Allow splash screen always
+      if (splashing) {
+        return null;
+      }
+
+      // If not logged in and not trying to log in, redirect to sign in
+      if (!loggedIn && !loggingIn) {
+        return AppRoutes.signIn;
+      }
+
+      // If logged in and trying to access sign in/sign up, redirect to home
+      if (loggedIn && loggingIn) {
+        return AppRoutes.home;
+      }
+
+      // No redirect needed
+      return null;
+    },
+    refreshListenable: GoRouterRefreshStream(
+      ref.watch(authStateChangesProvider.stream),
+    ), // Refresh router on auth changes
     routes: [
       // Add Splash Screen Route (top-level, outside shell)
       GoRoute(
@@ -80,7 +120,16 @@ final goRouterProvider = Provider<GoRouter>((ref) {
               onComplete: () => context.pushReplacement(AppRoutes.home),
             ),
       ),
-
+      // Add Sign In Route (top-level)
+      GoRoute(
+        path: AppRoutes.signIn,
+        builder: (context, state) => const SignInScreen(),
+      ),
+      // Add Sign Up Route (top-level)
+      GoRoute(
+        path: AppRoutes.signUp,
+        builder: (context, state) => const SignUpScreen(),
+      ),
       // Routes accessible without bottom nav bar
       GoRoute(
         path: AppRoutes.skeletonViewer,
@@ -287,10 +336,31 @@ final goRouterProvider = Provider<GoRouter>((ref) {
     // Optional: Add error handling
     errorBuilder:
         (context, state) => Scaffold(
+          appBar: AppBar(
+            title: const Text('Error'),
+          ), // Added AppBar for context
           body: Center(child: Text('Page not found: ${state.error}')),
         ),
   );
 });
+
+// Helper class to refresh GoRouter when stream emits
+class GoRouterRefreshStream extends ChangeNotifier {
+  GoRouterRefreshStream(Stream<dynamic> stream) {
+    notifyListeners();
+    _subscription = stream.asBroadcastStream().listen(
+      (dynamic _) => notifyListeners(),
+    );
+  }
+
+  late final StreamSubscription<dynamic> _subscription;
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
+  }
+}
 
 // You'll also need to update main.dart to use this router provider
 // and potentially modify the Navigation widget to accept the child parameter

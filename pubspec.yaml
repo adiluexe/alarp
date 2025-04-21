@@ -47,6 +47,8 @@ dependencies:
   flutter_markdown: ^0.7.3
   build_runner: ^2.4.15
   smooth_page_indicator: ^1.1.0
+  supabase_flutter: ^2.8.4
+  flutter_dotenv: ^5.2.1
 
 dev_dependencies:
   flutter_test:
@@ -73,6 +75,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    - .env
     - assets/images/
     - assets/images/challenge/
     - assets/images/practice/

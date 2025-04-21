@@ -2,12 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:alarp/core/navigation/app_router.dart'; // Import the router provider
 import 'package:alarp/core/theme/app_theme.dart';
-// Import other necessary initializers like Supabase
+import 'package:supabase_flutter/supabase_flutter.dart'; // Import Supabase
+import 'package:flutter_dotenv/flutter_dotenv.dart'; // Import flutter_dotenv
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Initialize Supabase or other services here if needed
-  // await Supabase.initialize(...);
+
+  // Load environment variables
+  await dotenv.load(fileName: ".env");
+
+  // Initialize Supabase using environment variables
+  await Supabase.initialize(
+    url: dotenv.env['SUPABASE_URL']!,
+    anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
+  );
 
   runApp(
     // Wrap the entire app in a ProviderScope for Riverpod
