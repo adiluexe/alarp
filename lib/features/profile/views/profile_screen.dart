@@ -11,6 +11,7 @@ import 'package:alarp/core/providers/supabase_providers.dart';
 import 'package:alarp/core/services/shared_preferences_service.dart';
 import 'package:alarp/features/profile/controllers/leaderboard_providers.dart';
 import 'package:alarp/data/repositories/profile_repository.dart';
+import 'package:alarp/core/navigation/app_router.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -40,6 +41,8 @@ class ProfileScreen extends ConsumerWidget {
       dailyLeaderboardProvider(dailyChallengeId),
     );
     final userRankAsync = ref.watch(userDailyRankProvider(dailyChallengeId));
+
+    final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
@@ -99,9 +102,20 @@ class ProfileScreen extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Daily Leaderboard',
-                          style: Theme.of(context).textTheme.titleLarge,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Daily Leaderboard',
+                              style: textTheme.titleLarge,
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                context.push(AppRoutes.leaderboard);
+                              },
+                              child: const Text('View All'),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 12),
                         leaderboardAsync.when(

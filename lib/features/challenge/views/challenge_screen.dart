@@ -1,220 +1,200 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart'; // Import GoRouter
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart'; // Import go_router
+import 'package:solar_icons/solar_icons.dart'; // Import solar_icons
 import 'package:alarp/core/theme/app_theme.dart';
-import 'package:solar_icons/solar_icons.dart';
+import 'package:alarp/features/challenge/models/challenge.dart';
 import 'package:alarp/features/challenge/widgets/challenge_card.dart';
-import 'package:alarp/features/challenge/widgets/leaderboard_preview.dart';
-import 'package:alarp/features/challenge/widgets/feature_highlight_card.dart';
 import 'package:alarp/core/navigation/app_router.dart'; // Import AppRoutes
-import '../models/challenge.dart'; // Import Challenge model
+import 'package:alarp/features/challenge/widgets/feature_highlight_card.dart'; // Import FeatureHighlightCard
 
-class ChallengeScreen extends StatelessWidget {
+// Import leaderboard related providers and widgets
+import 'package:alarp/features/profile/controllers/leaderboard_providers.dart';
+import 'package:alarp/features/profile/widgets/leaderboard_card.dart';
+
+class ChallengeScreen extends ConsumerWidget {
   const ChallengeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Get the placeholder challenge data
-    // Use the 10-round Upper Extremities Challenge as today's challenge
-    final todayChallenge = Challenge.upperExtremitiesChallenge;
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Directly use the specific challenge instance for 'Today's Challenge'
+    final Challenge todayChallenge = Challenge.upperExtremitiesChallenge;
+    final textTheme = Theme.of(context).textTheme;
+
+    // --- Leaderboard Data ---
+    // Use the ID from the todayChallenge instance
+    final String leaderboardChallengeId = todayChallenge.id;
+    final leaderboardAsync = ref.watch(
+      dailyLeaderboardProvider(leaderboardChallengeId),
+    );
+    final userRankAsync = ref.watch(
+      userDailyRankProvider(leaderboardChallengeId),
+    );
+    final userRank = userRankAsync.asData?.value?.rank;
+    // --- End Leaderboard Data ---
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
-      body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            // Header
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Challenge Mode',
-                      style: Theme.of(
-                        context,
-                      ).textTheme.headlineMedium?.copyWith(
-                        fontFamily: 'Chillax',
-                        fontWeight: FontWeight.w700,
-                      ),
+      appBar: AppBar(
+        title: const Text('Challenges'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+      ),
+      body: CustomScrollView(
+        slivers: [
+          // --- Header Section ---
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Challenge Mode',
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      fontFamily: 'Chillax',
+                      fontWeight: FontWeight.w700,
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Test your skills with timed positioning exercises',
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: AppTheme.textColor.withOpacity(0.7),
-                      ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Test your skills with timed positioning exercises',
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: AppTheme.textColor.withAlpha((0.7 * 255).round()),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-
-            // Feature highlights
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const FeatureHighlightCard(
-                      icon: SolarIconsBold.stopwatch,
-                      title: 'Beat the Clock',
-                      description:
-                          'Earn more points with faster submissions while maintaining accuracy',
-                      color: AppTheme.secondaryColor,
-                    ),
-                    const SizedBox(height: 12),
-                    const FeatureHighlightCard(
-                      icon: SolarIconsBold.medalStar,
-                      title: 'Compete for Top Rank',
-                      description:
-                          'See how you compare to others on the leaderboard',
-                      color: AppTheme.accentColor,
-                    ),
-                    const SizedBox(height: 12),
-                    const FeatureHighlightCard(
-                      icon: SolarIconsBold.medalRibbonStar,
-                      title: 'Unlock Achievements',
-                      description:
-                          'Earn badges and certifications as you master positioning',
-                      color: AppTheme.primaryColor,
-                    ),
-                  ],
-                ),
+          ),
+          // --- Feature Highlights ---
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const FeatureHighlightCard(
+                    icon: SolarIconsBold.stopwatch,
+                    title: 'Beat the Clock',
+                    description:
+                        'Earn more points with faster submissions while maintaining accuracy',
+                    color: AppTheme.secondaryColor,
+                  ),
+                  const SizedBox(height: 12),
+                  const FeatureHighlightCard(
+                    icon: SolarIconsBold.medalStar,
+                    title: 'Compete for Top Rank',
+                    description:
+                        'See how you compare to others on the leaderboard',
+                    color: AppTheme.accentColor,
+                  ),
+                  const SizedBox(height: 12),
+                  const FeatureHighlightCard(
+                    icon: SolarIconsBold.medalRibbonStar,
+                    title: 'Unlock Achievements',
+                    description:
+                        'Earn badges and certifications as you master positioning',
+                    color: AppTheme.primaryColor,
+                  ),
+                ],
               ),
             ),
-
-            // Daily Challenge
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Today\'s Challenge',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontFamily: 'Chillax',
-                        fontWeight: FontWeight.w600,
-                      ),
+          ),
+          // --- Daily Challenge ---
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Today\'s Challenge',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontFamily: 'Chillax',
+                      fontWeight: FontWeight.w600,
                     ),
-                    const SizedBox(height: 16),
-                    // Pass gradient directly to the card
-                    // Use the 10-round Upper Extremities Challenge data
-                    ChallengeCard(
-                      title: todayChallenge.title,
-                      description: todayChallenge.description,
-                      difficulty: todayChallenge.difficulty,
-                      timeLimit:
-                          '${todayChallenge.timeLimit.inMinutes}:${(todayChallenge.timeLimit.inSeconds % 60).toString().padLeft(2, '0')}',
-                      participants: 48, // Placeholder
-                      isActive: true,
-                      gradientBackground: LinearGradient(
-                        // Pass the gradient
-                        colors: [
-                          AppTheme.primaryColor.withOpacity(
-                            0.8,
-                          ), // Slightly adjust opacity if needed
-                          AppTheme.accentColor.withOpacity(0.6),
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      onTap: () {
-                        // Use context.push with the correct helper method
-                        context.push(
-                          AppRoutes.challengeStartRoute(todayChallenge.id),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            // Leaderboard preview
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Leaderboard',
-                          style: Theme.of(
-                            context,
-                          ).textTheme.titleLarge?.copyWith(
-                            fontFamily: 'Chillax',
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        TextButton.icon(
-                          onPressed: () {
-                            // Use the route constant from AppRoutes
-                            // Ensure AppRoutes.leaderboard holds the correct path string
-                            context.push(AppRoutes.leaderboard);
-                          },
-                          icon: const Icon(SolarIconsOutline.ranking, size: 18),
-                          label: const Text('View All'),
-                          style: TextButton.styleFrom(
-                            foregroundColor: AppTheme.primaryColor,
-                          ),
-                        ),
+                  ),
+                  const SizedBox(height: 16),
+                  ChallengeCard(
+                    title: todayChallenge.title,
+                    description: todayChallenge.description,
+                    difficulty: todayChallenge.difficulty,
+                    timeLimit:
+                        '${todayChallenge.timeLimit.inMinutes}:${(todayChallenge.timeLimit.inSeconds % 60).toString().padLeft(2, '0')}',
+                    participants: 48,
+                    isActive: true,
+                    gradientBackground: LinearGradient(
+                      colors: [
+                        AppTheme.primaryColor.withAlpha((0.8 * 255).round()),
+                        AppTheme.accentColor.withAlpha((0.6 * 255).round()),
                       ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
-                    const SizedBox(height: 8),
-                    const LeaderboardPreview(),
-                  ],
-                ),
+                    onTap: () {
+                      context.push(
+                        AppRoutes.challengeStartRoute(todayChallenge.id),
+                      );
+                    },
+                  ),
+                ],
               ),
             ),
-
-            // Previous challenges
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Previous Challenges',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontFamily: 'Chillax',
-                        fontWeight: FontWeight.w600,
+          ),
+          // --- Leaderboard Preview Section ---
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Daily Leaderboard', style: textTheme.titleLarge),
+                      TextButton(
+                        onPressed: () {
+                          context.push(AppRoutes.leaderboard);
+                        },
+                        child: const Text('View All'),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    const ChallengeCard(
-                      title: 'PA Chest Positioning',
-                      description:
-                          'Position the patient correctly for a PA Chest X-ray',
-                      difficulty: 'Beginner',
-                      timeLimit: '2:30',
-                      participants: 72,
-                      isActive: false,
-                      yourScore: '93%',
-                    ),
-                    const SizedBox(height: 12),
-                    const ChallengeCard(
-                      title: 'Lateral Skull',
-                      description:
-                          'Position the patient for a Lateral Skull projection',
-                      difficulty: 'Advanced',
-                      timeLimit: '4:00',
-                      participants: 36,
-                      isActive: false,
-                      yourScore: '87%',
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  leaderboardAsync.when(
+                    data: (leaderboardData) {
+                      return LeaderboardCard(
+                        currentUserRank: userRank,
+                        topUsers: leaderboardData,
+                      );
+                    },
+                    loading:
+                        () => const Center(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(vertical: 32.0),
+                            child: CircularProgressIndicator(),
+                          ),
+                        ),
+                    error:
+                        (error, stack) => Center(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 16.0),
+                            child: Text(
+                              'Error loading leaderboard: $error',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.error,
+                              ),
+                            ),
+                          ),
+                        ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

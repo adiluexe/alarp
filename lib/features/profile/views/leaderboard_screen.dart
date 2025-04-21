@@ -1,444 +1,189 @@
-import 'package:alarp/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:solar_icons/solar_icons.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:solar_icons/solar_icons.dart'; // Import solar_icons
+import 'package:alarp/core/theme/app_theme.dart';
+import 'package:alarp/features/profile/controllers/leaderboard_providers.dart';
+import 'package:alarp/data/repositories/profile_repository.dart'; // For LeaderboardEntry
+import 'package:alarp/features/profile/widgets/leaderboard_card.dart'; // Reuse the tile logic
 
-class LeaderboardEntry {
-  final int rank;
-  final String name;
-  final int score;
-  final String? avatarUrl;
-  final bool isCurrentUser;
+// Provider to fetch the top 25 leaderboard entries
+final fullLeaderboardProvider =
+    FutureProvider.family<List<LeaderboardEntry>, String>((
+      ref,
+      challengeId,
+    ) async {
+      try {
+        final repository = ref.watch(profileRepositoryProvider);
+        // Fetch top 25 entries
+        final leaderboardData = await repository.getDailyLeaderboard(
+          challengeId,
+          limit: 25,
+        );
+        return leaderboardData;
+      } catch (e, stackTrace) {
+        rethrow;
+      }
+    }, name: 'fullLeaderboardProvider');
 
-  const LeaderboardEntry({
-    required this.rank,
-    required this.name,
-    required this.score,
-    this.avatarUrl,
-    this.isCurrentUser = false,
-  });
-}
-
-class LeaderboardScreen extends StatelessWidget {
+class LeaderboardScreen extends ConsumerWidget {
   const LeaderboardScreen({super.key});
 
-  // Updated mock data with "FirstName, Initial." format
-  final List<LeaderboardEntry> mockLeaderboardData = const [
-    LeaderboardEntry(rank: 1, name: 'Sebastian, B.', score: 50000),
-    LeaderboardEntry(rank: 2, name: 'Michael, B.', score: 48500),
-    LeaderboardEntry(
-      rank: 3,
-      name: 'You', // Keep 'You' for the current user
-      score: 47000,
-      isCurrentUser: true,
-    ),
-    LeaderboardEntry(rank: 4, name: 'David, L.', score: 44500),
-    LeaderboardEntry(rank: 5, name: 'Emily, C.', score: 43500),
-    LeaderboardEntry(rank: 6, name: 'James, R.', score: 41000),
-    LeaderboardEntry(rank: 7, name: 'Olivia, M.', score: 38000),
-    LeaderboardEntry(rank: 8, name: 'Daniel, P.', score: 35000),
-    LeaderboardEntry(rank: 9, name: 'Sophia, T.', score: 32000),
-    LeaderboardEntry(rank: 10, name: 'Chris, J.', score: 30000),
-  ];
+  // TODO: Accept challengeId as a parameter for flexibility
+  final String challengeId = 'upper_extremities_10rounds'; // Default for now
 
   @override
-  Widget build(BuildContext context) {
-    final topThree = mockLeaderboardData.where((e) => e.rank <= 3).toList();
-    final rank1 = topThree.firstWhere(
-      (e) => e.rank == 1,
-      orElse: () => const LeaderboardEntry(rank: 1, name: '-', score: 0),
-    );
-    final rank2 = topThree.firstWhere(
-      (e) => e.rank == 2,
-      orElse: () => const LeaderboardEntry(rank: 2, name: '-', score: 0),
-    );
-    final rank3 = topThree.firstWhere(
-      (e) => e.rank == 3,
-      orElse: () => const LeaderboardEntry(rank: 3, name: '-', score: 0),
-    );
-    final remainingEntries =
-        mockLeaderboardData.where((e) => e.rank > 3).toList();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final leaderboardAsync = ref.watch(fullLeaderboardProvider(challengeId));
+    // Optionally watch user rank if needed on this screen too
+    // final userRankAsync = ref.watch(userDailyRankProvider(challengeId));
+    // final userRank = userRankAsync.asData?.value?.rank;
+
+    // Format the title nicely
+    final String formattedTitle = challengeId
+        .replaceAll('_', ' ')
+        .split(' ')
+        .map((word) => word[0].toUpperCase() + word.substring(1))
+        .join(' ');
 
     return Scaffold(
-      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Leaderboard'),
-        leading: IconButton(
-          icon: const Icon(SolarIconsOutline.altArrowLeft),
-          onPressed: () => context.pop(),
-        ),
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                AppTheme.primaryColor,
-                AppTheme.secondaryColor.withOpacity(0.8),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-        ),
-        backgroundColor: Colors.transparent,
+        title: Text('Leaderboard'),
+        centerTitle: true,
+        backgroundColor: AppTheme.primaryColor, // Example styling
         foregroundColor: Colors.white,
-        elevation: 0,
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              AppTheme.backgroundColor,
-              AppTheme.backgroundColor.withBlue(245).withGreen(245),
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                // Sticky header with shadow and rounded corners
-                Container(
-                  margin: const EdgeInsets.fromLTRB(12, 12, 12, 0),
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 20,
-                    horizontal: 16,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.08),
-                        blurRadius: 16,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            SolarIconsOutline.ranking,
-                            color: AppTheme.primaryColor,
-                            size: 28,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            "Top Performers",
-                            style: Theme.of(
-                              context,
-                            ).textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: AppTheme.primaryColor,
-                              fontFamily: 'Chillax',
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      _buildPodium(context, rank1, rank2, rank3),
-                    ],
+      body: RefreshIndicator(
+        onRefresh:
+            () => ref.refresh(fullLeaderboardProvider(challengeId).future),
+        child: leaderboardAsync.when(
+          data: (leaderboardData) {
+            if (leaderboardData.isEmpty) {
+              return const Center(
+                child: Text('No scores submitted yet today!'),
+              );
+            }
+            // TODO: Implement Podium UI for top 3 if desired
+            return ListView.separated(
+              padding: const EdgeInsets.all(16.0),
+              itemCount: leaderboardData.length,
+              itemBuilder: (context, index) {
+                final entry = leaderboardData[index];
+                // Check if this entry belongs to the current user (requires user rank provider)
+                // final isCurrentUser = entry.rank == userRank;
+                // For now, pass false or remove highlighting logic from the tile if not needed here
+                return LeaderboardCard(
+                  // Using the card temporarily for its tile builder
+                  topUsers: [entry], // Pass only the single entry
+                  // currentUserRank: userRank, // Pass user rank if needed for highlighting
+                )._buildLeaderboardTile(
+                  // Access the private builder method (not ideal, consider refactoring LeaderboardCard)
+                  context,
+                  rank: entry.rank,
+                  username: entry.username,
+                  score: entry.score,
+                  isCurrentUser: false, // Set to false for now
+                );
+              },
+              separatorBuilder:
+                  (context, index) =>
+                      Divider(height: 1, color: Colors.grey.shade300),
+            );
+          },
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error:
+              (error, stack) => Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    'Error loading leaderboard: $error',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
                 ),
-                const SizedBox(height: 18),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                  child: Row(
-                    children: [
-                      Icon(
-                        SolarIconsOutline.usersGroupRounded,
-                        color: AppTheme.textColor.withOpacity(0.7),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'All Rankings',
-                        style: Theme.of(
-                          context,
-                        ).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.textColor.withOpacity(0.8),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 8),
-                ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12.0,
-                    vertical: 8.0,
-                  ),
-                  itemCount: remainingEntries.length,
-                  itemBuilder: (context, index) {
-                    final entry = remainingEntries[index];
-                    return _buildLeaderboardListTile(context, entry);
-                  },
-                  separatorBuilder:
-                      (context, index) => const SizedBox(height: 8),
-                ),
-                const SizedBox(height: 16),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPodium(
-    BuildContext context,
-    LeaderboardEntry rank1,
-    LeaderboardEntry rank2,
-    LeaderboardEntry rank3,
-  ) {
-    const goldColor = Color(0xFFFAD961);
-    const silverColor = Color(0xFFE2E2E2);
-    const bronzeColor = Color(0xFFD1A683);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Expanded(child: _buildPodiumItem(context, rank2, silverColor, 90)),
-          Expanded(child: _buildPodiumItem(context, rank1, goldColor, 120)),
-          Expanded(child: _buildPodiumItem(context, rank3, bronzeColor, 80)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPodiumItem(
-    BuildContext context,
-    LeaderboardEntry entry,
-    Color color,
-    double height,
-  ) {
-    // Determine the initial to display (handle "You")
-    String initial = '?';
-    if (entry.name.isNotEmpty) {
-      if (entry.isCurrentUser && entry.name == 'You') {
-        initial = 'Y'; // Special case for "You"
-      } else if (entry.name.contains(',')) {
-        initial =
-            entry.name
-                .split(',')[0][0]
-                .toUpperCase(); // First letter of first name
-      } else {
-        initial =
-            entry.name[0].toUpperCase(); // Fallback for names without comma
-      }
-    }
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        CircleAvatar(
-          radius: 28,
-          backgroundColor: color.withOpacity(0.6),
-          child: CircleAvatar(
-            radius: 24,
-            backgroundColor: Colors.white,
-            child: Text(
-              initial, // Use the determined initial
-              style: TextStyle(
-                fontSize: 20,
-                color: AppTheme.primaryColor,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Chillax',
               ),
-            ),
-          ),
         ),
-        const SizedBox(height: 8),
-        Text(
-          entry.name, // Display the full name
-          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: AppTheme.textColor.withOpacity(0.9),
-            fontFamily: 'Satoshi',
-          ),
-          textAlign: TextAlign.center,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
-        const SizedBox(height: 4),
-        Text(
-          '${entry.score} pts',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: AppTheme.textColor.withOpacity(0.7),
-            fontWeight: FontWeight.w500,
-            fontFamily: 'Satoshi',
-          ),
-        ),
-        const SizedBox(height: 8),
-        Container(
-          height: height,
-          margin: const EdgeInsets.symmetric(horizontal: 4),
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(8),
-              topRight: Radius.circular(8),
-            ),
-          ),
-          child: Center(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  SolarIconsBold.medalStar,
-                  color: Colors.white.withOpacity(0.85),
-                  size: Theme.of(context).textTheme.headlineSmall?.fontSize,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  '#${entry.rank}',
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: Colors.white.withOpacity(0.95),
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Chillax',
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
+}
 
-  Widget _buildLeaderboardListTile(
-    BuildContext context,
-    LeaderboardEntry entry,
-  ) {
-    final currentUserGradient = LinearGradient(
-      colors: [
-        AppTheme.primaryColor.withOpacity(0.15),
-        AppTheme.secondaryColor.withOpacity(0.1),
-      ],
-      begin: Alignment.centerLeft,
-      end: Alignment.centerRight,
-    );
+// --- Helper Extension Method (Consider moving to LeaderboardCard file) ---
+// This is a workaround to access the private method. A better approach would be
+// to extract _buildLeaderboardTile into a public static method or a separate widget.
+extension LeaderboardTileBuilder on LeaderboardCard {
+  Widget _buildLeaderboardTile(
+    BuildContext context, {
+    required int rank,
+    required String username,
+    required int score,
+    required bool isCurrentUser,
+  }) {
+    // Copy the implementation from LeaderboardCard._buildLeaderboardTile
+    final textTheme = Theme.of(context).textTheme;
+    final rankColor =
+        rank == 1
+            ? Colors.amber.shade700
+            : rank == 2
+            ? Colors.grey.shade500
+            : rank == 3
+            ? Colors.brown.shade400
+            // Use withAlpha for deprecated withOpacity
+            : AppTheme.textColor.withAlpha((0.8 * 255).round());
 
-    final regularCardGradient = LinearGradient(
-      colors: [
-        Colors.white,
-        Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
-      ],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    );
-
-    // Determine the initial to display (handle "You")
-    String initial = '?';
-    if (entry.name.isNotEmpty) {
-      if (entry.isCurrentUser && entry.name == 'You') {
-        initial = 'Y'; // Special case for "You"
-      } else if (entry.name.contains(',')) {
-        initial =
-            entry.name
-                .split(',')[0][0]
-                .toUpperCase(); // First letter of first name
-      } else {
-        initial =
-            entry.name[0].toUpperCase(); // Fallback for names without comma
-      }
-    }
-
-    return Card(
-      elevation: entry.isCurrentUser ? 2.0 : 1.0,
-      margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10.0),
-        side:
-            entry.isCurrentUser
-                ? BorderSide(
-                  color: AppTheme.primaryColor.withOpacity(0.5),
-                  width: 1,
-                )
-                : BorderSide(color: Colors.grey.withOpacity(0.1)),
+    return ListTile(
+      dense: true,
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 8.0,
+        vertical: 4.0,
       ),
-      clipBehavior: Clip.antiAlias,
-      child: Container(
-        decoration: BoxDecoration(
-          gradient:
-              entry.isCurrentUser ? currentUserGradient : regularCardGradient,
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10.0),
+      leading: SizedBox(
+        width: 40,
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(
-              width: 76,
-              child: Row(
-                children: [
-                  SizedBox(
-                    width: 32,
-                    child: Text(
-                      '#${entry.rank}',
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        color: AppTheme.textColor.withOpacity(0.6),
-                        fontWeight: FontWeight.w700,
-                        fontFamily: 'Chillax',
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  CircleAvatar(
-                    radius: 18,
-                    backgroundColor: AppTheme.primaryColor.withOpacity(0.18),
-                    child: Text(
-                      initial, // Use the determined initial
-                      style: TextStyle(
-                        color: AppTheme.primaryColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                        fontFamily: 'Chillax',
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                entry.name, // Display the full name
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  fontWeight:
-                      entry.isCurrentUser ? FontWeight.w700 : FontWeight.w600,
-                  color: AppTheme.textColor.withOpacity(0.9),
-                  fontFamily: 'Satoshi',
+            if (rank <= 3)
+              Icon(
+                SolarIconsBold.medalStar, // Use a medal icon for top 3
+                color: rankColor,
+                size: 20,
+              )
+            else
+              Text(
+                '#$rank',
+                style: textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: rankColor,
                 ),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
               ),
-            ),
-            const SizedBox(width: 10),
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                '${entry.score} pts',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppTheme.primaryColor,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.5,
-                  fontFamily: 'Satoshi',
-                ),
-                maxLines: 1,
-                textAlign: TextAlign.end,
-              ),
-            ),
           ],
         ),
       ),
+      title: Text(
+        username,
+        style: textTheme.bodyLarge?.copyWith(
+          fontWeight: isCurrentUser ? FontWeight.bold : FontWeight.normal,
+          color: isCurrentUser ? AppTheme.primaryColor : AppTheme.textColor,
+        ),
+        overflow: TextOverflow.ellipsis,
+      ),
+      trailing: Text(
+        '$score',
+        style: textTheme.bodyLarge?.copyWith(
+          fontWeight: FontWeight.bold,
+          color: isCurrentUser ? AppTheme.primaryColor : AppTheme.textColor,
+        ),
+      ),
+      // Use withAlpha for deprecated withOpacity
+      tileColor:
+          isCurrentUser
+              ? AppTheme.primaryColor.withAlpha((0.1 * 255).round())
+              : null,
+      shape:
+          isCurrentUser
+              ? RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))
+              : null,
     );
   }
 }
