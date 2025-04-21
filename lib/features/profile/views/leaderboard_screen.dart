@@ -5,6 +5,7 @@ import 'package:alarp/core/theme/app_theme.dart';
 import 'package:alarp/features/profile/controllers/leaderboard_providers.dart';
 import 'package:alarp/data/repositories/profile_repository.dart'; // For LeaderboardEntry
 import 'package:alarp/features/profile/widgets/leaderboard_card.dart'; // Reuse the tile logic
+import 'package:go_router/go_router.dart'; // Import go_router
 
 // Provider to fetch the top 25 leaderboard entries
 final fullLeaderboardProvider =
@@ -47,14 +48,21 @@ class LeaderboardScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Leaderboard'),
-        centerTitle: true,
-        backgroundColor: AppTheme.primaryColor, // Example styling
+        title: const Text('Leaderboard'),
+        leading: IconButton(
+          icon: const Icon(SolarIconsOutline.altArrowLeft),
+          onPressed: () => context.pop(),
+        ),
+        backgroundColor: AppTheme.primaryColor,
         foregroundColor: Colors.white,
+        centerTitle: true,
+        elevation: 1,
       ),
+      backgroundColor: AppTheme.backgroundColor,
       body: RefreshIndicator(
         onRefresh:
             () => ref.refresh(fullLeaderboardProvider(challengeId).future),
+        color: AppTheme.primaryColor,
         child: leaderboardAsync.when(
           data: (leaderboardData) {
             if (leaderboardData.isEmpty) {
@@ -62,31 +70,35 @@ class LeaderboardScreen extends ConsumerWidget {
                 child: Text('No scores submitted yet today!'),
               );
             }
-            // TODO: Implement Podium UI for top 3 if desired
             return ListView.separated(
               padding: const EdgeInsets.all(16.0),
               itemCount: leaderboardData.length,
               itemBuilder: (context, index) {
                 final entry = leaderboardData[index];
-                // Check if this entry belongs to the current user (requires user rank provider)
-                // final isCurrentUser = entry.rank == userRank;
-                // For now, pass false or remove highlighting logic from the tile if not needed here
-                return LeaderboardCard(
-                  // Using the card temporarily for its tile builder
-                  topUsers: [entry], // Pass only the single entry
-                  // currentUserRank: userRank, // Pass user rank if needed for highlighting
-                )._buildLeaderboardTile(
-                  // Access the private builder method (not ideal, consider refactoring LeaderboardCard)
-                  context,
-                  rank: entry.rank,
-                  username: entry.username,
-                  score: entry.score,
-                  isCurrentUser: false, // Set to false for now
+                return Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  color: Theme.of(context).colorScheme.surfaceContainerLowest,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
+                    child: LeaderboardCard(
+                      topUsers: [entry],
+                    )._buildLeaderboardTile(
+                      context,
+                      rank: entry.rank,
+                      username: entry.username,
+                      score: entry.score,
+                      isCurrentUser: false,
+                    ),
+                  ),
                 );
               },
-              separatorBuilder:
-                  (context, index) =>
-                      Divider(height: 1, color: Colors.grey.shade300),
+              separatorBuilder: (context, index) => const SizedBox(height: 12),
             );
           },
           loading: () => const Center(child: CircularProgressIndicator()),

@@ -11,6 +11,8 @@ import 'package:alarp/core/providers/supabase_providers.dart'; // Import userPro
 import 'package:alarp/core/services/shared_preferences_service.dart';
 import 'package:alarp/features/profile/controllers/leaderboard_providers.dart';
 import 'package:alarp/core/navigation/app_router.dart';
+import 'package:alarp/features/profile/controllers/challenge_history_provider.dart';
+import 'package:intl/intl.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -40,6 +42,7 @@ class ProfileScreen extends ConsumerWidget {
       dailyLeaderboardProvider(dailyChallengeId),
     );
     final userRankAsync = ref.watch(userDailyRankProvider(dailyChallengeId));
+    final challengeHistoryAsync = ref.watch(challengeHistoryProvider);
 
     final textTheme = Theme.of(context).textTheme;
 
@@ -158,59 +161,70 @@ class ProfileScreen extends ConsumerWidget {
                     child: _buildAchievements(context, achievementsData),
                   ),
                 ),
-                // --- Navigation Links Section ---
+                // --- Challenge History Preview Section ---
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('More', style: textTheme.titleMedium),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Recent Challenges',
+                              style: textTheme.titleMedium,
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                context.push(AppRoutes.challengeHistory);
+                              },
+                              child: const Text('View All'),
+                            ),
+                          ],
+                        ),
                         const SizedBox(height: 8),
-                        Card(
-                          elevation: 0,
-                          color:
-                              Theme.of(
-                                context,
-                              ).colorScheme.surfaceContainerLowest,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            children: [
-                              _buildProfileLinkTile(
-                                context: context,
-                                icon: SolarIconsOutline.history,
-                                title: 'Challenge History',
-                                subtitle: 'View your past challenge attempts',
-                                onTap: () {
-                                  context.push(AppRoutes.challengeHistory);
-                                },
+                        challengeHistoryAsync.when(
+                          data: (history) {
+                            if (history.isEmpty) {
+                              return Text(
+                                'No recent challenge attempts.',
+                                style: textTheme.bodySmall?.copyWith(
+                                  color: AppTheme.textColor.withAlpha(
+                                    (0.6 * 255).round(),
+                                  ),
+                                ),
+                              );
+                            }
+                            final recent = history.take(3).toList();
+                            return Column(
+                              children: [
+                                for (final attempt in recent)
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 12),
+                                    child: _buildHistoryCard(context, attempt),
+                                  ),
+                              ],
+                            );
+                          },
+                          loading:
+                              () => const Center(
+                                child: CircularProgressIndicator(),
                               ),
-                              const Divider(
-                                height: 1,
-                                indent: 16,
-                                endIndent: 16,
+                          error:
+                              (error, stack) => Text(
+                                'Could not load challenge history.',
+                                style: textTheme.bodySmall?.copyWith(
+                                  color: Theme.of(context).colorScheme.error,
+                                ),
                               ),
-                              _buildProfileLinkTile(
-                                context: context,
-                                icon:
-                                    SolarIconsOutline
-                                        .medalStar, // Changed icon again
-                                title: 'Leaderboards',
-                                subtitle: 'See how you rank against others',
-                                onTap: () {
-                                  context.push(AppRoutes.leaderboard);
-                                },
-                              ),
-                              // Add more links like Settings, Help, etc. here
-                            ],
-                          ),
                         ),
                       ],
                     ),
                   ),
                 ),
+                // --- Navigation Links Section ---
+
                 // --- End Navigation Links Section ---
                 SliverToBoxAdapter(
                   child: Padding(
@@ -487,6 +501,75 @@ class ProfileScreen extends ConsumerWidget {
       trailing: const Icon(Icons.chevron_right, color: Colors.grey),
       onTap: onTap,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+    );
+  }
+
+  Widget _buildHistoryCard(BuildContext context, dynamic attempt) {
+    final textTheme = Theme.of(context).textTheme;
+    final formattedDate = DateFormat.yMMMd().add_jm().format(
+      attempt.completedAt.toLocal(),
+    );
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      color: Theme.of(context).colorScheme.surfaceContainerLowest,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Row(
+          children: [
+            CircleAvatar(
+              backgroundColor: AppTheme.primaryColor.withAlpha(
+                (0.12 * 255).round(),
+              ),
+              radius: 26,
+              child: Icon(
+                SolarIconsOutline.cupStar,
+                color: AppTheme.primaryColor,
+                size: 28,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    attempt.challengeTitle.isNotEmpty
+                        ? attempt.challengeTitle
+                        : 'Challenge',
+                    style: textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      fontFamily: 'Chillax',
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    formattedDate,
+                    style: textTheme.bodySmall?.copyWith(
+                      color: AppTheme.textColor.withAlpha((0.7 * 255).round()),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  '${attempt.score} pts',
+                  style: textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.primaryColor,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

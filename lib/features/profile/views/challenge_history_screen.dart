@@ -5,6 +5,7 @@ import 'package:alarp/core/theme/app_theme.dart';
 import 'package:alarp/features/challenge/models/challenge_attempt.dart';
 import 'package:alarp/features/profile/controllers/challenge_history_provider.dart';
 import 'package:solar_icons/solar_icons.dart'; // Import icons
+import 'package:go_router/go_router.dart';
 
 class ChallengeHistoryScreen extends ConsumerWidget {
   const ChallengeHistoryScreen({super.key});
@@ -18,14 +19,19 @@ class ChallengeHistoryScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Challenge History'),
-        backgroundColor: colorScheme.surface, // Use theme color
+        leading: IconButton(
+          icon: const Icon(SolarIconsOutline.altArrowLeft),
+          onPressed: () => context.pop(),
+        ),
+        backgroundColor: AppTheme.primaryColor,
+        foregroundColor: Colors.white,
         elevation: 1,
-        shadowColor: Colors.black.withOpacity(0.1),
+        shadowColor: Colors.black.withAlpha((0.1 * 255).round()),
       ),
-      backgroundColor: colorScheme.surface, // Match background
+      backgroundColor: AppTheme.backgroundColor,
       body: RefreshIndicator(
         onRefresh: () => ref.refresh(challengeHistoryProvider.future),
-        color: AppTheme.primaryColor, // Use primary color for indicator
+        color: AppTheme.primaryColor,
         child: historyAsync.when(
           data: (history) {
             if (history.isEmpty) {
@@ -34,15 +40,17 @@ class ChallengeHistoryScreen extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
-                      SolarIconsOutline.history, // Use a relevant icon
+                      SolarIconsOutline.history,
                       size: 60,
-                      color: AppTheme.textColor.withOpacity(0.5),
+                      color: AppTheme.textColor.withAlpha((0.5 * 255).round()),
                     ),
                     const SizedBox(height: 16),
                     Text(
                       'No challenge attempts found yet!',
                       style: textTheme.bodyLarge?.copyWith(
-                        color: AppTheme.textColor.withOpacity(0.7),
+                        color: AppTheme.textColor.withAlpha(
+                          (0.7 * 255).round(),
+                        ),
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -50,7 +58,9 @@ class ChallengeHistoryScreen extends ConsumerWidget {
                     Text(
                       'Complete some challenges to see your history here.',
                       style: textTheme.bodyMedium?.copyWith(
-                        color: AppTheme.textColor.withOpacity(0.5),
+                        color: AppTheme.textColor.withAlpha(
+                          (0.5 * 255).round(),
+                        ),
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -59,19 +69,13 @@ class ChallengeHistoryScreen extends ConsumerWidget {
               );
             }
             return ListView.separated(
-              padding: const EdgeInsets.symmetric(vertical: 16.0),
+              padding: const EdgeInsets.all(16.0),
               itemCount: history.length,
               itemBuilder: (context, index) {
                 final attempt = history[index];
-                return _buildHistoryTile(context, attempt);
+                return _buildHistoryCard(context, attempt);
               },
-              separatorBuilder:
-                  (context, index) => Divider(
-                    height: 1,
-                    color: Colors.grey.shade300,
-                    indent: 16,
-                    endIndent: 16,
-                  ),
+              separatorBuilder: (context, index) => const SizedBox(height: 12),
             );
           },
           loading: () => const Center(child: CircularProgressIndicator()),
@@ -85,7 +89,7 @@ class ChallengeHistoryScreen extends ConsumerWidget {
                       Icon(
                         SolarIconsOutline.dangerTriangle,
                         size: 60,
-                        color: colorScheme.error.withOpacity(0.7),
+                        color: colorScheme.error.withAlpha((0.7 * 255).round()),
                       ),
                       const SizedBox(height: 16),
                       Text(
@@ -97,9 +101,11 @@ class ChallengeHistoryScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        '$error', // Show the actual error message
+                        '$error',
                         style: textTheme.bodySmall?.copyWith(
-                          color: AppTheme.textColor.withOpacity(0.6),
+                          color: AppTheme.textColor.withAlpha(
+                            (0.6 * 255).round(),
+                          ),
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -112,53 +118,72 @@ class ChallengeHistoryScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHistoryTile(BuildContext context, ChallengeAttempt attempt) {
+  Widget _buildHistoryCard(BuildContext context, ChallengeAttempt attempt) {
     final textTheme = Theme.of(context).textTheme;
-    // Format the date nicely
     final formattedDate = DateFormat.yMMMd().add_jm().format(
       attempt.completedAt.toLocal(),
     );
-
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: 16.0,
-        vertical: 8.0,
-      ),
-      leading: CircleAvatar(
-        backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
-        child: Icon(
-          SolarIconsOutline.cupStar, // Icon representing achievement/score
-          color: AppTheme.primaryColor,
-          size: 24,
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      color: Theme.of(context).colorScheme.surfaceContainerLowest,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Row(
+          children: [
+            CircleAvatar(
+              backgroundColor: AppTheme.primaryColor.withAlpha(
+                (0.12 * 255).round(),
+              ),
+              radius: 26,
+              child: Icon(
+                SolarIconsOutline.cupStar,
+                color: AppTheme.primaryColor,
+                size: 28,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    attempt.challengeTitle.isNotEmpty
+                        ? attempt.challengeTitle
+                        : 'Challenge',
+                    style: textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      fontFamily: 'Chillax',
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    formattedDate,
+                    style: textTheme.bodySmall?.copyWith(
+                      color: AppTheme.textColor.withAlpha((0.7 * 255).round()),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  '${attempt.score} pts',
+                  style: textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.primaryColor,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
-      title: Text(
-        // Use title directly if it's guaranteed non-nullable and check if empty
-        attempt.challengeTitle.isNotEmpty
-            ? attempt.challengeTitle
-            : 'Challenge',
-        style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-      subtitle: Text(
-        formattedDate,
-        style: textTheme.bodySmall?.copyWith(
-          color: AppTheme.textColor.withOpacity(0.7),
-        ),
-      ),
-      trailing: Text(
-        '${attempt.score} pts',
-        style: textTheme.titleMedium?.copyWith(
-          fontWeight: FontWeight.bold,
-          color: AppTheme.primaryColor,
-        ),
-      ),
-      // Optional: Add onTap to view details if needed later
-      // onTap: () {
-      //   // Navigate to a detail screen for this attempt?
-      //   // You could pass attempt.id or the full attempt object
-      // },
     );
   }
 }
