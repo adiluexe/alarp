@@ -367,13 +367,24 @@ class ChallengeController extends StateNotifier<ChallengeState> {
   }
 }
 
-final challengeControllerProvider = StateNotifierProvider.family<
-  ChallengeController,
-  ChallengeState,
-  Challenge
->((ref, challenge) {
-  return ChallengeController(ref, challenge);
-});
+final challengeControllerProvider = StateNotifierProvider
+    .autoDispose // Keep autoDispose for safety, but keepAlive will prevent premature disposal
+    .family<ChallengeController, ChallengeState, Challenge>((ref, challenge) {
+      // Keep the provider instance alive as long as its originating ProviderScope is alive.
+      // This prevents it from being disposed during navigation between active/results screens.
+      final link = ref.keepAlive();
+
+      // Ensure the controller's resources (like timers) are cleaned up
+      // when the provider is *eventually* disposed (e.g., when navigating away
+      // from the challenge feature entirely).
+      ref.onDispose(() {
+        // The StateNotifier's dispose method should be called automatically by Riverpod,
+        // cleaning up the _timer. If other manual cleanup were needed, it would go here.
+        // link.close(); // Close the keepAlive link if manual control is needed, but usually not required here.
+      });
+
+      return ChallengeController(ref, challenge);
+    });
 
 final projectionProvider = Provider.family<
   Projection?,

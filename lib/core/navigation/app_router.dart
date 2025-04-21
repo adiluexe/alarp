@@ -21,7 +21,6 @@ import 'package:alarp/features/practice/views/recent_practice_list_screen.dart';
 import 'package:alarp/features/profile/views/leaderboard_screen.dart'; // Import the new leaderboard screen
 import 'package:alarp/features/onboarding/splash_screen.dart'; // Import SplashScreen
 import '../../features/challenge/views/challenge_results_screen.dart'; // Import the new screen
-import '../../features/challenge/controllers/challenge_controller.dart'; // Import controller for results
 
 // Define route paths
 class AppRoutes {
@@ -41,13 +40,14 @@ class AppRoutes {
   // Define absolute paths for challenge start and active screens
   static const challengeStart = '/challenge/start/:challengeId';
   static const challengeActivePath = '/challenge/active/:challengeId';
+  static const challengeResults =
+      '/challenge/results/:challengeId'; // Make absolute
   static const profile = '/profile';
   static const skeletonViewer = '/skeleton'; // New route for skeleton viewer
   static const recentPracticeList =
       '/recent-practice'; // Verify the constant path
   static const leaderboard =
       '/leaderboard'; // New route for the full leaderboard
-  static const challengeResults = 'results'; // Relative path for results
 
   // Helper method to build the full path for challenge start
   static String challengeStartRoute(String challengeId) =>
@@ -56,6 +56,10 @@ class AppRoutes {
   // Helper method to build the full path for challenge active
   static String challengeActive(String challengeId) =>
       challengeActivePath.replaceFirst(':challengeId', challengeId);
+
+  // Helper method to build the full path for challenge results
+  static String challengeResultsRoute(String challengeId) =>
+      challengeResults.replaceFirst(':challengeId', challengeId);
 }
 
 // Private navigator keys
@@ -160,33 +164,33 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             child: ChallengeActiveScreen(challengeId: challengeId),
           );
         },
-        routes: [
-          GoRoute(
-            path:
-                AppRoutes
-                    .challengeResults, // e.g., /challenge/ch_ap_forearm_01/active/results
-            name: AppRoutes.challengeResults,
-            builder: (context, state) {
-              final challengeId = state.pathParameters['challengeId']!;
-              final challenge = Challenge.getChallengeById(challengeId);
-              if (challenge == null) {
-                return const Scaffold(
-                  body: Center(
-                    child: Text('Error: Challenge not found for results'),
-                  ),
-                );
-              }
-              // Results screen likely needs the Challenge and the final ChallengeState
-              // We can pass the challenge and read the state via Riverpod
-              return ProviderScope(
-                overrides: [
-                  activeChallengeProvider.overrideWithValue(challenge),
-                ],
-                child: const ChallengeResultsScreen(),
-              );
-            },
-          ),
-        ],
+      ),
+      // NEW: Challenge Results Screen (Top-Level)
+      GoRoute(
+        path: AppRoutes.challengeResults, // Use absolute path
+        name: AppRoutes.challengeResults, // Assign name for goNamed
+        builder: (context, state) {
+          final challengeId = state.pathParameters['challengeId']!;
+          final challenge = Challenge.getChallengeById(challengeId);
+
+          // Handle case where challenge is not found
+          if (challenge == null) {
+            return Scaffold(
+              appBar: AppBar(title: const Text('Error')),
+              body: Center(
+                child: Text('Challenge with ID \'$challengeId\' not found.'),
+              ),
+            );
+          }
+
+          // Override the provider for this specific route
+          // The results screen needs this to get challenge details like title
+          // and to access the correct controller instance via challengeControllerProvider(challenge)
+          return ProviderScope(
+            overrides: [activeChallengeProvider.overrideWithValue(challenge)],
+            child: const ChallengeResultsScreen(),
+          );
+        },
       ),
       // Main application shell with bottom navigation
       ShellRoute(
@@ -261,9 +265,6 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                   final region = BodyRegions.getRegionById(regionId);
                   return RegionDetailScreen(region: region);
                 },
-                routes: [
-                  // REMOVED CollimationPracticeScreen route from here
-                ],
               ),
             ],
           ),
@@ -272,7 +273,6 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             pageBuilder:
                 (context, state) =>
                     const NoTransitionPage(child: ChallengeScreen()),
-            // Challenge start/active routes are now top-level, remove from here
           ),
           GoRoute(
             path: AppRoutes.profile,
