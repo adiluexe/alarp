@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'; // Import Riverpod
 import 'package:solar_icons/solar_icons.dart';
 import 'package:alarp/core/theme/app_theme.dart';
 import 'package:alarp/features/profile/widgets/stats_card.dart';
@@ -6,12 +7,15 @@ import 'package:alarp/features/profile/widgets/leaderboard_card.dart';
 import 'package:alarp/features/profile/widgets/achievements_grid.dart';
 import 'package:go_router/go_router.dart'; // Import GoRouter
 import 'package:alarp/core/navigation/app_router.dart'; // Import AppRoutes
+import 'package:alarp/features/auth/controllers/auth_controller.dart'; // Import AuthController
 
-class ProfileScreen extends StatelessWidget {
+// Convert to ConsumerWidget to access ref
+class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Add WidgetRef ref
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       body: SafeArea(
@@ -41,6 +45,62 @@ class ProfileScreen extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
                 child: _buildAchievements(context),
+              ),
+            ),
+
+            // Sign Out Button
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 24.0,
+                ),
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    // Show confirmation dialog before signing out
+                    final confirm = await showDialog<bool>(
+                      context: context,
+                      builder:
+                          (context) => AlertDialog(
+                            title: const Text('Confirm Sign Out'),
+                            content: const Text(
+                              'Are you sure you want to sign out?',
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed:
+                                    () => Navigator.of(context).pop(false),
+                                child: const Text('Cancel'),
+                              ),
+                              TextButton(
+                                onPressed:
+                                    () => Navigator.of(context).pop(true),
+                                child: const Text('Sign Out'),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: Colors.red,
+                                ),
+                              ),
+                            ],
+                          ),
+                    );
+
+                    // If confirmed, call the sign out method
+                    if (confirm == true) {
+                      await ref.read(authControllerProvider.notifier).signOut();
+                      // GoRouter redirect will handle navigation based on auth state change
+                    }
+                  },
+                  icon: const Icon(SolarIconsOutline.logout),
+                  label: const Text('Sign Out'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:
+                        Colors.red[700], // Use a distinct color for sign out
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    textStyle: Theme.of(context).textTheme.titleMedium
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                ),
               ),
             ),
           ],

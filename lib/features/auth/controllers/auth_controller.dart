@@ -15,17 +15,34 @@ class AuthController extends StateNotifier<AuthStateEnum> {
   // Getter to easily check if the user is currently authenticated
   bool get isAuthenticated => _ref.read(currentUserProvider) != null;
 
+  // Updated signUp method to accept optional firstName and lastName
   Future<bool> signUp(
     String email,
     String password, {
-    Map<String, dynamic>? data,
+    String? firstName, // Add firstName
+    String? lastName, // Add lastName
   }) async {
     state = AuthStateEnum.loading;
     try {
+      // Prepare metadata, including username derived from names if needed later
+      // For now, just pass first and last name if provided.
+      // Supabase uses 'data' for user_metadata.
+      final Map<String, dynamic> userMetadata = {};
+      if (firstName != null && firstName.isNotEmpty) {
+        userMetadata['first_name'] = firstName;
+      }
+      if (lastName != null && lastName.isNotEmpty) {
+        userMetadata['last_name'] = lastName;
+      }
+      // You could also create a 'full_name' or default 'username' here
+      // if (firstName != null && lastName != null) {
+      //   userMetadata['full_name'] = '$firstName $lastName';
+      // }
+
       final response = await _supabaseClient.auth.signUp(
         email: email,
         password: password,
-        data: data, // Optional: pass additional user metadata
+        data: userMetadata.isNotEmpty ? userMetadata : null, // Pass metadata
       );
       // Check if sign up requires email confirmation (check your Supabase project settings)
       final session = response.session;
