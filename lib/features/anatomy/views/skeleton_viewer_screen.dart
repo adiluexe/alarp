@@ -48,8 +48,8 @@ class _SkeletonViewerScreenState extends State<SkeletonViewerScreen> {
         children: [
           // Wrap the viewer in a Container to set the background color
           Container(
-            color: AppTheme.accentColor.withOpacity(
-              0.5,
+            color: AppTheme.primaryColor.withOpacity(
+              0.8,
             ), // Set the background color with opacity
             child: Flutter3DViewer(
               // Controller is needed for potential future interactions (animations, etc.)

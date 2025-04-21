@@ -96,8 +96,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildQuickActions() {
     // Get today's challenge ID for navigation
-    // Use the 5-step challenge ID
-    final String dailyChallengeId = Challenge.forearmApChallenge.id;
+    // Use the 10-round Upper Extremities Challenge ID
+    final String dailyChallengeId = Challenge.upperExtremitiesChallenge.id;
     // Define a width for the cards
     const double cardWidth = 280.0;
 
@@ -142,8 +142,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   width: cardWidth,
                   child: ActionCard(
                     title: 'Daily Challenge',
-                    // Use the 5-step challenge title
-                    subtitle: Challenge.forearmApChallenge.title,
+                    // Use the 10-round challenge title
+                    subtitle: 'Upper Extremities',
                     description: 'Complete today\'s challenge',
                     icon: SolarIconsBold.medalStar,
                     color: AppTheme.secondaryColor,
