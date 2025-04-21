@@ -1,35 +1,52 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-// Provides the Supabase client instance
+// Provider for the Supabase client instance
 final supabaseClientProvider = Provider<SupabaseClient>((ref) {
   return Supabase.instance.client;
 });
 
-// Provides the current user's authentication state stream
+// Provider for the raw Supabase auth state changes stream
 final authStateChangesProvider = StreamProvider<AuthState>((ref) {
-  final supabaseClient = ref.watch(supabaseClientProvider);
-  return supabaseClient.auth.onAuthStateChange;
+  return ref.watch(supabaseClientProvider).auth.onAuthStateChange;
 });
 
-// Provides the current user ID, or null if not logged in
-final userIdProvider = Provider<String?>((ref) {
-  final authState = ref.watch(authStateChangesProvider);
-  // Use .when to safely access the data, providing null in loading/error states
-  return authState.when(
-    data: (state) => state.session?.user.id,
-    loading: () => null,
-    error: (_, __) => null,
-  );
-});
-
-// Provides the current user object, or null if not logged in
+// Provider for the current Supabase User object (null if not logged in)
 final currentUserProvider = Provider<User?>((ref) {
-  final authState = ref.watch(authStateChangesProvider);
-  // Use .when to safely access the data, providing null in loading/error states
-  return authState.when(
-    data: (state) => state.session?.user,
-    loading: () => null,
-    error: (_, __) => null,
-  );
+  // Listen to the stream and return the current user from the latest AuthState event
+  return ref.watch(authStateChangesProvider).value?.session?.user;
+});
+
+// Provider for the current user's ID (String?, null if not logged in)
+final userIdProvider = Provider<String?>((ref) {
+  return ref.watch(currentUserProvider)?.id;
+});
+
+// --- NEW: Provider to fetch the current user's profile ---
+// We use a StreamProvider to listen for real-time changes to the profile
+final userProfileProvider = StreamProvider<Map<String, dynamic>?>((ref) {
+  final supabaseClient = ref.watch(supabaseClientProvider);
+  final userId = ref.watch(userIdProvider);
+
+  // If no user is logged in, return an empty stream
+  if (userId == null) {
+    return Stream.value(null);
+  }
+
+  // Fetch the user's profile row from the 'profiles' table
+  // Call .stream() immediately after .from()
+  // Then apply filters and transformations to the stream
+  final stream = supabaseClient
+      .from('profiles')
+      .stream(primaryKey: ['id']) // Call stream() directly on the table query
+      .eq('id', userId) // Filter the stream
+      .limit(1) // Limit the stream results
+      // The stream returns a List<Map<String, dynamic>>, map it to a single Map or null
+      .map((list) => list.isNotEmpty ? list.first : null);
+
+  // Note: .select() is implicitly applied when fetching the stream unless specified otherwise.
+  // If you only need specific columns, you could add .select('username, first_name, ...')
+  // *before* .stream(), but fetching all columns is often fine for a single profile row.
+
+  return stream;
 });

@@ -1,28 +1,82 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart'; // Import Riverpod
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:solar_icons/solar_icons.dart';
 import 'package:alarp/core/theme/app_theme.dart';
 import 'package:alarp/features/profile/widgets/stats_card.dart';
 import 'package:alarp/features/profile/widgets/leaderboard_card.dart';
 import 'package:alarp/features/profile/widgets/achievements_grid.dart';
-import 'package:go_router/go_router.dart'; // Import GoRouter
-import 'package:alarp/core/navigation/app_router.dart'; // Import AppRoutes
-import 'package:alarp/features/auth/controllers/auth_controller.dart'; // Import AuthController
+import 'package:go_router/go_router.dart';
+import 'package:alarp/core/navigation/app_router.dart';
+import 'package:alarp/features/auth/controllers/auth_controller.dart';
+import 'package:alarp/core/providers/supabase_providers.dart'; // Import providers
 
-// Convert to ConsumerWidget to access ref
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Add WidgetRef ref
+    // Watch user profile and current user (for email fallback)
+    final userProfileAsync = ref.watch(userProfileProvider);
+    final currentUser = ref.watch(
+      currentUserProvider,
+    ); // Get Supabase user for email
+
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            // Header with profile info
-            SliverToBoxAdapter(child: _buildProfileHeader(context)),
+            // Header with profile info - Use AsyncValue.when
+            userProfileAsync.when(
+              data: (profileData) {
+                // Extract data or use defaults/fallbacks
+                final firstName = profileData?['first_name'] as String?;
+                final lastName = profileData?['last_name'] as String?;
+                final username = profileData?['username'] as String? ?? 'User';
+                final email =
+                    currentUser?.email ?? 'No email'; // Fallback email
+
+                // Determine display name: First Last, First, Username
+                String displayName = username;
+                if (firstName != null && firstName.isNotEmpty) {
+                  displayName = firstName;
+                  if (lastName != null && lastName.isNotEmpty) {
+                    displayName += ' $lastName';
+                  }
+                }
+
+                // Determine initial for avatar
+                String initial =
+                    displayName.isNotEmpty ? displayName[0].toUpperCase() : '?';
+
+                return SliverToBoxAdapter(
+                  child: _buildProfileHeader(
+                    context,
+                    displayName,
+                    email,
+                    initial,
+                  ),
+                );
+              },
+              loading:
+                  () => SliverToBoxAdapter(
+                    child: _buildProfileHeader(
+                      context,
+                      'Loading...',
+                      'Loading...',
+                      '?',
+                    ), // Loading state
+                  ),
+              error:
+                  (error, stack) => SliverToBoxAdapter(
+                    child: _buildProfileHeader(
+                      context,
+                      'Error',
+                      'Error',
+                      '!',
+                    ), // Error state
+                  ),
+            ),
 
             // Stats Cards
             SliverToBoxAdapter(
@@ -87,7 +141,6 @@ class ProfileScreen extends ConsumerWidget {
                     // If confirmed, call the sign out method
                     if (confirm == true) {
                       await ref.read(authControllerProvider.notifier).signOut();
-                      // GoRouter redirect will handle navigation based on auth state change
                     }
                   },
                   icon: const Icon(SolarIconsOutline.logout),
@@ -109,7 +162,13 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildProfileHeader(BuildContext context) {
+  // Update _buildProfileHeader to accept dynamic data
+  Widget _buildProfileHeader(
+    BuildContext context,
+    String name,
+    String email,
+    String initial,
+  ) {
     // Define content color for contrast against gradient
     const Color contentColor = Colors.white;
     final Color secondaryContentColor = contentColor.withOpacity(0.8);
@@ -117,7 +176,6 @@ class ProfileScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        // Replace solid color with gradient
         gradient: LinearGradient(
           colors: [
             AppTheme.primaryColor,
@@ -132,73 +190,53 @@ class ProfileScreen extends ConsumerWidget {
         ),
         boxShadow: [
           BoxShadow(
-            // Adjust shadow color if needed
             color: AppTheme.primaryColor.withOpacity(0.3),
-            offset: const Offset(0, 4), // Slightly larger offset for gradient
+            offset: const Offset(0, 4),
             blurRadius: 12,
           ),
         ],
       ),
       child: Column(
         children: [
-          // Profile picture - Adjust background/text color for contrast
           CircleAvatar(
             radius: 50,
-            backgroundColor: Colors.white.withOpacity(
-              0.2,
-            ), // Lighter background
+            backgroundColor: Colors.white.withOpacity(0.2),
             child: Text(
-              "S", // First letter of username
+              initial, // Use dynamic initial
               style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                color: contentColor, // Use white text
+                color: contentColor,
                 fontWeight: FontWeight.w700,
               ),
             ),
           ),
           const SizedBox(height: 16),
-
-          // Name - Use white text
           Text(
-            "Student",
+            name, // Use dynamic name
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.w700,
               fontFamily: 'Chillax',
-              color: contentColor, // Use white text
+              color: contentColor,
             ),
+            textAlign: TextAlign.center, // Center name if long
           ),
           const SizedBox(height: 4),
-
-          // Email or student ID - Use semi-transparent white text
           Text(
-            "student@university.edu",
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: secondaryContentColor, // Use semi-transparent white
-            ),
+            email, // Use dynamic email
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: secondaryContentColor),
           ),
-
           const SizedBox(height: 16),
-
-          // Edit profile button - Style for contrast on gradient
           OutlinedButton.icon(
             onPressed: () {
-              // Navigate to edit profile
+              // TODO: Navigate to edit profile screen
             },
-            icon: Icon(
-              SolarIconsOutline.pen,
-              size: 18,
-              color: contentColor,
-            ), // White icon
-            label: Text(
-              'Edit Profile',
-              style: TextStyle(color: contentColor), // White text
-            ),
+            icon: Icon(SolarIconsOutline.pen, size: 18, color: contentColor),
+            label: Text('Edit Profile', style: TextStyle(color: contentColor)),
             style: OutlinedButton.styleFrom(
-              side: BorderSide(
-                color: contentColor.withOpacity(0.5),
-              ), // White border
-              foregroundColor: contentColor, // Ensure ripple uses white
+              side: BorderSide(color: contentColor.withOpacity(0.5)),
+              foregroundColor: contentColor,
               shape: RoundedRectangleBorder(
-                // Ensure consistent radius
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
@@ -228,7 +266,6 @@ class ProfileScreen extends ConsumerWidget {
             ),
             TextButton.icon(
               onPressed: () {
-                // Navigate to full leaderboard view using push
                 context.push(AppRoutes.leaderboard);
               },
               icon: const Icon(SolarIconsOutline.ranking, size: 18),

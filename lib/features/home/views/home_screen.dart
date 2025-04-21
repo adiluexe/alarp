@@ -1,29 +1,23 @@
 import 'package:alarp/core/widgets/action_card.dart';
 import 'package:alarp/core/widgets/learning_progress_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart'; // Import GoRouter
+import 'package:flutter_riverpod/flutter_riverpod.dart'; // Import Riverpod
+import 'package:go_router/go_router.dart';
 import 'package:solar_icons/solar_icons.dart';
 import 'package:alarp/core/theme/app_theme.dart';
-import 'package:alarp/core/navigation/app_router.dart'; // Import AppRoutes
-import 'package:alarp/features/challenge/models/challenge.dart'; // Import Challenge for daily challenge ID
+import 'package:alarp/core/navigation/app_router.dart';
+import 'package:alarp/features/challenge/models/challenge.dart';
+import 'package:alarp/core/providers/supabase_providers.dart'; // Import the profile provider
 
-class HomeScreen extends StatefulWidget {
+// Convert to ConsumerWidget
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Watch the user profile provider
+    final userProfileAsync = ref.watch(userProfileProvider);
 
-class _HomeScreenState extends State<HomeScreen> {
-  // Mock data - in a real app, this would come from a controller
-  final String userName = "Student";
-  final int streakDays = 5;
-  final int completedLessons = 12;
-  final int totalLessons = 36;
-  final double weeklyAccuracy = 82.5;
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       body: SafeArea(
@@ -32,15 +26,58 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildHeader(),
+              // Pass user profile data to header and stats
+              userProfileAsync.when(
+                data: (profileData) {
+                  // Extract data or use defaults
+                  final userName =
+                      profileData?['username'] as String? ?? 'User';
+                  final streakDays =
+                      profileData?['current_streak'] as int? ?? 0;
+                  final completedLessons =
+                      0; // TODO: Fetch actual completed lessons
+                  final totalLessons = 36; // TODO: Fetch actual total lessons
+                  final weeklyAccuracy = 0.0; // TODO: Fetch actual accuracy
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildHeader(context, userName, streakDays),
+                      const SizedBox(height: 24),
+                      _buildStats(
+                        context,
+                        completedLessons,
+                        totalLessons,
+                        weeklyAccuracy,
+                      ),
+                    ],
+                  );
+                },
+                loading:
+                    () => Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildHeader(context, 'Loading...', 0),
+                        const SizedBox(height: 24),
+                        _buildStats(context, 0, 0, 0.0),
+                      ],
+                    ),
+                error:
+                    (error, stack) => Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildHeader(context, 'Error', 0),
+                        const SizedBox(height: 24),
+                        Center(child: Text('Error loading profile: $error')),
+                      ],
+                    ),
+              ),
               const SizedBox(height: 24),
-              _buildStats(), // Moved up
+              _buildQuickActions(context),
               const SizedBox(height: 24),
-              _buildQuickActions(), // Moved down
+              _buildSkeletonExplorer(context),
               const SizedBox(height: 24),
-              _buildSkeletonExplorer(),
-              const SizedBox(height: 24),
-              _buildLearningProgress(),
+              _buildLearningProgress(context),
             ],
           ),
         ),
@@ -48,7 +85,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context, String userName, int streakDays) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -94,75 +131,58 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildQuickActions() {
-    // Get today's challenge ID for navigation
-    // Use the 10-round Upper Extremities Challenge ID
+  Widget _buildQuickActions(BuildContext context) {
     final String dailyChallengeId = Challenge.upperExtremitiesChallenge.id;
-    // Define a width for the cards
     const double cardWidth = 280.0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Quick Actions', // Changed title slightly
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
+        Text('Quick Actions', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 16),
-        // Wrap the cards in a horizontally scrolling view
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          // Add padding so cards don't touch edges
-          padding: const EdgeInsets.symmetric(
-            horizontal: 4.0,
-          ), // Adjust as needed
-          clipBehavior: Clip.none, // Allow shadows to render outside bounds
-          // Use IntrinsicHeight to make cards in the row the same height
+          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+          clipBehavior: Clip.none,
           child: IntrinsicHeight(
             child: Row(
               children: [
-                // Wrap each card in a SizedBox to control its width
                 SizedBox(
                   width: cardWidth,
                   child: ActionCard(
                     title: 'Continue Learning',
-                    subtitle:
-                        'AP Chest Projection', // Placeholder - needs dynamic update
+                    subtitle: 'AP Chest Projection',
                     description: 'Continue where you left off',
                     icon: SolarIconsBold.bookBookmark,
                     color: AppTheme.primaryColor,
-                    // progress: 0.65, // Placeholder
                     onTap: () {
                       context.go(AppRoutes.learn);
                     },
                   ),
                 ),
-                const SizedBox(width: 12), // Spacing between cards
+                const SizedBox(width: 12),
                 SizedBox(
                   width: cardWidth,
                   child: ActionCard(
                     title: 'Daily Challenge',
-                    // Use the 10-round challenge title
                     subtitle: 'Upper Extremities',
                     description: 'Complete today\'s challenge',
                     icon: SolarIconsBold.medalStar,
                     color: AppTheme.secondaryColor,
                     onTap: () {
-                      // Use the helper method to generate the correct route
-                      // Use push for consistency
                       context.push(
                         AppRoutes.challengeStartRoute(dailyChallengeId),
                       );
                     },
                   ),
                 ),
-                const SizedBox(width: 12), // Spacing between cards
+                const SizedBox(width: 12),
                 SizedBox(
                   width: cardWidth,
                   child: ActionCard(
                     title: 'Practice Session',
                     subtitle: 'Hands-on positioning',
-                    description: 'Practice your skills', // Updated description
+                    description: 'Practice your skills',
                     icon: SolarIconsBold.compassSquare,
                     color: AppTheme.accentColor,
                     onTap: () {
@@ -178,28 +198,29 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildStats() {
-    // Define gradient
+  Widget _buildStats(
+    BuildContext context,
+    int completedLessons,
+    int totalLessons,
+    double weeklyAccuracy,
+  ) {
     final statsGradient = LinearGradient(
       colors: [
-        // Updated gradient colors
         AppTheme.primaryColor.withOpacity(0.8),
         AppTheme.secondaryColor.withOpacity(0.7),
       ],
       begin: Alignment.centerLeft,
       end: Alignment.centerRight,
     );
-    // Define text/icon color for contrast
     const Color contentColor = Colors.white;
 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: statsGradient, // Apply gradient
+        gradient: statsGradient,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            // Updated shadow color based on new gradient
             color: AppTheme.primaryColor.withOpacity(0.3),
             blurRadius: 10,
             offset: const Offset(0, 4),
@@ -212,7 +233,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Text(
             'Your Progress',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              color: contentColor, // Use contrast color
+              color: contentColor,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -220,19 +241,21 @@ class _HomeScreenState extends State<HomeScreen> {
           Row(
             children: [
               _buildStatItem(
+                context,
                 'Completed',
                 '$completedLessons/$totalLessons',
                 'lessons',
                 SolarIconsBold.diploma,
-                contentColor, // Pass contrast color
+                contentColor,
               ),
               const SizedBox(width: 24),
               _buildStatItem(
+                context,
                 'Accuracy',
                 '${weeklyAccuracy.toStringAsFixed(1)}%',
                 'this week',
                 SolarIconsBold.target,
-                contentColor, // Pass contrast color
+                contentColor,
               ),
             ],
           ),
@@ -242,11 +265,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildStatItem(
+    BuildContext context,
     String label,
     String value,
     String sublabel,
     IconData icon,
-    Color contentColor, // Receive contrast color
+    Color contentColor,
   ) {
     return Expanded(
       child: Row(
@@ -254,11 +278,9 @@ class _HomeScreenState extends State<HomeScreen> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              // Use a semi-transparent white for the icon background
               color: Colors.white.withOpacity(0.2),
               borderRadius: BorderRadius.circular(12),
             ),
-            // Use the contrast color for the icon itself
             child: Icon(icon, color: contentColor, size: 24),
           ),
           const SizedBox(width: 12),
@@ -267,7 +289,6 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Text(
                 label,
-                // Use contrast color with slight opacity
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: contentColor.withOpacity(0.8),
                 ),
@@ -276,12 +297,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 value,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w700,
-                  color: contentColor, // Use contrast color
+                  color: contentColor,
                 ),
               ),
               Text(
                 sublabel,
-                // Use contrast color with slight opacity
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: contentColor.withOpacity(0.8),
                 ),
@@ -293,22 +313,17 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildSkeletonExplorer() {
+  Widget _buildSkeletonExplorer(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Anatomy Explorer', // Improved section title
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
+        Text('Anatomy Explorer', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 16),
         ActionCard(
-          title: '3D Skeleton Viewer', // Updated title
-          subtitle: 'Interactive anatomical model', // Updated subtitle
-          description:
-              'Study bones and landmarks in detail', // Updated description
-          icon: SolarIconsBold.bone, // Using bone icon
-          // Use a more distinct color, e.g., Blue Grey
+          title: '3D Skeleton Viewer',
+          subtitle: 'Interactive anatomical model',
+          description: 'Study bones and landmarks in detail',
+          icon: SolarIconsBold.bone,
           color: AppTheme.primaryColor,
           onTap: () {
             context.go(AppRoutes.skeletonViewer);
@@ -318,8 +333,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildLearningProgress() {
-    // This would be a custom chart component
+  Widget _buildLearningProgress(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
