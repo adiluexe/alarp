@@ -6,11 +6,10 @@ import 'package:alarp/features/profile/widgets/stats_card.dart';
 import 'package:alarp/features/profile/widgets/leaderboard_card.dart';
 import 'package:alarp/features/profile/widgets/achievements_grid.dart';
 import 'package:go_router/go_router.dart';
-import 'package:alarp/features/auth/controllers/auth_controller.dart';
-import 'package:alarp/core/providers/supabase_providers.dart';
+import 'package:alarp/features/auth/controllers/auth_controller.dart'; // Import AuthController for sign out
+import 'package:alarp/core/providers/supabase_providers.dart'; // Import userProvider
 import 'package:alarp/core/services/shared_preferences_service.dart';
 import 'package:alarp/features/profile/controllers/leaderboard_providers.dart';
-import 'package:alarp/data/repositories/profile_repository.dart';
 import 'package:alarp/core/navigation/app_router.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -159,6 +158,60 @@ class ProfileScreen extends ConsumerWidget {
                     child: _buildAchievements(context, achievementsData),
                   ),
                 ),
+                // --- Navigation Links Section ---
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('More', style: textTheme.titleMedium),
+                        const SizedBox(height: 8),
+                        Card(
+                          elevation: 0,
+                          color:
+                              Theme.of(
+                                context,
+                              ).colorScheme.surfaceContainerLowest,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            children: [
+                              _buildProfileLinkTile(
+                                context: context,
+                                icon: SolarIconsOutline.history,
+                                title: 'Challenge History',
+                                subtitle: 'View your past challenge attempts',
+                                onTap: () {
+                                  context.push(AppRoutes.challengeHistory);
+                                },
+                              ),
+                              const Divider(
+                                height: 1,
+                                indent: 16,
+                                endIndent: 16,
+                              ),
+                              _buildProfileLinkTile(
+                                context: context,
+                                icon:
+                                    SolarIconsOutline
+                                        .medalStar, // Changed icon again
+                                title: 'Leaderboards',
+                                subtitle: 'See how you rank against others',
+                                onTap: () {
+                                  context.push(AppRoutes.leaderboard);
+                                },
+                              ),
+                              // Add more links like Settings, Help, etc. here
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                // --- End Navigation Links Section ---
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
@@ -410,6 +463,30 @@ class ProfileScreen extends ConsumerWidget {
           context,
         ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
       ),
+    );
+  }
+
+  // Helper widget for consistent link tiles
+  Widget _buildProfileLinkTile({
+    required BuildContext context,
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    final textTheme = Theme.of(context).textTheme;
+    return ListTile(
+      leading: Icon(icon, color: AppTheme.primaryColor),
+      title: Text(title, style: textTheme.bodyLarge),
+      subtitle: Text(
+        subtitle,
+        style: textTheme.bodySmall?.copyWith(
+          color: AppTheme.textColor.withAlpha((255 * 0.6).round()),
+        ),
+      ),
+      trailing: const Icon(Icons.chevron_right, color: Colors.grey),
+      onTap: onTap,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
     );
   }
 }

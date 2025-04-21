@@ -1,12 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:alarp/core/providers/supabase_providers.dart'; // For supabaseClientProvider and userIdProvider
+import 'package:alarp/features/challenge/models/challenge_attempt.dart'; // Import ChallengeAttempt
 
 // Define a type for leaderboard entry data using a record
 typedef LeaderboardEntry = ({int rank, String username, int score});
 
 /// Datasource responsible for direct interactions with Supabase
-/// regarding user profiles and related data like scores.
+/// regarding user profiles and related data like scores and challenge history.
 class SupabaseProfileDataSource {
   final SupabaseClient _client;
   final String? _userId; // Get current user ID
@@ -70,36 +71,43 @@ class SupabaseProfileDataSource {
     }
   }
 
-  /// Submits a challenge score for the current user.
-  /// Calls the 'submit_challenge_score' RPC function.
-  Future<void> submitChallengeScore(String challengeId, int score) async {
+  /// Submits a challenge attempt to the 'challenge_history' table.
+  Future<void> submitChallengeScore(
+    String challengeId,
+    String challengeTitle,
+    int score,
+    List<Map<String, dynamic>> stepResultsJson,
+  ) async {
     if (_userId == null) {
       throw Exception("User not logged in. Cannot submit score.");
     }
-    // Basic client-side validation
     if (score < 0) {
-      print(
-        "Warning: Attempted to submit negative score: $score for challenge $challengeId",
-      );
-      // Optionally throw an error or return early depending on desired behavior
       throw ArgumentError("Score cannot be negative.");
     }
 
     try {
-      await _client.rpc(
-        'submit_challenge_score',
-        params: {'p_challenge_id': challengeId, 'p_score': score},
-      );
-      print(
-        "Successfully submitted score $score for challenge $challengeId for user $_userId",
-      );
+      // Insert into the challenge_history table
+      await _client.from('challenge_history').insert({
+        'user_id': _userId,
+        'challenge_id': challengeId,
+        'challenge_title': challengeTitle,
+        'score': score,
+        'step_results': stepResultsJson, // Store the detailed step results
+        // 'completed_at' and 'created_at' have default values in the DB
+      });
+
+      // Note: Leaderboard RPCs (`get_daily_leaderboard`, `get_user_daily_rank`)
+      // are assumed to read from `challenge_history` now or handle aggregation separately.
+      // We don't need to interact with `challenge_scores` here anymore.
     } on PostgrestException catch (e) {
-      print("Supabase error submitting challenge score: ${e.message}");
-      // Consider more specific error handling or re-throwing a custom exception
-      throw Exception("Failed to submit score: ${e.message}");
+      // Provide more specific error context
+      throw Exception(
+        "Failed to submit challenge history record: ${e.message}",
+      );
     } catch (e) {
-      print("Unexpected error submitting challenge score: $e");
-      throw Exception("An unexpected error occurred while submitting score.");
+      throw Exception(
+        "An unexpected error occurred while submitting challenge history.",
+      );
     }
   }
 
@@ -178,6 +186,33 @@ class SupabaseProfileDataSource {
       print("Unexpected error fetching user rank: $e");
       // Return null on unexpected errors
       return null;
+    }
+  }
+
+  /// Fetches the challenge history for the current user from 'challenge_history'.
+  Future<List<ChallengeAttempt>> getChallengeHistory({int limit = 20}) async {
+    if (_userId == null) {
+      print("User not logged in. Cannot get challenge history.");
+      return []; // Return empty list for non-logged-in users
+    }
+    try {
+      final response = await _client
+          .from('challenge_history') // Fetch from the correct table
+          .select() // Select all columns needed by ChallengeAttempt.fromJson
+          .eq('user_id', _userId)
+          .order('completed_at', ascending: false) // Order by completion time
+          .limit(limit);
+
+      // Response is List<Map<String, dynamic>>
+      return response.map((json) => ChallengeAttempt.fromJson(json)).toList();
+    } on PostgrestException catch (e) {
+      print("Supabase error fetching challenge history: ${e.message}");
+      throw Exception("Failed to fetch challenge history: ${e.message}");
+    } catch (e) {
+      print("Unexpected error fetching challenge history: $e");
+      throw Exception(
+        "An unexpected error occurred while fetching challenge history.",
+      );
     }
   }
 }

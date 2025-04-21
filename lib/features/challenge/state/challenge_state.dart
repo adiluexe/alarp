@@ -9,6 +9,7 @@ enum ChallengeStatus {
   paused,
   completedSuccess,
   completedFailureTime,
+  error, // Added error status
 }
 
 @immutable
@@ -29,6 +30,7 @@ class ChallengeState {
   // Collimation state is handled separately via collimationStateProvider
   final List<StepResult>
   stepResults; // Added: List to store results of each step
+  final String? errorMessage; // Added error message field
 
   const ChallengeState({
     required this.challenge,
@@ -43,6 +45,7 @@ class ChallengeState {
     this.selectedIROrientationIndex, // New
     this.selectedPatientPositionIndex, // New
     this.stepResults = const [], // Added: Initialize as empty list
+    this.errorMessage, // Added
   });
 
   // Helper to get the current step object
@@ -65,9 +68,11 @@ class ChallengeState {
     int? selectedIROrientationIndex, // New
     int? selectedPatientPositionIndex, // New
     List<StepResult>? stepResults, // Added
+    String? errorMessage, // Added
     bool resetSelections = false, // Helper to clear selections on step change
     bool clearLastAnswerStatus =
         false, // Helper to explicitly clear wasLastAnswerCorrect
+    bool clearErrorMessage = false, // Helper to clear error message
   }) {
     return ChallengeState(
       challenge: challenge,
@@ -100,6 +105,9 @@ class ChallengeState {
               : (selectedPatientPositionIndex ??
                   this.selectedPatientPositionIndex),
       stepResults: stepResults ?? this.stepResults, // Added
+      // Handle error message update/clearing
+      errorMessage:
+          clearErrorMessage ? null : (errorMessage ?? this.errorMessage),
     );
   }
 }

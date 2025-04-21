@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:alarp/data/datasources/supabase_profile_datasource.dart'; // Assuming datasource location
 
 // Import the LeaderboardEntry type defined in the datasource
 import 'package:alarp/data/datasources/supabase_profile_datasource.dart'
@@ -7,6 +6,9 @@ import 'package:alarp/data/datasources/supabase_profile_datasource.dart'
 // Re-export the type for easier use in controllers and UI
 export 'package:alarp/data/datasources/supabase_profile_datasource.dart'
     show LeaderboardEntry;
+
+import 'package:alarp/features/challenge/models/challenge_attempt.dart'; // Import ChallengeAttempt
+import 'package:alarp/data/datasources/supabase_profile_datasource.dart'; // Ensure datasource is imported for implementation
 
 /// Abstract interface for profile-related data operations.
 abstract class ProfileRepository {
@@ -25,9 +27,16 @@ abstract class ProfileRepository {
   /// Submits the score for a completed challenge.
   ///
   /// [challengeId]: Identifier of the challenge (e.g., 'ap_chest_timed').
+  /// [challengeTitle]: Title of the challenge.
   /// [score]: The score achieved by the user.
+  /// [stepResultsJson]: JSON representation of step results.
   /// Throws an exception if the operation fails.
-  Future<void> submitChallengeScore(String challengeId, int score);
+  Future<void> submitChallengeScore(
+    String challengeId,
+    String challengeTitle,
+    int score,
+    List<Map<String, dynamic>> stepResultsJson,
+  );
 
   /// Fetches the top N daily leaderboard entries for a specific challenge.
   ///
@@ -47,6 +56,13 @@ abstract class ProfileRepository {
   /// the user hasn't participated in that challenge today or is not logged in.
   /// May return null or throw depending on underlying datasource implementation on error.
   Future<({int rank, int score})?> getUserDailyRank(String challengeId);
+
+  /// Fetches the challenge history for the current user.
+  ///
+  /// [limit]: The maximum number of entries to return (defaults to 20).
+  /// Returns a list of ChallengeAttempt records.
+  /// Throws an exception if the operation fails.
+  Future<List<ChallengeAttempt>> getChallengeHistory({int limit = 20});
 }
 
 // Provider for the ProfileRepository implementation
@@ -74,9 +90,19 @@ class SupabaseProfileRepository implements ProfileRepository {
   }
 
   @override
-  Future<void> submitChallengeScore(String challengeId, int score) {
-    // Delegate the call to the datasource
-    return _dataSource.submitChallengeScore(challengeId, score);
+  Future<void> submitChallengeScore(
+    String challengeId,
+    String challengeTitle,
+    int score,
+    List<Map<String, dynamic>> stepResultsJson,
+  ) async {
+    // Correctly delegate the call to the datasource with all arguments
+    await _dataSource.submitChallengeScore(
+      challengeId,
+      challengeTitle,
+      score,
+      stepResultsJson,
+    );
   }
 
   @override
@@ -92,5 +118,11 @@ class SupabaseProfileRepository implements ProfileRepository {
   Future<({int rank, int score})?> getUserDailyRank(String challengeId) {
     // Delegate the call to the datasource
     return _dataSource.getUserDailyRank(challengeId);
+  }
+
+  @override
+  Future<List<ChallengeAttempt>> getChallengeHistory({int limit = 20}) async {
+    // Correctly delegate the call to the datasource
+    return _dataSource.getChallengeHistory(limit: limit);
   }
 }

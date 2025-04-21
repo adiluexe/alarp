@@ -20,6 +20,7 @@ import 'package:alarp/features/challenge/models/challenge.dart'; // Import Chall
 import 'package:alarp/features/anatomy/views/skeleton_viewer_screen.dart'; // Import the new screen
 import 'package:alarp/features/practice/views/recent_practice_list_screen.dart'; // Ensure this import is present
 import 'package:alarp/features/profile/views/leaderboard_screen.dart'; // Import the new leaderboard screen
+import 'package:alarp/features/profile/views/challenge_history_screen.dart'; // Import the new history screen
 import 'package:alarp/features/onboarding/splash_screen.dart'; // Import SplashScreen
 import '../../features/challenge/views/challenge_results_screen.dart'; // Import the new screen
 import 'package:alarp/features/auth/views/sign_in_screen.dart'; // Import Sign In Screen
@@ -55,6 +56,8 @@ class AppRoutes {
       '/recent-practice'; // Verify the constant path
   static const leaderboard =
       '/leaderboard'; // New route for the full leaderboard
+  static const challengeHistory =
+      '/challenge-history'; // New route for challenge history
 
   // Helper method to build the full path for challenge start
   static String challengeStartRoute(String challengeId) =>
@@ -141,10 +144,14 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             (context, state) =>
                 const RecentPracticeListScreen(), // Verify builder points to the correct screen
       ),
-      // Add the new leaderboard route here (outside the ShellRoute)
       GoRoute(
         path: AppRoutes.leaderboard,
         builder: (context, state) => const LeaderboardScreen(),
+      ),
+      // Add the new Challenge History route here (outside the ShellRoute)
+      GoRoute(
+        path: AppRoutes.challengeHistory,
+        builder: (context, state) => const ChallengeHistoryScreen(),
       ),
       // MOVED: Collimation Practice Screen (outside ShellRoute)
       GoRoute(

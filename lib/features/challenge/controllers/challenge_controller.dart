@@ -10,6 +10,8 @@ import '../../practice/models/collimation_state.dart'; // Import CollimationStat
 import '../models/projection.dart'; // Added correct import
 import '../models/step_result.dart'; // Import StepResult
 import '../../../data/repositories/profile_repository.dart'; // Import ProfileRepository
+// Import leaderboard providers
+import 'package:alarp/features/profile/controllers/leaderboard_providers.dart';
 
 class ChallengeController extends StateNotifier<ChallengeState> {
   final Ref ref;
@@ -368,24 +370,39 @@ class ChallengeController extends StateNotifier<ChallengeState> {
 
   Future<void> _submitScore(int score) async {
     if (score < 0) {
-      print(
-        "ChallengeController: Attempted to submit negative score ($score) for ${initialChallenge.id}. Skipping.",
+      state = state.copyWith(
+        status: ChallengeStatus.error, // Set error status
+        errorMessage:
+            "Attempted to submit negative score ($score) for ${initialChallenge.id}. Skipping.",
+        clearErrorMessage: false, // Ensure error message is set
       );
       return;
     }
 
     try {
       final profileRepo = ref.read(profileRepositoryProvider);
-      print(
-        "ChallengeController: Submitting score $score for challenge ${initialChallenge.id}",
+      final challengeTitle = initialChallenge.title;
+      final stepResultsJson =
+          state.stepResults.map((result) => result.toJson()).toList();
+      await profileRepo.submitChallengeScore(
+        initialChallenge.id,
+        challengeTitle,
+        score,
+        stepResultsJson,
       );
-      await profileRepo.submitChallengeScore(initialChallenge.id, score);
-      print(
-        "ChallengeController: Score submitted successfully for ${initialChallenge.id}.",
-      );
+      // Invalidate providers after successful submission
+      ref.invalidate(dailyLeaderboardProvider(initialChallenge.id));
+      ref.invalidate(userDailyRankProvider(initialChallenge.id));
+      // TODO: Invalidate challenge history provider when created
+      // ref.invalidate(challengeHistoryProvider);
+
+      // Clear any previous error message on success
+      state = state.copyWith(clearErrorMessage: true);
     } catch (e) {
-      print(
-        "ChallengeController: Failed to submit score for ${initialChallenge.id}: $e",
+      state = state.copyWith(
+        status: ChallengeStatus.error, // Set error status
+        errorMessage: "Failed to submit score for ${initialChallenge.id}: $e",
+        clearErrorMessage: false, // Ensure error message is set
       );
     }
   }
@@ -400,19 +417,6 @@ class ChallengeController extends StateNotifier<ChallengeState> {
 final challengeControllerProvider = StateNotifierProvider
     .autoDispose // Keep autoDispose for safety, but keepAlive will prevent premature disposal
     .family<ChallengeController, ChallengeState, Challenge>((ref, challenge) {
-      // Keep the provider instance alive as long as its originating ProviderScope is alive.
-      // This prevents it from being disposed during navigation between active/results screens.
-      final link = ref.keepAlive();
-
-      // Ensure the controller's resources (like timers) are cleaned up
-      // when the provider is *eventually* disposed (e.g., when navigating away
-      // from the challenge feature entirely).
-      ref.onDispose(() {
-        // The StateNotifier's dispose method should be called automatically by Riverpod,
-        // cleaning up the _timer. If other manual cleanup were needed, it would go here.
-        // link.close(); // Close the keepAlive link if manual control is needed, but usually not required here.
-      });
-
       return ChallengeController(ref, challenge);
     });
 
