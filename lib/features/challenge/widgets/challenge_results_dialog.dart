@@ -19,45 +19,50 @@ class ChallengeResultsDialog extends ConsumerWidget {
 
     final titleStyle = Theme.of(
       context,
-    ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold);
-    final bodyStyle = Theme.of(context).textTheme.bodyMedium;
-    final scoreStyle = Theme.of(context).textTheme.displaySmall?.copyWith(
+    ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold);
+    final bodyStyle = Theme.of(context).textTheme.bodyLarge;
+    final scoreStyle = Theme.of(context).textTheme.displayMedium?.copyWith(
       fontWeight: FontWeight.bold,
-      color:
-          state.status == ChallengeStatus.completedSuccess
-              ? Colors.green.shade700
-              : Colors.orange.shade800,
+      color: AppTheme.primaryColor,
     );
 
     String statusText;
     IconData statusIcon;
     Color statusColor;
+    IconData prominentIcon;
+    Color prominentIconColor;
 
     switch (state.status) {
       case ChallengeStatus.completedSuccess:
         statusText = 'Challenge Complete!';
         statusIcon = SolarIconsBold.medalStar;
         statusColor = Colors.green.shade600;
+        prominentIcon = SolarIconsBold.cupStar;
+        prominentIconColor = Colors.amber.shade700;
         break;
       case ChallengeStatus.completedFailureTime:
         statusText = 'Time\'s Up!';
         statusIcon = SolarIconsBold.alarmTurnOff;
         statusColor = Colors.orange.shade700;
+        prominentIcon = SolarIconsBold.sadCircle;
+        prominentIconColor = Colors.red.shade600;
         break;
       default:
         statusText = 'Results';
         statusIcon = SolarIconsOutline.document;
         statusColor = AppTheme.textColor;
+        prominentIcon = SolarIconsOutline.document;
+        prominentIconColor = AppTheme.textColor.withOpacity(0.5);
     }
 
     return AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
-      contentPadding: const EdgeInsets.all(24.0),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.0)),
+      contentPadding: const EdgeInsets.all(32.0),
       title: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(statusIcon, color: statusColor, size: 32),
-          const SizedBox(width: 12),
+          Icon(statusIcon, color: statusColor, size: 28),
+          const SizedBox(width: 10),
           Flexible(
             child: Text(
               statusText,
@@ -70,7 +75,9 @@ class ChallengeResultsDialog extends ConsumerWidget {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
+          Icon(prominentIcon, color: prominentIconColor, size: 80),
+          const SizedBox(height: 24),
           Text(
             'Final Score',
             style: bodyStyle?.copyWith(
@@ -84,9 +91,9 @@ class ChallengeResultsDialog extends ConsumerWidget {
       ),
       actionsAlignment: MainAxisAlignment.center,
       actionsPadding: const EdgeInsets.only(
-        bottom: 20.0,
-        left: 20.0,
-        right: 20.0,
+        bottom: 24.0,
+        left: 24.0,
+        right: 24.0,
       ),
       actions: <Widget>[
         OutlinedButton.icon(
@@ -95,7 +102,10 @@ class ChallengeResultsDialog extends ConsumerWidget {
           style: OutlinedButton.styleFrom(
             foregroundColor: AppTheme.secondaryColor,
             side: BorderSide(color: AppTheme.secondaryColor.withOpacity(0.5)),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12.0),
+            ),
           ),
           onPressed: () {
             Navigator.of(context).pop();
@@ -104,14 +114,18 @@ class ChallengeResultsDialog extends ConsumerWidget {
             }
           },
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 16),
         ElevatedButton.icon(
           icon: const Icon(SolarIconsOutline.refresh, size: 20),
           label: const Text('Retry'),
           style: ElevatedButton.styleFrom(
             backgroundColor: AppTheme.primaryColor,
             foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12.0),
+            ),
+            elevation: 4,
           ),
           onPressed: () {
             Navigator.of(context).pop();
