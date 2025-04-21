@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:alarp/features/auth/controllers/auth_controller.dart';
 import 'package:alarp/core/theme/app_theme.dart';
 import 'package:solar_icons/solar_icons.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:alarp/core/navigation/app_router.dart';
 
 class SignUpScreen extends ConsumerStatefulWidget {
   const SignUpScreen({super.key});
@@ -24,7 +24,6 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   bool _isLoading = false;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
-  bool _agreedToTerms = false;
 
   @override
   void dispose() {
@@ -37,15 +36,6 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   }
 
   Future<void> _signUp() async {
-    if (!_agreedToTerms) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please accept the Privacy Policy and Terms of Use.'),
-        ),
-      );
-      return;
-    }
-
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
 
@@ -80,20 +70,45 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     }
   }
 
-  Future<void> _launchURL(String urlString) async {
-    final Uri url = Uri.parse(urlString);
-    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Could not launch $urlString')));
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
     final colorScheme = theme.colorScheme;
+
+    final inputDecoration = InputDecoration(
+      filled: true,
+      fillColor: AppTheme.primaryColor.withOpacity(0.1),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12.0),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12.0),
+        borderSide: BorderSide.none,
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12.0),
+        borderSide: BorderSide(color: AppTheme.primaryColor, width: 1.5),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12.0),
+        borderSide: BorderSide(color: colorScheme.error, width: 1.0),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12.0),
+        borderSide: BorderSide(color: colorScheme.error, width: 1.5),
+      ),
+      labelStyle: textTheme.bodyLarge?.copyWith(
+        color: colorScheme.onSurfaceVariant,
+      ),
+      prefixIconColor: colorScheme.onSurfaceVariant,
+      suffixIconColor: colorScheme.onSurfaceVariant,
+      contentPadding: const EdgeInsets.symmetric(
+        vertical: 16.0,
+        horizontal: 16.0,
+      ),
+    );
 
     return Scaffold(
       backgroundColor: colorScheme.background,
@@ -112,31 +127,30 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                 children: [
                   Text(
                     'Welcome to ALARP',
-                    style: textTheme.headlineMedium?.copyWith(
+                    style: textTheme.headlineLarge?.copyWith(
                       fontFamily: 'Chillax',
                       fontWeight: FontWeight.bold,
-                      color: colorScheme.onBackground,
+                      color: AppTheme.primaryColor,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 0),
                   Text(
                     'Your Interactive Guide to Radiography.',
-                    style: textTheme.bodyLarge?.copyWith(
+                    style: textTheme.titleMedium?.copyWith(
                       color: colorScheme.onBackground.withOpacity(0.7),
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 48),
                   TextFormField(
                     controller: _firstNameController,
-                    style: textTheme.bodyLarge,
-                    decoration: InputDecoration(
+                    style: textTheme.bodyLarge?.copyWith(
+                      color: AppTheme.textColor,
+                    ),
+                    decoration: inputDecoration.copyWith(
                       labelText: 'First Name',
-                      prefixIcon: Icon(
-                        SolarIconsOutline.user,
-                        color: colorScheme.onSurfaceVariant,
-                      ),
+                      prefixIcon: const Icon(SolarIconsOutline.user),
                     ),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
@@ -145,16 +159,15 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 24),
                   TextFormField(
                     controller: _lastNameController,
-                    style: textTheme.bodyLarge,
-                    decoration: InputDecoration(
+                    style: textTheme.bodyLarge?.copyWith(
+                      color: AppTheme.textColor,
+                    ),
+                    decoration: inputDecoration.copyWith(
                       labelText: 'Last Name',
-                      prefixIcon: Icon(
-                        SolarIconsOutline.user,
-                        color: colorScheme.onSurfaceVariant,
-                      ),
+                      prefixIcon: const Icon(SolarIconsOutline.user),
                     ),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
@@ -163,16 +176,15 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 24),
                   TextFormField(
                     controller: _emailController,
-                    style: textTheme.bodyLarge,
-                    decoration: InputDecoration(
+                    style: textTheme.bodyLarge?.copyWith(
+                      color: AppTheme.textColor,
+                    ),
+                    decoration: inputDecoration.copyWith(
                       labelText: 'Email',
-                      prefixIcon: Icon(
-                        SolarIconsOutline.letter,
-                        color: colorScheme.onSurfaceVariant,
-                      ),
+                      prefixIcon: const Icon(SolarIconsOutline.letter),
                     ),
                     keyboardType: TextInputType.emailAddress,
                     validator: (value) {
@@ -184,22 +196,20 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 24),
                   TextFormField(
                     controller: _passwordController,
-                    style: textTheme.bodyLarge,
-                    decoration: InputDecoration(
+                    style: textTheme.bodyLarge?.copyWith(
+                      color: AppTheme.textColor,
+                    ),
+                    decoration: inputDecoration.copyWith(
                       labelText: 'Password',
-                      prefixIcon: Icon(
-                        SolarIconsOutline.lockPassword,
-                        color: colorScheme.onSurfaceVariant,
-                      ),
+                      prefixIcon: const Icon(SolarIconsOutline.lockPassword),
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscurePassword
                               ? SolarIconsOutline.eye
                               : SolarIconsOutline.eyeClosed,
-                          color: colorScheme.onSurfaceVariant,
                         ),
                         onPressed: () {
                           setState(() {
@@ -216,22 +226,20 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 24),
                   TextFormField(
                     controller: _confirmPasswordController,
-                    style: textTheme.bodyLarge,
-                    decoration: InputDecoration(
+                    style: textTheme.bodyLarge?.copyWith(
+                      color: AppTheme.textColor,
+                    ),
+                    decoration: inputDecoration.copyWith(
                       labelText: 'Confirm Password',
-                      prefixIcon: Icon(
-                        SolarIconsOutline.lockPassword,
-                        color: colorScheme.onSurfaceVariant,
-                      ),
+                      prefixIcon: const Icon(SolarIconsOutline.lockPassword),
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscureConfirmPassword
                               ? SolarIconsOutline.eye
                               : SolarIconsOutline.eyeClosed,
-                          color: colorScheme.onSurfaceVariant,
                         ),
                         onPressed: () {
                           setState(() {
@@ -251,74 +259,13 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 24),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        height: 24.0,
-                        width: 24.0,
-                        child: Checkbox(
-                          value: _agreedToTerms,
-                          onChanged: (bool? value) {
-                            setState(() {
-                              _agreedToTerms = value ?? false;
-                            });
-                          },
-                          materialTapTargetSize:
-                              MaterialTapTargetSize.shrinkWrap,
-                          visualDensity: VisualDensity.compact,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: RichText(
-                          text: TextSpan(
-                            style: textTheme.bodySmall?.copyWith(
-                              color: colorScheme.onBackground.withOpacity(0.7),
-                            ),
-                            children: [
-                              const TextSpan(
-                                text: 'By continuing you accept our ',
-                              ),
-                              TextSpan(
-                                text: 'Privacy Policy',
-                                style: TextStyle(
-                                  color: colorScheme.primary,
-                                  decoration: TextDecoration.underline,
-                                ),
-                                recognizer:
-                                    TapGestureRecognizer()
-                                      ..onTap = () {
-                                        _launchURL(
-                                          'https://example.com/privacy',
-                                        );
-                                      },
-                              ),
-                              const TextSpan(text: ' and '),
-                              TextSpan(
-                                text: 'Terms of Use',
-                                style: TextStyle(
-                                  color: colorScheme.primary,
-                                  decoration: TextDecoration.underline,
-                                ),
-                                recognizer:
-                                    TapGestureRecognizer()
-                                      ..onTap = () {
-                                        _launchURL('https://example.com/terms');
-                                      },
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 48),
                   ElevatedButton(
                     onPressed: _isLoading ? null : _signUp,
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      backgroundColor: AppTheme.primaryColor,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
                       textStyle: textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -335,7 +282,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                             )
                             : const Text('Register'),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -350,7 +297,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                           if (context.canPop()) {
                             context.pop();
                           } else {
-                            context.go('/signin');
+                            context.go(AppRoutes.signIn);
                           }
                         },
                         style: TextButton.styleFrom(

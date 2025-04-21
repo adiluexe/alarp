@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:alarp/features/auth/controllers/auth_controller.dart';
 import 'package:alarp/core/theme/app_theme.dart';
-import 'package:solar_icons/solar_icons.dart'; // Import Solar Icons
-import 'package:alarp/core/navigation/app_router.dart'; // Import AppRoutes
+import 'package:solar_icons/solar_icons.dart';
+import 'package:alarp/core/navigation/app_router.dart';
 
 class SignInScreen extends ConsumerStatefulWidget {
   const SignInScreen({super.key});
@@ -18,7 +18,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
-  bool _obscurePassword = true; // State for password visibility
+  bool _obscurePassword = true;
 
   @override
   void dispose() {
@@ -43,7 +43,6 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
             const SnackBar(content: Text('Sign In Failed. Check credentials.')),
           );
         }
-        // Navigation on success will be handled by the router listening to auth state
       }
     }
   }
@@ -54,8 +53,42 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     final textTheme = theme.textTheme;
     final colorScheme = theme.colorScheme;
 
+    final inputDecoration = InputDecoration(
+      filled: true,
+      fillColor: AppTheme.primaryColor.withOpacity(0.1),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12.0),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12.0),
+        borderSide: BorderSide.none,
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12.0),
+        borderSide: BorderSide(color: AppTheme.primaryColor, width: 1.5),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12.0),
+        borderSide: BorderSide(color: colorScheme.error, width: 1.0),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12.0),
+        borderSide: BorderSide(color: colorScheme.error, width: 1.5),
+      ),
+      labelStyle: textTheme.bodyLarge?.copyWith(
+        color: colorScheme.onSurfaceVariant,
+      ),
+      prefixIconColor: colorScheme.onSurfaceVariant,
+      suffixIconColor: colorScheme.onSurfaceVariant,
+      contentPadding: const EdgeInsets.symmetric(
+        vertical: 16.0,
+        horizontal: 16.0,
+      ),
+    );
+
     return Scaffold(
-      backgroundColor: colorScheme.background, // Use theme background color
+      backgroundColor: colorScheme.background,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -71,14 +104,14 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                 children: [
                   Text(
                     'Hello, Future RRT',
-                    style: textTheme.headlineMedium?.copyWith(
+                    style: textTheme.headlineLarge?.copyWith(
                       fontFamily: 'Chillax',
                       fontWeight: FontWeight.bold,
-                      color: colorScheme.onBackground,
+                      color: AppTheme.primaryColor,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 0),
                   Text(
                     'Let\'s Continue Your Learning Journey.',
                     style: textTheme.bodyLarge?.copyWith(
@@ -86,16 +119,15 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 48),
                   TextFormField(
                     controller: _emailController,
-                    style: textTheme.bodyLarge, // Apply Satoshi font
-                    decoration: InputDecoration(
+                    style: textTheme.bodyLarge?.copyWith(
+                      color: AppTheme.textColor,
+                    ),
+                    decoration: inputDecoration.copyWith(
                       labelText: 'Email',
-                      prefixIcon: Icon(
-                        SolarIconsOutline.letter, // Use Solar Icon
-                        color: colorScheme.onSurfaceVariant,
-                      ),
+                      prefixIcon: const Icon(SolarIconsOutline.letter),
                     ),
                     keyboardType: TextInputType.emailAddress,
                     validator: (value) {
@@ -107,22 +139,20 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 24),
                   TextFormField(
                     controller: _passwordController,
-                    style: textTheme.bodyLarge, // Apply Satoshi font
-                    decoration: InputDecoration(
+                    style: textTheme.bodyLarge?.copyWith(
+                      color: AppTheme.textColor,
+                    ),
+                    decoration: inputDecoration.copyWith(
                       labelText: 'Password',
-                      prefixIcon: Icon(
-                        SolarIconsOutline.lockPassword, // Use Solar Icon
-                        color: colorScheme.onSurfaceVariant,
-                      ),
+                      prefixIcon: const Icon(SolarIconsOutline.lockPassword),
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscurePassword
                               ? SolarIconsOutline.eye
                               : SolarIconsOutline.eyeClosed,
-                          color: colorScheme.onSurfaceVariant,
                         ),
                         onPressed: () {
                           setState(() {
@@ -143,10 +173,12 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                   ElevatedButton(
                     onPressed: _isLoading ? null : _signIn,
                     style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.primaryColor,
+                      foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 18),
                       textStyle: textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
-                      ), // Satoshi Bold
+                      ),
                     ),
                     child:
                         _isLoading
@@ -158,9 +190,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                                 color: Colors.white,
                               ),
                             )
-                            : const Text('Login'), // Changed text to Login
+                            : const Text('Login'),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -172,7 +204,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       ),
                       TextButton(
                         onPressed: () {
-                          context.push(AppRoutes.signUp); // Use constant
+                          context.push(AppRoutes.signUp);
                         },
                         style: TextButton.styleFrom(
                           padding: EdgeInsets.zero,
