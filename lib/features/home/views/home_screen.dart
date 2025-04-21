@@ -29,9 +29,15 @@ class HomeScreen extends ConsumerWidget {
               // Pass user profile data to header and stats
               userProfileAsync.when(
                 data: (profileData) {
-                  // Extract data or use defaults
+                  // Extract first name, fallback to username or 'User'
+                  final firstName = profileData?['first_name'] as String?;
                   final userName =
                       profileData?['username'] as String? ?? 'User';
+                  final displayFirstName =
+                      (firstName != null && firstName.isNotEmpty)
+                          ? firstName
+                          : userName;
+
                   final streakDays =
                       profileData?['current_streak'] as int? ?? 0;
                   final completedLessons =
@@ -42,7 +48,11 @@ class HomeScreen extends ConsumerWidget {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildHeader(context, userName, streakDays),
+                      _buildHeader(
+                        context,
+                        displayFirstName,
+                        streakDays,
+                      ), // Pass first name
                       const SizedBox(height: 24),
                       _buildStats(
                         context,
@@ -85,28 +95,37 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context, String userName, int streakDays) {
+  Widget _buildHeader(BuildContext context, String firstName, int streakDays) {
+    // Changed userName to firstName
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start, // Align items to the top
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Welcome back,',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: AppTheme.textColor.withOpacity(0.7),
+        // Wrap the name column in Expanded to handle long names
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Welcome back,',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: AppTheme.textColor.withOpacity(0.7),
+                ),
               ),
-            ),
-            Text(
-              userName,
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                fontFamily: 'Chillax',
-                fontWeight: FontWeight.w700,
+              Text(
+                firstName, // Use passed first name
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  fontFamily: 'Chillax',
+                  fontWeight: FontWeight.w700,
+                ),
+                maxLines: 1, // Ensure name stays on one line
+                overflow: TextOverflow.ellipsis, // Add ellipsis for long names
               ),
-            ),
-          ],
+            ],
+          ),
         ),
+        const SizedBox(width: 16), // Add spacing between name and streak
+        // Streak indicator (no changes needed here)
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(

@@ -3,142 +3,77 @@ import 'package:solar_icons/solar_icons.dart';
 import 'package:alarp/core/theme/app_theme.dart';
 
 class StatsCard extends StatelessWidget {
-  const StatsCard({Key? key}) : super(key: key);
+  final String label;
+  final String value;
+  final String? unit; // Make unit optional
+  final IconData icon;
+  final Color color;
+
+  const StatsCard({
+    super.key,
+    required this.label,
+    required this.value,
+    this.unit,
+    required this.icon,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final cardColor = color.withOpacity(0.1); // Background tint
+    final iconColor = color; // Icon color
+    final valueColor = AppTheme.textColor; // Use default text color for value
+    final labelColor = AppTheme.textColor.withOpacity(0.7); // Dimmer label
+
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        color: cardColor,
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Stats title
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Icon(
-                SolarIconsOutline.chartSquare,
-                color: AppTheme.primaryColor,
-                size: 22,
-              ),
-              const SizedBox(width: 8),
               Text(
-                'Your Stats',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                label,
+                style: textTheme.bodyMedium?.copyWith(color: labelColor),
               ),
+              Icon(icon, color: iconColor, size: 20),
             ],
           ),
-          const SizedBox(height: 16),
-
-          // Stats grid
-          IntrinsicHeight(
-            child: Row(
-              children: [
-                _buildStatItem(
-                  context,
-                  'Challenges Completed',
-                  '27',
-                  SolarIconsOutline.checkSquare,
-                  AppTheme.primaryColor,
+          const SizedBox(height: 8),
+          Row(
+            crossAxisAlignment:
+                CrossAxisAlignment.baseline, // Align baseline of value and unit
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Text(
+                value,
+                style: textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: valueColor,
+                  height: 1.1, // Adjust line height if needed
                 ),
-                _buildStatItem(
-                  context,
-                  'Average Accuracy',
-                  '86.2%',
-                  SolarIconsOutline.target,
-                  AppTheme.secondaryColor,
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          IntrinsicHeight(
-            child: Row(
-              children: [
-                _buildStatItem(
-                  context,
-                  'Overall\nStreak',
-                  '8 days',
-                  SolarIconsOutline.fireMinimalistic,
-                  AppTheme.accentColor,
-                ),
-                _buildStatItem(
-                  context,
-                  'Total Learning Time',
-                  '36 hrs',
-                  SolarIconsOutline.clockCircle,
-                  const Color(0xFF53C892), // Green
+              ),
+              if (unit != null && unit!.isNotEmpty) ...[
+                const SizedBox(width: 4),
+                Padding(
+                  padding: const EdgeInsets.only(
+                    bottom: 2.0,
+                  ), // Fine-tune baseline alignment
+                  child: Text(
+                    unit!,
+                    style: textTheme.bodySmall?.copyWith(color: labelColor),
+                  ),
                 ),
               ],
-            ),
+            ],
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildStatItem(
-    BuildContext context,
-    String label,
-    String value,
-    IconData icon,
-    Color color,
-  ) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.05),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withOpacity(0.2)),
-        ),
-        margin: const EdgeInsets.symmetric(horizontal: 4),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: color, size: 18),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    value,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 18,
-                      color: AppTheme.textColor,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    label,
-                    style: Theme.of(context).textTheme.bodySmall,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

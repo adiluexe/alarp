@@ -6,203 +6,155 @@ import 'package:alarp/features/profile/widgets/stats_card.dart';
 import 'package:alarp/features/profile/widgets/leaderboard_card.dart';
 import 'package:alarp/features/profile/widgets/achievements_grid.dart';
 import 'package:go_router/go_router.dart';
-import 'package:alarp/core/navigation/app_router.dart';
 import 'package:alarp/features/auth/controllers/auth_controller.dart';
-import 'package:alarp/core/providers/supabase_providers.dart'; // Import providers
+import 'package:alarp/core/providers/supabase_providers.dart';
+import 'package:alarp/core/services/shared_preferences_service.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
+  String _formatDuration(int totalSeconds) {
+    if (totalSeconds < 0) return "0m";
+    final duration = Duration(seconds: totalSeconds);
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes.remainder(60);
+    if (hours > 0) {
+      return "${hours}h ${minutes}m";
+    } else if (minutes > 0) {
+      return "${minutes}m";
+    } else {
+      return "<1m";
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Watch user profile and current user (for email fallback)
     final userProfileAsync = ref.watch(userProfileProvider);
-    final currentUser = ref.watch(
-      currentUserProvider,
-    ); // Get Supabase user for email
+    final currentUser = ref.watch(currentUserProvider);
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            // Header with profile info - Use AsyncValue.when
-            userProfileAsync.when(
-              data: (profileData) {
-                // Extract data or use defaults/fallbacks
-                final firstName = profileData?['first_name'] as String?;
-                final lastName = profileData?['last_name'] as String?;
-                final username = profileData?['username'] as String? ?? 'User';
-                final email =
-                    currentUser?.email ?? 'No email'; // Fallback email
+        child: userProfileAsync.when(
+          data: (profileData) {
+            final firstName = profileData?['first_name'] as String?;
+            final lastName = profileData?['last_name'] as String?;
+            final username = profileData?['username'] as String? ?? 'User';
+            final email = currentUser?.email ?? 'No email';
+            final currentStreak = profileData?['current_streak'] as int? ?? 0;
+            final totalAppTimeSeconds =
+                profileData?['total_app_time_seconds'] as int? ?? 0;
+            final totalAppTimeFormatted = _formatDuration(totalAppTimeSeconds);
 
-                // Determine display name: First Last, First, Username
-                String displayName = username;
-                if (firstName != null && firstName.isNotEmpty) {
-                  displayName = firstName;
-                  if (lastName != null && lastName.isNotEmpty) {
-                    displayName += ' $lastName';
-                  }
-                }
+            final completedLessons = 0;
+            final totalLessons = 36;
+            final averageAccuracy = 0.0;
+            final leaderboardRank = 0;
+            final leaderboardData = [];
+            final achievementsData = [];
 
-                // Determine initial for avatar
-                String initial =
-                    displayName.isNotEmpty ? displayName[0].toUpperCase() : '?';
+            String displayName = username;
+            if (firstName != null && firstName.isNotEmpty) {
+              displayName = firstName;
+              if (lastName != null && lastName.isNotEmpty) {
+                displayName += ' $lastName';
+              }
+            }
+            String initial =
+                displayName.isNotEmpty ? displayName[0].toUpperCase() : '?';
 
-                return SliverToBoxAdapter(
+            return CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(
                   child: _buildProfileHeader(
                     context,
                     displayName,
                     email,
                     initial,
                   ),
-                );
-              },
-              loading:
-                  () => SliverToBoxAdapter(
-                    child: _buildProfileHeader(
-                      context,
-                      'Loading...',
-                      'Loading...',
-                      '?',
-                    ), // Loading state
-                  ),
-              error:
-                  (error, stack) => SliverToBoxAdapter(
-                    child: _buildProfileHeader(
-                      context,
-                      'Error',
-                      'Error',
-                      '!',
-                    ), // Error state
-                  ),
-            ),
-
-            // Stats Cards
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                child: _buildStatsOverview(),
-              ),
-            ),
-
-            // Leaderboard
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
-                child: _buildLeaderboard(context),
-              ),
-            ),
-
-            // Achievements
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
-                child: _buildAchievements(context),
-              ),
-            ),
-
-            // Sign Out Button
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16.0,
-                  vertical: 24.0,
                 ),
-                child: ElevatedButton.icon(
-                  onPressed: () async {
-                    // Show confirmation dialog before signing out
-                    final confirm = await showDialog<bool>(
-                      context: context,
-                      builder:
-                          (context) => AlertDialog(
-                            title: const Text('Confirm Sign Out'),
-                            content: const Text(
-                              'Are you sure you want to sign out?',
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed:
-                                    () => Navigator.of(context).pop(false),
-                                child: const Text('Cancel'),
-                              ),
-                              TextButton(
-                                onPressed:
-                                    () => Navigator.of(context).pop(true),
-                                child: const Text('Sign Out'),
-                                style: TextButton.styleFrom(
-                                  foregroundColor: Colors.red,
-                                ),
-                              ),
-                            ],
-                          ),
-                    );
-
-                    // If confirmed, call the sign out method
-                    if (confirm == true) {
-                      await ref.read(authControllerProvider.notifier).signOut();
-                    }
-                  },
-                  icon: const Icon(SolarIconsOutline.logout),
-                  label: const Text('Sign Out'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        Colors.red[700], // Use a distinct color for sign out
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    textStyle: Theme.of(context).textTheme.titleMedium
-                        ?.copyWith(fontWeight: FontWeight.bold),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                    child: _buildStatsOverview(
+                      context,
+                      streak: currentStreak,
+                      timeSpent: totalAppTimeFormatted,
+                      lessonsCompleted: '$completedLessons/$totalLessons',
+                      accuracy: averageAccuracy,
+                    ),
                   ),
                 ),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
+                    child: _buildLeaderboard(
+                      context,
+                      leaderboardRank,
+                      leaderboardData,
+                    ),
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
+                    child: _buildAchievements(context, achievementsData),
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 24.0,
+                    ),
+                    child: _buildSignOutButton(context, ref),
+                  ),
+                ),
+              ],
+            );
+          },
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error:
+              (error, stack) => Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text('Error loading profile: $error'),
+                ),
               ),
-            ),
-          ],
         ),
       ),
     );
   }
 
-  // Update _buildProfileHeader to accept dynamic data
   Widget _buildProfileHeader(
     BuildContext context,
     String name,
     String email,
     String initial,
   ) {
-    // Define content color for contrast against gradient
     const Color contentColor = Colors.white;
-    final Color secondaryContentColor = contentColor.withOpacity(0.8);
-
+    final Color secondaryContentColor = contentColor.withAlpha(
+      (0.8 * 255).round(),
+    );
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
             AppTheme.primaryColor,
-            AppTheme.secondaryColor.withOpacity(0.8), // Example gradient
+            AppTheme.secondaryColor.withAlpha((0.8 * 255).round()),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(24),
-          bottomRight: Radius.circular(24),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.primaryColor.withOpacity(0.3),
-            offset: const Offset(0, 4),
-            blurRadius: 12,
-          ),
-        ],
       ),
       child: Column(
         children: [
           CircleAvatar(
             radius: 50,
-            backgroundColor: Colors.white.withOpacity(0.2),
+            backgroundColor: Colors.white.withAlpha((0.2 * 255).round()),
             child: Text(
-              initial, // Use dynamic initial
+              initial,
               style: Theme.of(context).textTheme.displayMedium?.copyWith(
                 color: contentColor,
                 fontWeight: FontWeight.w700,
@@ -211,17 +163,17 @@ class ProfileScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            name, // Use dynamic name
+            name,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.w700,
               fontFamily: 'Chillax',
               color: contentColor,
             ),
-            textAlign: TextAlign.center, // Center name if long
+            textAlign: TextAlign.center,
           ),
           const SizedBox(height: 4),
           Text(
-            email, // Use dynamic email
+            email,
             style: Theme.of(
               context,
             ).textTheme.bodyMedium?.copyWith(color: secondaryContentColor),
@@ -229,16 +181,19 @@ class ProfileScreen extends ConsumerWidget {
           const SizedBox(height: 16),
           OutlinedButton.icon(
             onPressed: () {
-              // TODO: Navigate to edit profile screen
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Edit Profile (Not Implemented)')),
+              );
             },
-            icon: Icon(SolarIconsOutline.pen, size: 18, color: contentColor),
-            label: Text('Edit Profile', style: TextStyle(color: contentColor)),
+            icon: const Icon(SolarIconsOutline.penNewSquare, size: 18),
+            label: const Text('Edit Profile'),
             style: OutlinedButton.styleFrom(
-              side: BorderSide(color: contentColor.withOpacity(0.5)),
               foregroundColor: contentColor,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+              side: BorderSide(
+                color: contentColor.withAlpha((0.5 * 255).round()),
               ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              textStyle: Theme.of(context).textTheme.labelMedium,
             ),
           ),
         ],
@@ -246,56 +201,180 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatsOverview() {
-    return const StatsCard();
-  }
-
-  Widget _buildLeaderboard(BuildContext context) {
+  Widget _buildStatsOverview(
+    BuildContext context, {
+    required int streak,
+    required String timeSpent,
+    required String lessonsCompleted,
+    required double accuracy,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Text('Statistics', style: Theme.of(context).textTheme.titleLarge),
+        const SizedBox(height: 12),
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'Leaderboard',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontFamily: 'Chillax',
-                fontWeight: FontWeight.w600,
+            Expanded(
+              child: StatsCard(
+                label: 'Current Streak',
+                value: '$streak',
+                unit: 'days',
+                icon: SolarIconsBold.fire,
+                color: AppTheme.primaryColor,
               ),
             ),
-            TextButton.icon(
-              onPressed: () {
-                context.push(AppRoutes.leaderboard);
-              },
-              icon: const Icon(SolarIconsOutline.ranking, size: 18),
-              label: const Text('See All'),
-              style: TextButton.styleFrom(
-                foregroundColor: AppTheme.primaryColor,
+            const SizedBox(width: 12),
+            Expanded(
+              child: StatsCard(
+                label: 'Time Spent',
+                value: timeSpent,
+                unit: 'total',
+                icon: SolarIconsBold.clockCircle,
+                color: AppTheme.secondaryColor,
               ),
             ),
           ],
         ),
         const SizedBox(height: 12),
-        const LeaderboardCard(),
+        Row(
+          children: [
+            Expanded(
+              child: StatsCard(
+                label: 'Lessons Done',
+                value: lessonsCompleted,
+                unit: 'completed',
+                icon: SolarIconsBold.notebook,
+                color: AppTheme.accentColor,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: StatsCard(
+                label: 'Avg. Accuracy',
+                value: '${accuracy.toStringAsFixed(1)}%',
+                unit: 'overall',
+                icon: SolarIconsBold.target,
+                color: Colors.orange.shade700,
+              ),
+            ),
+          ],
+        ),
       ],
     );
   }
 
-  Widget _buildAchievements(BuildContext context) {
+  Widget _buildLeaderboard(
+    BuildContext context,
+    int rank,
+    List<dynamic> leaderboardData,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Achievements',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontFamily: 'Chillax',
-            fontWeight: FontWeight.w600,
-          ),
+        Text('Leaderboard', style: Theme.of(context).textTheme.titleLarge),
+        const SizedBox(height: 12),
+        LeaderboardCard(
+          // TODO: Update LeaderboardCard widget to accept currentUserRank and topUsers
+          // currentUserRank: rank > 0 ? rank : null,
+          // topUsers: const [
+          //   {'name': 'Alex R.', 'score': 15200, 'avatarUrl': null},
+          //   {'name': 'Sam K.', 'score': 14850, 'avatarUrl': null},
+          //   {'name': 'Jordan P.', 'score': 13900, 'avatarUrl': null},
+          // ],
         ),
-        const SizedBox(height: 16),
-        const AchievementsGrid(),
       ],
+    );
+  }
+
+  Widget _buildAchievements(
+    BuildContext context,
+    List<dynamic> achievementsData,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Achievements', style: Theme.of(context).textTheme.titleLarge),
+        const SizedBox(height: 12),
+        AchievementsGrid(
+          // TODO: Update AchievementsGrid widget to accept achievements
+          // achievements: const [
+          //   {
+          //     'name': 'Streak Starter',
+          //     'achieved': true,
+          //     'icon': SolarIconsBold.fire,
+          //   },
+          //   {
+          //     'name': 'Quick Learner',
+          //     'achieved': true,
+          //     'icon': SolarIconsBold.notebook,
+          //   },
+          //   {
+          //     'name': 'Sharp Shooter',
+          //     'achieved': false,
+          //     'icon': SolarIconsBold.target,
+          //   },
+          //   {
+          //     'name': 'Challenge Champ',
+          //     'achieved': false,
+          //     'icon': SolarIconsBold.medalStar,
+          //   },
+          //   {
+          //     'name': 'Time Master',
+          //     'achieved': true,
+          //     'icon': SolarIconsBold.clockCircle,
+          //   },
+          //   {
+          //     'name': 'Perfect Score',
+          //     'achieved': false,
+          //     'icon': SolarIconsBold.verifiedCheck,
+          //   },
+          // ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSignOutButton(BuildContext context, WidgetRef ref) {
+    return ElevatedButton.icon(
+      onPressed: () async {
+        final confirm = await showDialog<bool>(
+          context: context,
+          builder:
+              (context) => AlertDialog(
+                title: const Text('Confirm Sign Out'),
+                content: const Text('Are you sure you want to sign out?'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: const Text('Cancel'),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(true),
+                    style: TextButton.styleFrom(foregroundColor: Colors.red),
+                    child: const Text('Sign Out'),
+                  ),
+                ],
+              ),
+        );
+
+        if (confirm == true) {
+          final prefsService = ref.read(sharedPreferencesServiceProvider);
+          await prefsService?.clearAll();
+
+          await ref.read(authControllerProvider.notifier).signOut();
+        }
+      },
+      icon: const Icon(SolarIconsOutline.logout),
+      label: const Text('Sign Out'),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.red[700],
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        textStyle: Theme.of(
+          context,
+        ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+      ),
     );
   }
 }
