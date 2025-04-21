@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart'; // For immutable annotation
 import '../models/challenge.dart';
 import '../models/challenge_step.dart';
+import '../models/step_result.dart'; // Import the new model
 
 enum ChallengeStatus {
   initial,
@@ -26,6 +27,8 @@ class ChallengeState {
   final int? selectedIROrientationIndex; // New
   final int? selectedPatientPositionIndex; // New
   // Collimation state is handled separately via collimationStateProvider
+  final List<StepResult>
+  stepResults; // Added: List to store results of each step
 
   const ChallengeState({
     required this.challenge,
@@ -39,6 +42,7 @@ class ChallengeState {
     this.selectedIRSizeIndex, // New
     this.selectedIROrientationIndex, // New
     this.selectedPatientPositionIndex, // New
+    this.stepResults = const [], // Added: Initialize as empty list
   });
 
   // Helper to get the current step object
@@ -60,6 +64,7 @@ class ChallengeState {
     int? selectedIRSizeIndex, // New
     int? selectedIROrientationIndex, // New
     int? selectedPatientPositionIndex, // New
+    List<StepResult>? stepResults, // Added
     bool resetSelections = false, // Helper to clear selections on step change
     bool clearLastAnswerStatus =
         false, // Helper to explicitly clear wasLastAnswerCorrect
@@ -94,6 +99,7 @@ class ChallengeState {
               ? null
               : (selectedPatientPositionIndex ??
                   this.selectedPatientPositionIndex),
+      stepResults: stepResults ?? this.stepResults, // Added
     );
   }
 }

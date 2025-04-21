@@ -5,8 +5,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/challenge.dart';
 import '../models/challenge_step.dart';
 import '../state/challenge_state.dart';
-import '../../practice/models/collimation_state.dart';
+import '../../practice/data/collimation_target_data.dart'; // Corrected import path
+import '../../practice/models/collimation_state.dart'; // Import CollimationStateData and provider
 import '../models/projection.dart'; // Added correct import
+import '../models/step_result.dart'; // Import StepResult
 
 class ChallengeController extends StateNotifier<ChallengeState> {
   final Ref ref;
@@ -37,6 +39,7 @@ class ChallengeController extends StateNotifier<ChallengeState> {
       selectedPatientPositionIndex: null,
       score: 0,
       wasLastAnswerCorrect: null, // Reset correctness status
+      stepResults: [], // Reset step results
     );
   }
 
@@ -57,6 +60,7 @@ class ChallengeController extends StateNotifier<ChallengeState> {
       selectedIROrientationIndex: null,
       selectedPatientPositionIndex: null,
       wasLastAnswerCorrect: null, // Ensure null at start
+      stepResults: [], // Ensure results list is empty at start
       resetSelections: true,
     );
     _startTimer();
@@ -190,13 +194,22 @@ class ChallengeController extends StateNotifier<ChallengeState> {
     final timeTaken = DateTime.now().difference(startTime);
     final scoreDelta = _calculateScore(step, isCorrect, timeTaken);
 
+    // Create the result for this step
+    final stepResult = StepResult(
+      stepId: step.id,
+      isCorrect: isCorrect,
+      scoreEarned: scoreDelta,
+      stepInstruction: step.instruction, // Store instruction for display
+    );
+
     // Update state immediately to show selection AND correctness
     state = copyWithIndex(index).copyWith(wasLastAnswerCorrect: isCorrect);
 
     Future.delayed(const Duration(milliseconds: 500), () {
       if (!mounted) return;
       if (state.currentStep == step) {
-        _advanceStep(scoreDelta: scoreDelta);
+        // Pass the result to _advanceStep
+        _advanceStep(scoreDelta: scoreDelta, result: stepResult);
       }
     });
   }
@@ -269,8 +282,10 @@ class ChallengeController extends StateNotifier<ChallengeState> {
         currentCollimationState,
         projectionData.targetCollimation!,
       );
-      isCorrect = accuracy >= 98.0;
+      // Define correctness threshold for collimation (e.g., 95% accuracy)
+      isCorrect = accuracy >= 95.0;
     } else {
+      // Handle case where target data is missing
       isCorrect = false;
       accuracy = 0.0;
     }
@@ -282,49 +297,55 @@ class ChallengeController extends StateNotifier<ChallengeState> {
       collimationAccuracy: accuracy,
     );
 
+    // Create the result for this step, including accuracy
+    final stepResult = StepResult(
+      stepId: step.id,
+      isCorrect: isCorrect,
+      scoreEarned: scoreDelta,
+      stepInstruction: step.instruction,
+      accuracy: accuracy, // Store accuracy for collimation
+    );
+
     // Update state to show correctness before advancing
     state = state.copyWith(wasLastAnswerCorrect: isCorrect);
 
     Future.delayed(const Duration(milliseconds: 100), () {
       if (!mounted) return;
       if (state.currentStep == step) {
-        _advanceStep(scoreDelta: scoreDelta);
+        // Pass the result to _advanceStep
+        _advanceStep(scoreDelta: scoreDelta, result: stepResult);
       }
     });
   }
 
-  void _advanceStep({required int scoreDelta}) {
+  void _advanceStep({required int scoreDelta, required StepResult result}) {
     if (state.status != ChallengeStatus.inProgress) return;
     if (!mounted) return;
 
     int updatedScore = state.score + scoreDelta;
     int nextStepIndex = state.currentStepIndex + 1;
+    // Add the result of the completed step to the list
+    List<StepResult> updatedResults = List.from(state.stepResults)..add(result);
 
     if (nextStepIndex >= state.challenge.steps.length) {
       _timer?.cancel();
       state = state.copyWith(
         status: ChallengeStatus.completedSuccess,
         score: updatedScore,
-        currentStepIndex: state.currentStepIndex,
+        currentStepIndex: state.currentStepIndex, // Keep last index for context
         stepStartTime: null,
-        selectedPositioningIndex: null,
-        selectedIRSizeIndex: null,
-        selectedIROrientationIndex: null,
-        selectedPatientPositionIndex: null,
+        stepResults: updatedResults, // Store final results list
         resetSelections: true,
-        clearLastAnswerStatus: true, // Clear status on completion
+        clearLastAnswerStatus: true,
       );
     } else {
       ChallengeState nextState = state.copyWith(
         currentStepIndex: nextStepIndex,
         score: updatedScore,
         stepStartTime: DateTime.now(),
-        selectedPositioningIndex: null,
-        selectedIRSizeIndex: null,
-        selectedIROrientationIndex: null,
-        selectedPatientPositionIndex: null,
+        stepResults: updatedResults, // Update results list
         resetSelections: true,
-        clearLastAnswerStatus: true, // Clear status for the new step
+        clearLastAnswerStatus: true,
       );
 
       state = nextState;
@@ -354,23 +375,47 @@ final challengeControllerProvider = StateNotifierProvider.family<
   return ChallengeController(ref, challenge);
 });
 
-final projectionProvider =
-    Provider.family<Projection?, ({String bodyPartId, String projectionName})>((
-      ref,
-      params,
-    ) {
-      if (params.bodyPartId == 'forearm' && params.projectionName == 'AP') {
-        return Projection(
-          name: 'AP',
-          imageUrl: 'assets/images/practice/forearm/forearm_ap.webp',
-          targetCollimation: const CollimationStateData(
-            width: 0.6,
-            height: 0.9,
-            centerX: 0.5,
-            centerY: 0.5,
-            angle: 0,
-          ),
-        );
-      }
-      return null;
-    });
+final projectionProvider = Provider.family<
+  Projection?,
+  ({String bodyPartId, String projectionName})
+>((ref, params) {
+  // --- Get Target Data ---
+  final targetValues = getTargetCollimationValues(
+    params.bodyPartId,
+    params.projectionName,
+  );
+  final targetInfo = getTargetInfo(params.bodyPartId, params.projectionName);
+
+  // --- Get Image Path ---
+  // Standardize names for image path construction
+  final standardizedBodyPart = params.bodyPartId.toLowerCase();
+  final standardizedProjection = params.projectionName
+      .toLowerCase()
+      .replaceAll(' ', '_')
+      .replaceAll('(', '')
+      .replaceAll(')', '');
+
+  final imagePath =
+      'assets/images/practice/$standardizedBodyPart/${standardizedBodyPart}_$standardizedProjection.webp';
+
+  // --- Create CollimationStateData from targetValues ---
+  final targetCollimationState = CollimationStateData(
+    width: targetValues['width'] ?? 0.5,
+    height: targetValues['height'] ?? 0.5,
+    centerX: targetValues['centerX'] ?? 0.0,
+    centerY: targetValues['centerY'] ?? 0.0,
+    angle: targetValues['angle'] ?? 0.0,
+  );
+
+  // --- Return Projection Object ---
+  // Consider adding error handling if imagePath is invalid or target data is missing
+  return Projection(
+    name: params.projectionName,
+    imageUrl: imagePath,
+    targetCollimation: targetCollimationState,
+    // Add other info if needed
+    irSize: targetInfo.irSize,
+    irOrientation: targetInfo.irOrientation,
+    pxPosition: targetInfo.pxPosition,
+  );
+});

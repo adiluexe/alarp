@@ -6,13 +6,17 @@ class Projection {
   final String name;
   final String imageUrl;
   final CollimationStateData? targetCollimation;
-  // Add other relevant fields if needed, e.g., description, steps
+  final String? irSize; // Added
+  final String? irOrientation; // Added
+  final String? pxPosition; // Added
 
   const Projection({
     required this.name,
     required this.imageUrl,
     this.targetCollimation,
-    // Initialize other fields
+    this.irSize, // Added
+    this.irOrientation, // Added
+    this.pxPosition, // Added
   });
 
   // Optional: Add copyWith, toJson, fromJson if needed later

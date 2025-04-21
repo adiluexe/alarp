@@ -20,6 +20,8 @@ import 'package:alarp/features/anatomy/views/skeleton_viewer_screen.dart'; // Im
 import 'package:alarp/features/practice/views/recent_practice_list_screen.dart'; // Ensure this import is present
 import 'package:alarp/features/profile/views/leaderboard_screen.dart'; // Import the new leaderboard screen
 import 'package:alarp/features/onboarding/splash_screen.dart'; // Import SplashScreen
+import '../../features/challenge/views/challenge_results_screen.dart'; // Import the new screen
+import '../../features/challenge/controllers/challenge_controller.dart'; // Import controller for results
 
 // Define route paths
 class AppRoutes {
@@ -45,6 +47,7 @@ class AppRoutes {
       '/recent-practice'; // Verify the constant path
   static const leaderboard =
       '/leaderboard'; // New route for the full leaderboard
+  static const challengeResults = 'results'; // Relative path for results
 
   // Helper method to build the full path for challenge start
   static String challengeStartRoute(String challengeId) =>
@@ -157,6 +160,33 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             child: ChallengeActiveScreen(challengeId: challengeId),
           );
         },
+        routes: [
+          GoRoute(
+            path:
+                AppRoutes
+                    .challengeResults, // e.g., /challenge/ch_ap_forearm_01/active/results
+            name: AppRoutes.challengeResults,
+            builder: (context, state) {
+              final challengeId = state.pathParameters['challengeId']!;
+              final challenge = Challenge.getChallengeById(challengeId);
+              if (challenge == null) {
+                return const Scaffold(
+                  body: Center(
+                    child: Text('Error: Challenge not found for results'),
+                  ),
+                );
+              }
+              // Results screen likely needs the Challenge and the final ChallengeState
+              // We can pass the challenge and read the state via Riverpod
+              return ProviderScope(
+                overrides: [
+                  activeChallengeProvider.overrideWithValue(challenge),
+                ],
+                child: const ChallengeResultsScreen(),
+              );
+            },
+          ),
+        ],
       ),
       // Main application shell with bottom navigation
       ShellRoute(

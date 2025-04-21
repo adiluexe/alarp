@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:solar_icons/solar_icons.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/navigation/app_router.dart'; // Import AppRoutes
 import '../models/challenge.dart';
 import '../models/challenge_step.dart';
 import '../state/challenge_state.dart';
@@ -77,19 +78,23 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
             ? (challenge.backgroundColor ?? AppTheme.primaryColor)
             : null; // Set to null if gradient is used
 
-    // Listen for status changes to show results dialog
+    // Listen for status changes to NAVIGATE to results screen
     ref.listen<ChallengeState>(challengeControllerProvider(challenge), (
       prev,
       next,
     ) {
-      // Ensure widget is mounted before showing dialog
+      // Ensure widget is mounted before navigating
       if (!mounted) return;
-      // Only show dialog when status changes *to* a completed state
+      // Only navigate when status changes *to* a completed state
       if (prev?.status != next.status &&
           (next.status == ChallengeStatus.completedSuccess ||
               next.status == ChallengeStatus.completedFailureTime)) {
-        // Pass the final score from the state to the dialog function
-        _showResultDialog(context, next.status, next.score, challengeNotifier);
+        // Navigate to the results screen using the named route
+        // The results screen will read the state using the same provider instance
+        context.goNamed(
+          AppRoutes.challengeResults,
+          pathParameters: {'challengeId': challenge.id},
+        );
       }
     });
 
@@ -327,135 +332,6 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
     final minutes = twoDigits(duration.inMinutes.remainder(60));
     final seconds = twoDigits(duration.inSeconds.remainder(60));
     return '$minutes:$seconds';
-  }
-
-  // Show result dialog - Updated with improved UI
-  void _showResultDialog(
-    BuildContext context,
-    ChallengeStatus status,
-    int finalScore, // Added final score parameter
-    ChallengeController notifier,
-  ) {
-    String title;
-    String message;
-    IconData icon;
-    Color color;
-    Color backgroundColor;
-
-    switch (status) {
-      case ChallengeStatus.completedSuccess:
-        title = 'Challenge Complete!';
-        message = 'Great job! You successfully completed the challenge.';
-        icon = SolarIconsBold.checkCircle;
-        color = Colors.green.shade700;
-        backgroundColor = Colors.green.shade50;
-        break;
-      case ChallengeStatus.completedFailureTime:
-        title = 'Time\'s Up!';
-        message = 'You ran out of time for this challenge.';
-        icon = SolarIconsBold.alarmTurnOff;
-        color = Colors.orange.shade700;
-        backgroundColor = Colors.orange.shade50;
-        break;
-      default:
-        return; // Don't show dialog for other statuses
-    }
-
-    showDialog(
-      context: context,
-      barrierDismissible: false, // Prevent dismissing by tapping outside
-      builder:
-          (context) => AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20.0),
-            ),
-            backgroundColor: backgroundColor,
-            titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
-            contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
-            title: Center(
-              child: Text(
-                title,
-                style: TextStyle(
-                  color: color,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 22,
-                ),
-              ),
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(icon, color: color, size: 60),
-                const SizedBox(height: 16),
-                Text(
-                  message,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 16, color: Colors.grey.shade800),
-                ),
-                const SizedBox(height: 24),
-                const Divider(),
-                const SizedBox(height: 24),
-                // Display Final Score with enhanced UI
-                Text(
-                  'Final Score', // Label for the score
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey.shade600,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: color.withAlpha((255 * 0.1).round()),
-                    borderRadius: BorderRadius.circular(30),
-                    border: Border.all(
-                      color: color.withAlpha((255 * 0.3).round()),
-                      width: 1,
-                    ),
-                  ),
-                  child: Text(
-                    '$finalScore',
-                    style: TextStyle(
-                      fontSize: 36, // Larger font for score
-                      fontWeight: FontWeight.bold,
-                      color: color,
-                    ),
-                  ),
-                ),
-                // TODO: Add more details like breakdown per step later
-              ],
-            ),
-            actionsAlignment: MainAxisAlignment.center,
-            actionsPadding: const EdgeInsets.only(bottom: 20),
-            actions: [
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: color, // Button color matches status
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 30,
-                    vertical: 12,
-                  ),
-                ),
-                onPressed: () {
-                  Navigator.of(context).pop(); // Close dialog
-                  if (context.canPop()) {
-                    context.pop(); // Go back from active challenge screen
-                  }
-                },
-                child: const Text('OK', style: TextStyle(fontSize: 16)),
-              ),
-            ],
-          ),
-    );
   }
 
   // Helper function to get image path for collimation step
