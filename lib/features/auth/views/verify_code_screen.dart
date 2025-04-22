@@ -52,10 +52,8 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyCodeScreen> {
 
       if (mounted) {
         if (success) {
-          // Auth state change will trigger redirect via GoRouter
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Email verified successfully!')),
-          );
+          // Navigate to the sign up complete screen
+          context.go(AppRoutes.signUpComplete);
         } else {
           setState(() {
             _errorMessage = 'Invalid or expired verification code.';

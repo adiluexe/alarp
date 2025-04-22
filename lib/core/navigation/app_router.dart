@@ -25,6 +25,7 @@ import 'package:alarp/features/onboarding/splash_screen.dart'; // Import SplashS
 import '../../features/challenge/views/challenge_results_screen.dart'; // Import the new screen
 import 'package:alarp/features/auth/views/sign_in_screen.dart'; // Import Sign In Screen
 import 'package:alarp/features/auth/views/sign_up_screen.dart'; // Import Sign Up Screen
+import 'package:alarp/features/auth/views/sign_up_complete_screen.dart'; // Import Sign Up Complete Screen
 // Hide authStateChangesProvider from this import to avoid conflict
 import 'package:alarp/features/auth/controllers/auth_controller.dart'
     hide authStateChangesProvider;
@@ -41,6 +42,8 @@ class AppRoutes {
   static const signUp = '/signup'; // New sign up route
   static const checkEmail = '/check-email'; // New route for check email screen
   static const verifyCode = '/verify-code'; // New route for OTP verification
+  static const signUpComplete =
+      '/signup-complete'; // New route for sign up complete
   static const home = '/';
   static const learn = '/learn';
   static const learnRegionDetail = 'region/:regionId'; // Relative to /learn
@@ -95,54 +98,56 @@ final goRouterProvider = Provider<GoRouter>((ref) {
     navigatorKey: _rootNavigatorKey,
     redirect: (BuildContext context, GoRouterState state) {
       final currentLocation = state.matchedLocation;
-      final isVerifying = currentLocation == AppRoutes.verifyCode;
-      final loggingIn =
-          currentLocation == AppRoutes.signIn ||
-          currentLocation == AppRoutes.signUp;
-      final splashing = currentLocation == AppRoutes.splash;
-      final gettingStarted = currentLocation == AppRoutes.getStarted;
-      final loggedIn =
-          authState; // Directly use the boolean value from authStatusProvider
+      final loggedIn = authState; // Boolean: Is the user authenticated?
 
-      print(
-        'GoRouter Redirect: Current=$currentLocation, loggedIn=$loggedIn, isVerifying=$isVerifying, loggingIn=$loggingIn',
-      ); // Add logging
+      // Define sets of routes for easier checking
+      final publicRoutes = {AppRoutes.splash, AppRoutes.getStarted};
+      final authRoutes = {
+        AppRoutes.signIn,
+        AppRoutes.signUp,
+        AppRoutes.verifyCode,
+      };
+      // Note: AppRoutes.signUpComplete is handled implicitly below
+
+      print('GoRouter Redirect: Current=$currentLocation, loggedIn=$loggedIn');
 
       // 1. Always allow splash and get started screens
-      if (splashing || gettingStarted) {
-        print('GoRouter Redirect: Allowing splash/getStarted.');
+      if (publicRoutes.contains(currentLocation)) {
+        print('GoRouter Redirect: Allowing public route: $currentLocation');
         return null;
       }
 
-      // 2. If user IS logged in
+      // 2. Handle based on authentication state
       if (loggedIn) {
-        // If they are trying to access auth/verify screens, redirect to home
-        if (loggingIn || isVerifying) {
+        // User is logged in
+        print('GoRouter Redirect: User is logged in.');
+        // If logged-in user tries to access auth routes, redirect to home
+        if (authRoutes.contains(currentLocation)) {
           print(
-            'GoRouter Redirect: Logged in, redirecting from auth/verify to home.',
+            'GoRouter Redirect: Logged in user accessing auth route ($currentLocation), redirecting to home.',
           );
           return AppRoutes.home;
         }
-        // Otherwise, allow access to other routes (they are already logged in)
+        // Otherwise (accessing home, profile, learn, practice, challenge, signup-complete, etc.), allow access
         print(
-          'GoRouter Redirect: Logged in, allowing access to $currentLocation.',
+          'GoRouter Redirect: Logged in user allowed access to: $currentLocation',
         );
         return null;
-      }
-      // 3. If user is NOT logged in
-      else {
-        // If they are trying to access auth screens (signin/signup) or the verify screen, allow it
-        if (loggingIn || isVerifying) {
+      } else {
+        // User is NOT logged in
+        print('GoRouter Redirect: User is NOT logged in.');
+        // Allow access to the standard authentication flow routes
+        if (authRoutes.contains(currentLocation)) {
           print(
-            'GoRouter Redirect: Not logged in, allowing access to auth/verify screen: $currentLocation.',
+            'GoRouter Redirect: Not logged in, allowing access to auth route: $currentLocation',
           );
           return null;
         }
-        // Otherwise, they are trying to access a protected route, so redirect to sign in
+        // If a non-logged-in user tries to access signup-complete or any other protected route, redirect to sign in
         print(
-          'GoRouter Redirect: Not logged in, redirecting from $currentLocation to sign in.',
+          'GoRouter Redirect: Not logged in, attempting to access restricted route ($currentLocation), redirecting to sign in.',
         );
-        return AppRoutes.signIn;
+        return AppRoutes.signIn; // Redirect all other non-logged-in attempts
       }
     },
     refreshListenable: GoRouterRefreshStream(
@@ -200,6 +205,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           }
           return VerifyCodeScreen(email: email);
         },
+      ),
+      // Add Sign Up Complete Route (top-level)
+      GoRoute(
+        path: AppRoutes.signUpComplete,
+        builder: (context, state) => const SignUpCompleteScreen(),
       ),
       // Routes accessible without bottom nav bar
       GoRoute(
