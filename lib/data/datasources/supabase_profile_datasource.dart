@@ -131,7 +131,8 @@ class SupabaseProfileDataSource {
           return (
             rank: map['rank'] as int? ?? 0, // Provide default if null
             username:
-                map['username'] as String? ?? 'Unknown', // Provide default
+                map['display_name'] as String? ??
+                'User', // Use display_name field
             score: map['score'] as int? ?? 0, // Provide default
           );
         }).toList();
@@ -217,30 +218,34 @@ class SupabaseProfileDataSource {
   }
 
   /// Fetches the all-time leaderboard for a given challenge.
-  /// Aggregates total score per user from challenge_history, ordered by score desc.
+  /// Uses each user's highest score for the challenge (not sum of all scores).
   /// Fetches first_name and last_name from profiles and displays as 'FirstName L.'
   Future<List<LeaderboardEntry>> getAllTimeLeaderboard(
     String challengeId, {
     int limit = 10,
   }) async {
     try {
-      // Step 1: Aggregate scores by user_id
+      // Step 1: For each user, get their highest score for this challenge
       final response = await _client
           .from('challenge_history')
           .select('user_id, score')
           .eq('challenge_id', challengeId)
-          .limit(1000); // Get enough rows for aggregation
+          .order('score', ascending: false)
+          .limit(10000); // Get enough rows for aggregation
 
-      // Aggregate scores by user_id
-      final Map<String, int> userScores = {};
+      // Map user_id to their highest score
+      final Map<String, int> userHighScores = {};
       for (final row in response) {
         final userId = row['user_id'] as String;
         final score = row['score'] as int? ?? 0;
-        userScores[userId] = (userScores[userId] ?? 0) + score;
+        if (!userHighScores.containsKey(userId) ||
+            score > userHighScores[userId]!) {
+          userHighScores[userId] = score;
+        }
       }
       // Sort by score desc and take top N
       final topUsers =
-          userScores.entries.toList()
+          userHighScores.entries.toList()
             ..sort((a, b) => b.value.compareTo(a.value));
       final topUserIds = topUsers.take(limit).map((e) => e.key).toList();
 
