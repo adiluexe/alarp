@@ -158,11 +158,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       // Add Splash Screen Route (top-level, outside shell)
       GoRoute(
         path: AppRoutes.splash,
-        builder:
-            (context, state) => SplashScreen(
-              // Navigate to get started after splash completes
-              onComplete: () => context.pushReplacement(AppRoutes.getStarted),
-            ),
+        builder: (context, state) => const SplashScreen(),
       ),
       // Add Get Started Screen Route (top-level, outside shell)
       GoRoute(

@@ -1,17 +1,22 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'; // Import Riverpod
+import 'package:go_router/go_router.dart'; // Import GoRouter
 import 'package:alarp/core/theme/app_theme.dart';
+import 'package:alarp/core/navigation/app_router.dart'; // Import AppRoutes
+import 'package:alarp/features/auth/controllers/auth_controller.dart'; // Import authStatusProvider
 
-class SplashScreen extends StatefulWidget {
-  final VoidCallback onComplete;
-
-  const SplashScreen({Key? key, required this.onComplete}) : super(key: key);
+// Change to ConsumerStatefulWidget
+class SplashScreen extends ConsumerStatefulWidget {
+  // Remove onComplete as navigation is handled internally now
+  const SplashScreen({Key? key}) : super(key: key);
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
+// Change to ConsumerState
+class _SplashScreenState extends ConsumerState<SplashScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeInAnimation;
@@ -58,9 +63,20 @@ class _SplashScreenState extends State<SplashScreen>
     // Start the animation immediately
     _animationController.forward();
 
-    // Navigate to the main screen after 3 seconds
+    // Navigate after delay based on auth state
     Timer(const Duration(seconds: 3), () {
-      widget.onComplete();
+      // Check auth state using ref.read (safe in Timer callback)
+      final isLoggedIn = ref.read(authStatusProvider);
+      if (mounted) {
+        // Ensure widget is still in the tree
+        if (isLoggedIn) {
+          context.go(AppRoutes.home); // Go to home if logged in
+        } else {
+          context.go(
+            AppRoutes.getStarted,
+          ); // Go to get started if not logged in
+        }
+      }
     });
   }
 
