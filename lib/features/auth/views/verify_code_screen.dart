@@ -52,8 +52,8 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyCodeScreen> {
 
       if (mounted) {
         if (success) {
-          // Navigate to the sign up complete screen
-          context.go(AppRoutes.signUpComplete);
+          // Navigate to the sign up complete screen, replacing the current route
+          context.pushReplacement(AppRoutes.signUpComplete);
         } else {
           setState(() {
             _errorMessage = 'Invalid or expired verification code.';
