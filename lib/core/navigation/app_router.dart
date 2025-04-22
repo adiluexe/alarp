@@ -27,10 +27,12 @@ import 'package:alarp/features/auth/views/sign_in_screen.dart'; // Import Sign I
 import 'package:alarp/features/auth/views/sign_up_screen.dart'; // Import Sign Up Screen
 import 'package:alarp/features/auth/controllers/auth_controller.dart'; // Import Auth Status Provider
 import 'package:alarp/core/providers/supabase_providers.dart'; // Import Supabase providers
+import 'package:alarp/features/auth/views/get_started_screen.dart';
 
 // Define route paths
 class AppRoutes {
   static const splash = '/splash'; // New splash route
+  static const getStarted = '/get_started'; // Add get started route
   static const signIn = '/signin'; // New sign in route
   static const signUp = '/signup'; // New sign up route
   static const home = '/';
@@ -90,10 +92,13 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           state.matchedLocation == AppRoutes.signIn ||
           state.matchedLocation == AppRoutes.signUp;
       final splashing = state.matchedLocation == AppRoutes.splash;
+      final gettingStarted =
+          state.matchedLocation == AppRoutes.getStarted; // Add this check
       final loggedIn = authState; // Directly use the boolean value
 
-      // Allow splash screen always
-      if (splashing) {
+      // Allow splash screen and get started screen always
+      if (splashing || gettingStarted) {
+        // Modify this condition
         return null;
       }
 
@@ -119,9 +124,14 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.splash,
         builder:
             (context, state) => SplashScreen(
-              // Navigate to home after splash completes
-              onComplete: () => context.pushReplacement(AppRoutes.home),
+              // Navigate to get started after splash completes
+              onComplete: () => context.pushReplacement(AppRoutes.getStarted),
             ),
+      ),
+      // Add Get Started Screen Route (top-level, outside shell)
+      GoRoute(
+        path: AppRoutes.getStarted,
+        builder: (context, state) => const GetStartedScreen(),
       ),
       // Add Sign In Route (top-level)
       GoRoute(
