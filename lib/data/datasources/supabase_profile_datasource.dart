@@ -219,7 +219,7 @@ class SupabaseProfileDataSource {
 
   /// Fetches the all-time leaderboard for a given challenge.
   /// Uses each user's highest score for the challenge (not sum of all scores).
-  /// Fetches first_name and last_name from profiles and displays as 'FirstName L.'
+  /// Fetches first_name and last_name from profiles and displays as 'FirstName, L.'
   Future<List<LeaderboardEntry>> getAllTimeLeaderboard(
     String challengeId, {
     int limit = 10,
@@ -273,7 +273,9 @@ class SupabaseProfileDataSource {
           final last = (profile['last_name'] as String?)?.trim() ?? '';
           displayName =
               first.isNotEmpty
-                  ? (last.isNotEmpty ? '$first ${last[0]}.' : first)
+                  ? (last.isNotEmpty
+                      ? '$first, ${last[0].toUpperCase()}.'
+                      : first)
                   : 'User';
         }
         leaderboard.add((rank: i + 1, username: displayName, score: score));
