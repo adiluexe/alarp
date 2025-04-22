@@ -72,3 +72,31 @@ final userDailyRankProvider = FutureProvider.family<
   },
   name: 'userDailyRankProvider', // Optional: Name for debugging
 );
+
+// Provider to fetch the all-time leaderboard list for a given challenge ID
+// It takes the challengeId as a parameter (family).
+final allTimeLeaderboardProvider = FutureProvider.family<
+  List<LeaderboardEntry>,
+  String
+>((ref, challengeId) async {
+  print(
+    "[LeaderboardProvider] Fetching ALL-TIME leaderboard for challenge: $challengeId",
+  );
+  try {
+    final repository = ref.watch(profileRepositoryProvider);
+    final leaderboardData = await repository.getAllTimeLeaderboard(
+      challengeId,
+      limit: 10,
+    );
+    print(
+      "[LeaderboardProvider] Fetched ALL-TIME data for $challengeId: \\${leaderboardData.length} entries",
+    );
+    return leaderboardData;
+  } catch (e, stackTrace) {
+    print(
+      "[LeaderboardProvider] Error fetching ALL-TIME leaderboard for $challengeId: $e",
+    );
+    print("[LeaderboardProvider] Stack Trace: $stackTrace");
+    rethrow;
+  }
+}, name: 'allTimeLeaderboardProvider');

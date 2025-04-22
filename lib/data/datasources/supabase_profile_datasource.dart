@@ -215,6 +215,75 @@ class SupabaseProfileDataSource {
       );
     }
   }
+
+  /// Fetches the all-time leaderboard for a given challenge.
+  /// Aggregates total score per user from challenge_history, ordered by score desc.
+  /// Fetches first_name and last_name from profiles and displays as 'FirstName L.'
+  Future<List<LeaderboardEntry>> getAllTimeLeaderboard(
+    String challengeId, {
+    int limit = 10,
+  }) async {
+    try {
+      // Step 1: Aggregate scores by user_id
+      final response = await _client
+          .from('challenge_history')
+          .select('user_id, score')
+          .eq('challenge_id', challengeId)
+          .limit(1000); // Get enough rows for aggregation
+
+      // Aggregate scores by user_id
+      final Map<String, int> userScores = {};
+      for (final row in response) {
+        final userId = row['user_id'] as String;
+        final score = row['score'] as int? ?? 0;
+        userScores[userId] = (userScores[userId] ?? 0) + score;
+      }
+      // Sort by score desc and take top N
+      final topUsers =
+          userScores.entries.toList()
+            ..sort((a, b) => b.value.compareTo(a.value));
+      final topUserIds = topUsers.take(limit).map((e) => e.key).toList();
+
+      // Step 2: Fetch first_name and last_name for top users
+      Map<String, Map<String, dynamic>> userNames = {};
+      if (topUserIds.isNotEmpty) {
+        final profiles = await _client
+            .from('profiles')
+            .select('id, first_name, last_name')
+            .inFilter('id', topUserIds);
+        for (final profile in profiles) {
+          userNames[profile['id']] = profile;
+        }
+      }
+
+      // Step 3: Build leaderboard entries
+      final leaderboard = <LeaderboardEntry>[];
+      for (int i = 0; i < topUsers.length && i < limit; i++) {
+        final userId = topUsers[i].key;
+        final score = topUsers[i].value;
+        final profile = userNames[userId];
+        String displayName = 'User';
+        if (profile != null) {
+          final first = (profile['first_name'] as String?)?.trim() ?? '';
+          final last = (profile['last_name'] as String?)?.trim() ?? '';
+          displayName =
+              first.isNotEmpty
+                  ? (last.isNotEmpty ? '$first ${last[0]}.' : first)
+                  : 'User';
+        }
+        leaderboard.add((rank: i + 1, username: displayName, score: score));
+      }
+      return leaderboard;
+    } on PostgrestException catch (e) {
+      print("Supabase error fetching all-time leaderboard: ${e.message}");
+      throw Exception("Failed to fetch all-time leaderboard: ${e.message}");
+    } catch (e) {
+      print("Unexpected error fetching all-time leaderboard: ${e}");
+      throw Exception(
+        "An unexpected error occurred while fetching all-time leaderboard.",
+      );
+    }
+  }
 }
 
 // Provider for the SupabaseProfileDataSource

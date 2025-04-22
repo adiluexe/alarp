@@ -49,6 +49,17 @@ abstract class ProfileRepository {
     int limit = 10,
   });
 
+  /// Fetches the top N all-time leaderboard entries for a specific challenge.
+  ///
+  /// [challengeId]: Identifier of the challenge.
+  /// [limit]: The maximum number of entries to return (defaults to 10).
+  /// Returns a list of LeaderboardEntry records.
+  /// Throws an exception if the operation fails.
+  Future<List<LeaderboardEntry>> getAllTimeLeaderboard(
+    String challengeId, {
+    int limit = 10,
+  });
+
   /// Fetches the current user's rank and score for a specific challenge today.
   ///
   /// [challengeId]: Identifier of the challenge.
@@ -112,6 +123,15 @@ class SupabaseProfileRepository implements ProfileRepository {
   }) {
     // Delegate the call to the datasource
     return _dataSource.getDailyLeaderboard(challengeId, limit: limit);
+  }
+
+  @override
+  Future<List<LeaderboardEntry>> getAllTimeLeaderboard(
+    String challengeId, {
+    int limit = 10,
+  }) {
+    // Delegate the call to the datasource
+    return _dataSource.getAllTimeLeaderboard(challengeId, limit: limit);
   }
 
   @override

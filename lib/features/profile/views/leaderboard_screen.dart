@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:solar_icons/solar_icons.dart'; // Import solar_icons
 import 'package:alarp/core/theme/app_theme.dart';
-import 'package:alarp/features/profile/controllers/leaderboard_providers.dart';
 import 'package:alarp/data/repositories/profile_repository.dart'; // For LeaderboardEntry
 import 'package:alarp/features/profile/widgets/leaderboard_card.dart'; // Reuse the tile logic
 import 'package:go_router/go_router.dart'; // Import go_router
@@ -26,6 +25,28 @@ final fullLeaderboardProvider =
       }
     }, name: 'fullLeaderboardProvider');
 
+// Provider to fetch the all-time leaderboard entries
+final allTimeLeaderboardProvider = FutureProvider.family<
+  List<LeaderboardEntry>,
+  String
+>((ref, challengeId) async {
+  try {
+    final repository = ref.watch(profileRepositoryProvider);
+    // Fetch all-time entries
+    final leaderboardData = await repository.getAllTimeLeaderboard(challengeId);
+    return leaderboardData;
+  } catch (e, stackTrace) {
+    rethrow;
+  }
+}, name: 'allTimeLeaderboardProvider');
+
+// Use a StateProvider to hold the selected leaderboard type
+final leaderboardTypeProvider = StateProvider<LeaderboardType>(
+  (ref) => LeaderboardType.today,
+);
+
+enum LeaderboardType { today, allTime }
+
 class LeaderboardScreen extends ConsumerWidget {
   const LeaderboardScreen({super.key});
 
@@ -34,10 +55,11 @@ class LeaderboardScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final leaderboardAsync = ref.watch(fullLeaderboardProvider(challengeId));
-    // Optionally watch user rank if needed on this screen too
-    // final userRankAsync = ref.watch(userDailyRankProvider(challengeId));
-    // final userRank = userRankAsync.asData?.value?.rank;
+    final leaderboardType = ref.watch(leaderboardTypeProvider);
+    final leaderboardAsync =
+        leaderboardType == LeaderboardType.today
+            ? ref.watch(fullLeaderboardProvider(challengeId))
+            : ref.watch(allTimeLeaderboardProvider(challengeId));
 
     // Format the title nicely
     final String formattedTitle = challengeId
@@ -59,63 +81,112 @@ class LeaderboardScreen extends ConsumerWidget {
         elevation: 1,
       ),
       backgroundColor: AppTheme.backgroundColor,
-      body: RefreshIndicator(
-        onRefresh:
-            () => ref.refresh(fullLeaderboardProvider(challengeId).future),
-        color: AppTheme.primaryColor,
-        child: leaderboardAsync.when(
-          data: (leaderboardData) {
-            if (leaderboardData.isEmpty) {
-              return const Center(
-                child: Text('No scores submitted yet today!'),
-              );
-            }
-            return ListView.separated(
-              padding: const EdgeInsets.all(16.0),
-              itemCount: leaderboardData.length,
-              itemBuilder: (context, index) {
-                final entry = leaderboardData[index];
-                return Card(
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  color: Theme.of(context).colorScheme.surfaceContainerLowest,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 10,
-                    ),
-                    child: LeaderboardCard(
-                      topUsers: [entry],
-                    )._buildLeaderboardTile(
-                      context,
-                      rank: entry.rank,
-                      username: entry.username,
-                      score: entry.score,
-                      isCurrentUser: false,
-                    ),
-                  ),
-                );
-              },
-              separatorBuilder: (context, index) => const SizedBox(height: 12),
-            );
-          },
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error:
-              (error, stack) => Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                    'Error loading leaderboard: $error',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: SegmentedButton<LeaderboardType>(
+              segments: const [
+                ButtonSegment(
+                  value: LeaderboardType.today,
+                  label: Text('Today'),
+                  icon: Icon(SolarIconsBold.calendar),
                 ),
+                ButtonSegment(
+                  value: LeaderboardType.allTime,
+                  label: Text('All Time'),
+                  icon: Icon(
+                    SolarIconsBold.medalRibbonStar,
+                  ), // Use a valid icon
+                ),
+              ],
+              selected: {leaderboardType},
+              onSelectionChanged: (newSelection) {
+                ref.read(leaderboardTypeProvider.notifier).state =
+                    newSelection.first;
+              },
+              style: ButtonStyle(
+                backgroundColor: WidgetStateProperty.all(
+                  Colors.white, // Use a valid color for surface
+                ),
+                foregroundColor: WidgetStateProperty.all(AppTheme.primaryColor),
               ),
-        ),
+            ),
+          ),
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: () async {
+                if (leaderboardType == LeaderboardType.today) {
+                  ref.invalidate(fullLeaderboardProvider(challengeId));
+                } else {
+                  ref.invalidate(allTimeLeaderboardProvider(challengeId));
+                }
+              },
+              color: AppTheme.primaryColor,
+              child: leaderboardAsync.when(
+                data: (leaderboardData) {
+                  if (leaderboardData.isEmpty) {
+                    return Center(
+                      child: Text(
+                        leaderboardType == LeaderboardType.today
+                            ? 'No scores submitted yet today!'
+                            : 'No scores submitted yet!',
+                      ),
+                    );
+                  }
+                  return ListView.separated(
+                    padding: const EdgeInsets.all(16.0),
+                    itemCount: leaderboardData.length,
+                    itemBuilder: (context, index) {
+                      final entry = leaderboardData[index];
+                      return Card(
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        color:
+                            Theme.of(
+                              context,
+                            ).colorScheme.surfaceContainerLowest,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 10,
+                          ),
+                          child: LeaderboardCard(
+                            topUsers: [entry],
+                          )._buildLeaderboardTile(
+                            context,
+                            rank: entry.rank,
+                            username: entry.username,
+                            score: entry.score,
+                            isCurrentUser: false,
+                          ),
+                        ),
+                      );
+                    },
+                    separatorBuilder:
+                        (context, index) => const SizedBox(height: 12),
+                  );
+                },
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error:
+                    (error, stack) => Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(
+                          'Error loading leaderboard: $error',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
