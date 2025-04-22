@@ -25,9 +25,13 @@ import 'package:alarp/features/onboarding/splash_screen.dart'; // Import SplashS
 import '../../features/challenge/views/challenge_results_screen.dart'; // Import the new screen
 import 'package:alarp/features/auth/views/sign_in_screen.dart'; // Import Sign In Screen
 import 'package:alarp/features/auth/views/sign_up_screen.dart'; // Import Sign Up Screen
-import 'package:alarp/features/auth/controllers/auth_controller.dart'; // Import Auth Status Provider
-import 'package:alarp/core/providers/supabase_providers.dart'; // Import Supabase providers
+// Hide authStateChangesProvider from this import to avoid conflict
+import 'package:alarp/features/auth/controllers/auth_controller.dart'
+    hide authStateChangesProvider;
+import 'package:alarp/core/providers/supabase_providers.dart'; // Import Supabase providers (contains the needed authStateChangesProvider)
 import 'package:alarp/features/auth/views/get_started_screen.dart';
+import 'package:alarp/features/auth/views/check_email_screen.dart'; // Import the new screen
+import 'package:alarp/features/auth/views/verify_code_screen.dart'; // Import the new screen
 
 // Define route paths
 class AppRoutes {
@@ -35,6 +39,8 @@ class AppRoutes {
   static const getStarted = '/get_started'; // Add get started route
   static const signIn = '/signin'; // New sign in route
   static const signUp = '/signup'; // New sign up route
+  static const checkEmail = '/check-email'; // New route for check email screen
+  static const verifyCode = '/verify-code'; // New route for OTP verification
   static const home = '/';
   static const learn = '/learn';
   static const learnRegionDetail = 'region/:regionId'; // Relative to /learn
@@ -88,34 +94,59 @@ final goRouterProvider = Provider<GoRouter>((ref) {
     initialLocation: AppRoutes.splash, // Set splash as initial location
     navigatorKey: _rootNavigatorKey,
     redirect: (BuildContext context, GoRouterState state) {
+      final currentLocation = state.matchedLocation;
+      final isVerifying = currentLocation == AppRoutes.verifyCode;
       final loggingIn =
-          state.matchedLocation == AppRoutes.signIn ||
-          state.matchedLocation == AppRoutes.signUp;
-      final splashing = state.matchedLocation == AppRoutes.splash;
-      final gettingStarted =
-          state.matchedLocation == AppRoutes.getStarted; // Add this check
-      final loggedIn = authState; // Directly use the boolean value
+          currentLocation == AppRoutes.signIn ||
+          currentLocation == AppRoutes.signUp;
+      final splashing = currentLocation == AppRoutes.splash;
+      final gettingStarted = currentLocation == AppRoutes.getStarted;
+      final loggedIn =
+          authState; // Directly use the boolean value from authStatusProvider
 
-      // Allow splash screen and get started screen always
+      print(
+        'GoRouter Redirect: Current=$currentLocation, loggedIn=$loggedIn, isVerifying=$isVerifying, loggingIn=$loggingIn',
+      ); // Add logging
+
+      // 1. Always allow splash and get started screens
       if (splashing || gettingStarted) {
-        // Modify this condition
+        print('GoRouter Redirect: Allowing splash/getStarted.');
         return null;
       }
 
-      // If not logged in and not trying to log in, redirect to sign in
-      if (!loggedIn && !loggingIn) {
+      // 2. If user IS logged in
+      if (loggedIn) {
+        // If they are trying to access auth/verify screens, redirect to home
+        if (loggingIn || isVerifying) {
+          print(
+            'GoRouter Redirect: Logged in, redirecting from auth/verify to home.',
+          );
+          return AppRoutes.home;
+        }
+        // Otherwise, allow access to other routes (they are already logged in)
+        print(
+          'GoRouter Redirect: Logged in, allowing access to $currentLocation.',
+        );
+        return null;
+      }
+      // 3. If user is NOT logged in
+      else {
+        // If they are trying to access auth screens (signin/signup) or the verify screen, allow it
+        if (loggingIn || isVerifying) {
+          print(
+            'GoRouter Redirect: Not logged in, allowing access to auth/verify screen: $currentLocation.',
+          );
+          return null;
+        }
+        // Otherwise, they are trying to access a protected route, so redirect to sign in
+        print(
+          'GoRouter Redirect: Not logged in, redirecting from $currentLocation to sign in.',
+        );
         return AppRoutes.signIn;
       }
-
-      // If logged in and trying to access sign in/sign up, redirect to home
-      if (loggedIn && loggingIn) {
-        return AppRoutes.home;
-      }
-
-      // No redirect needed
-      return null;
     },
     refreshListenable: GoRouterRefreshStream(
+      // Use the one from supabase_providers
       ref.watch(authStateChangesProvider.stream),
     ), // Refresh router on auth changes
     routes: [
@@ -142,6 +173,33 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.signUp,
         builder: (context, state) => const SignUpScreen(),
+      ),
+      // Add Check Email Route (top-level)
+      GoRoute(
+        path: AppRoutes.checkEmail,
+        builder: (context, state) {
+          // Retrieve the email passed as an extra parameter
+          final email = state.extra as String?;
+          return CheckEmailScreen(email: email);
+        },
+      ),
+      // Add Verify Code Route (top-level)
+      GoRoute(
+        path: AppRoutes.verifyCode,
+        builder: (context, state) {
+          // Retrieve the email passed as an extra parameter
+          final email = state.extra as String?;
+          // Ensure email is passed, otherwise redirect or show error
+          if (email == null) {
+            // Maybe redirect to signup or show an error screen
+            return const Scaffold(
+              body: Center(
+                child: Text('Error: Email missing for verification.'),
+              ),
+            );
+          }
+          return VerifyCodeScreen(email: email);
+        },
       ),
       // Routes accessible without bottom nav bar
       GoRoute(

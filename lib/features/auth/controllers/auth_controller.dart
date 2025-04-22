@@ -1,156 +1,176 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:alarp/core/providers/supabase_providers.dart'; // Import supabase provider
+import 'package:alarp/core/providers/supabase_providers.dart';
 
-// Simple state enum for loading states
-enum AuthStateEnum { initial, loading, success, error }
+// Provider for the AuthController
+final authControllerProvider =
+    StateNotifierProvider<AuthController, AsyncValue<User?>>((ref) {
+      return AuthController(ref);
+    });
 
-class AuthController extends StateNotifier<AuthStateEnum> {
+// Provider to expose the raw Supabase auth state stream
+final authStateChangesProvider = StreamProvider<AuthState>((ref) {
+  final supabaseClient = ref.watch(supabaseClientProvider);
+  return supabaseClient.auth.onAuthStateChange;
+});
+
+// Simple boolean provider for logged-in status
+final authStatusProvider = Provider<bool>((ref) {
+  // Watch the stream provider
+  final authState = ref.watch(authStateChangesProvider);
+  // Return true if there's a user session, false otherwise
+  return authState.when(
+    data: (state) => state.session?.user != null,
+    loading: () => false, // Assume not logged in while loading
+    error: (_, __) => false, // Assume not logged in on error
+  );
+});
+
+class AuthController extends StateNotifier<AsyncValue<User?>> {
   final Ref _ref;
+  StreamSubscription<AuthState>? _authStateSubscription;
 
-  AuthController(this._ref) : super(AuthStateEnum.initial);
+  AuthController(this._ref) : super(const AsyncLoading()) {
+    _initialize();
+  }
 
-  SupabaseClient get _supabaseClient => _ref.read(supabaseClientProvider);
+  void _initialize() {
+    final supabaseClient = _ref.read(supabaseClientProvider);
+    // Set initial state
+    state = AsyncValue.data(supabaseClient.auth.currentUser);
 
-  // Getter to easily check if the user is currently authenticated
-  bool get isAuthenticated => _ref.read(currentUserProvider) != null;
+    // Listen to auth state changes
+    _authStateSubscription = supabaseClient.auth.onAuthStateChange.listen(
+      (data) {
+        state = AsyncValue.data(data.session?.user);
+      },
+      onError: (error, stackTrace) {
+        state = AsyncValue.error(error, stackTrace);
+      },
+    );
+  }
 
-  // Updated signUp method to accept optional firstName and lastName
   Future<bool> signUp(
     String email,
     String password, {
-    String? firstName, // Add firstName
-    String? lastName, // Add lastName
+    String? firstName,
+    String? lastName,
   }) async {
-    state = AuthStateEnum.loading;
+    state = const AsyncLoading();
     try {
-      // Prepare metadata, including username derived from names if needed later
-      // For now, just pass first and last name if provided.
-      // Supabase uses 'data' for user_metadata.
-      final Map<String, dynamic> userMetadata = {};
-      if (firstName != null && firstName.isNotEmpty) {
-        userMetadata['first_name'] = firstName;
-      }
-      if (lastName != null && lastName.isNotEmpty) {
-        userMetadata['last_name'] = lastName;
-      }
-      // You could also create a 'full_name' or default 'username' here
-      // if (firstName != null && lastName != null) {
-      //   userMetadata['full_name'] = '$firstName $lastName';
-      // }
-
-      final response = await _supabaseClient.auth.signUp(
+      final supabaseClient = _ref.read(supabaseClientProvider);
+      final response = await supabaseClient.auth.signUp(
         email: email,
         password: password,
-        data: userMetadata.isNotEmpty ? userMetadata : null, // Pass metadata
+        data: {
+          if (firstName != null && firstName.isNotEmpty)
+            'first_name': firstName,
+          if (lastName != null && lastName.isNotEmpty) 'last_name': lastName,
+        },
       );
-      // Check if sign up requires email confirmation (check your Supabase project settings)
-      final session = response.session;
-      final user = response.user;
-
-      if (user != null) {
-        if (session == null && user.aud == 'authenticated') {
-          // User exists but no session - likely needs email confirmation
-          print(
-            "Sign up successful, please check your email for confirmation.",
-          );
-          state =
-              AuthStateEnum
-                  .success; // Or a specific state like 'needsConfirmation'
-          // Don't automatically consider them 'authenticated' yet
-          return true; // Indicate sign up process initiated
-        } else if (session != null) {
-          // User signed up and is immediately logged in (email confirmation might be off)
-          print("Sign up successful and logged in.");
-          state = AuthStateEnum.success;
-          return true;
-        }
-      }
-      // Handle other potential scenarios or errors if needed
-      print(
-        "Sign up response indicates an issue: User=${user?.id}, Session=${session != null}",
-      );
-      state = AuthStateEnum.error;
+      // IMPORTANT: Return true immediately after successful Supabase call
+      // for OTP flow, as the user isn't logged in yet.
+      print('Supabase signUp call successful, returning true.'); // Add logging
+      return true;
+    } on AuthException catch (e, stackTrace) {
+      print('AuthException during signup: ${e.message}');
+      state = AsyncValue.error(e, stackTrace);
       return false;
-    } on AuthException catch (e) {
-      print('AuthException during sign up: ${e.message}'); // Log or show error
-      state = AuthStateEnum.error;
+    } catch (e, stackTrace) {
+      print('Generic error during signup: $e');
+      state = AsyncValue.error(e, stackTrace);
       return false;
-    } catch (e) {
-      print('Unexpected error during sign up: $e'); // Log or show error
-      state = AuthStateEnum.error;
-      return false;
-    } finally {
-      // Avoid staying in loading state indefinitely if sign up doesn't throw but isn't fully successful
-      if (state == AuthStateEnum.loading) {
-        state =
-            AuthStateEnum.initial; // Or error, depending on desired behavior
-      }
     }
   }
 
   Future<bool> signIn(String email, String password) async {
-    state = AuthStateEnum.loading;
+    state = const AsyncLoading();
     try {
-      final response = await _supabaseClient.auth.signInWithPassword(
+      final supabaseClient = _ref.read(supabaseClientProvider);
+      final response = await supabaseClient.auth.signInWithPassword(
         email: email,
         password: password,
       );
-      if (response.user != null) {
-        print("Sign in successful.");
-        state = AuthStateEnum.success;
-        return true;
-      } else {
-        print("Sign in failed: No user returned.");
-        state = AuthStateEnum.error; // Should not happen on success
-        return false;
-      }
-    } on AuthException catch (e) {
-      print('AuthException during sign in: ${e.message}'); // Log or show error
-      state = AuthStateEnum.error;
+      // State will be updated by the authStateChangesProvider listener
+      // state = AsyncValue.data(response.user);
+      return true;
+    } on AuthException catch (e, stackTrace) {
+      print('AuthException during signin: ${e.message}');
+      state = AsyncValue.error(e, stackTrace);
       return false;
-    } catch (e) {
-      print('Unexpected error during sign in: $e'); // Log or show error
-      state = AuthStateEnum.error;
+    } catch (e, stackTrace) {
+      print('Generic error during signin: $e');
+      state = AsyncValue.error(e, stackTrace);
       return false;
-    } finally {
-      if (state == AuthStateEnum.loading) {
-        state = AuthStateEnum.initial;
-      }
     }
   }
+
+  // --- New Method for OTP Verification ---
+  Future<bool> verifyOtp(String email, String otp) async {
+    state = const AsyncLoading(); // Indicate loading state
+    try {
+      final supabaseClient = _ref.read(supabaseClientProvider);
+      final response = await supabaseClient.auth.verifyOTP(
+        type: OtpType.signup, // Specify the type of OTP
+        token: otp,
+        email: email,
+      );
+      // If verifyOTP is successful, the user is confirmed and logged in.
+      // The authStateChangesProvider listener will automatically update the state.
+      // state = AsyncValue.data(response.user);
+      return true; // Indicate verification success
+    } on AuthException catch (e, stackTrace) {
+      print('AuthException during OTP verification: ${e.message}');
+      state = AsyncValue.error(e, stackTrace);
+      // Restore previous state or keep error state?
+      // For simplicity, keep error state, but you might want to revert.
+      // state = AsyncValue.data(supabaseClient.auth.currentUser); // Revert example
+      return false; // Indicate verification failure
+    } catch (e, stackTrace) {
+      print('Generic error during OTP verification: $e');
+      state = AsyncValue.error(e, stackTrace);
+      return false;
+    }
+  }
+  // --- End New Method ---
+
+  // --- New Method for Resending OTP ---
+  Future<bool> resendOtp(String email) async {
+    // No need to change the main state notifier state for resend
+    try {
+      final supabaseClient = _ref.read(supabaseClientProvider);
+      // Use the resend method for signup OTP
+      await supabaseClient.auth.resend(type: OtpType.signup, email: email);
+      return true; // Indicate resend request was successful
+    } on AuthException catch (e, stackTrace) {
+      print('AuthException during OTP resend: ${e.message}');
+      // Optionally update state to reflect error, but usually handled by UI
+      // state = AsyncValue.error(e, stackTrace);
+      return false; // Indicate resend failure
+    } catch (e, stackTrace) {
+      print('Generic error during OTP resend: $e');
+      // state = AsyncValue.error(e, stackTrace);
+      return false;
+    }
+  }
+  // --- End New Method ---
 
   Future<void> signOut() async {
-    // No need for loading state here unless signout is slow/complex
-    // state = AuthStateEnum.loading;
+    state = const AsyncLoading();
     try {
-      await _supabaseClient.auth.signOut();
-      print("Sign out successful.");
-      state = AuthStateEnum.initial; // Reset state after sign out
-    } on AuthException catch (e) {
-      print('AuthException during sign out: ${e.message}'); // Log or show error
-      // Decide if state should be error or just remain initial
-      state = AuthStateEnum.error;
-    } catch (e) {
-      print('Unexpected error during sign out: $e'); // Log or show error
-      state = AuthStateEnum.error;
+      final supabaseClient = _ref.read(supabaseClientProvider);
+      await supabaseClient.auth.signOut();
+      // State will be updated by the authStateChangesProvider listener
+      // state = const AsyncValue.data(null);
+    } catch (e, stackTrace) {
+      state = AsyncValue.error(e, stackTrace);
     }
   }
+
+  @override
+  void dispose() {
+    _authStateSubscription?.cancel();
+    super.dispose();
+  }
 }
-
-// Provider for the AuthController
-final authControllerProvider =
-    StateNotifierProvider<AuthController, AuthStateEnum>((ref) {
-      return AuthController(ref);
-    });
-
-// Provider to easily check authentication status reactively
-final authStatusProvider = Provider<bool>((ref) {
-  // Watch the auth state changes
-  final authState = ref.watch(authStateChangesProvider);
-  // Return true if there's a valid session and user
-  return authState.maybeWhen(
-    data: (state) => state.session?.user != null,
-    orElse: () => false, // Default to false in loading/error states
-  );
-});

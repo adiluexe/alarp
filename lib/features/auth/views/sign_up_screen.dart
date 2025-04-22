@@ -6,6 +6,7 @@ import 'package:alarp/features/auth/controllers/auth_controller.dart';
 import 'package:alarp/core/theme/app_theme.dart';
 import 'package:solar_icons/solar_icons.dart';
 import 'package:alarp/core/navigation/app_router.dart';
+import 'package:alarp/features/auth/views/check_email_screen.dart'; // Import the new screen
 
 class SignUpScreen extends ConsumerStatefulWidget {
   const SignUpScreen({super.key});
@@ -48,24 +49,33 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
             lastName: _lastNameController.text.trim(),
           );
 
+      // --- Add Logging ---
+      print('SignUpScreen: AuthController.signUp returned: $success');
+
       if (mounted) {
+        print('SignUpScreen: Widget is mounted.'); // Log mounted status
         setState(() => _isLoading = false);
         if (success) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-                'Sign Up Successful! Check email if confirmation is needed.',
-              ),
-            ),
-          );
-          if (context.canPop()) {
-            context.pop();
-          }
+          print(
+            'SignUpScreen: Success is true, attempting navigation...',
+          ); // Log before navigation
+          final email = _emailController.text.trim();
+          context.pushReplacement(AppRoutes.verifyCode, extra: email);
+          print(
+            'SignUpScreen: Navigation call executed.',
+          ); // Log after navigation
         } else {
+          print(
+            'SignUpScreen: Success is false, showing SnackBar.',
+          ); // Log failure case
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Sign Up Failed. Please try again.')),
           );
         }
+      } else {
+        print(
+          'SignUpScreen: Widget is NOT mounted after signUp call.',
+        ); // Log if not mounted
       }
     }
   }
