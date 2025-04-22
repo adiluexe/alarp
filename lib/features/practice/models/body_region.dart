@@ -80,7 +80,7 @@ class BodyRegions {
         projectionImages: {
           'AP': 'assets/images/practice/elbow/elbow_ap.webp',
           'AP Oblique (Lateral Rotation)':
-              'assets/images/practice/elbow/elbow_ap_obliquelateral_rotation.webp',
+              'assets/images/practice/elbow/elbow_ap_oblique_lateral_rotation.webp',
           'AP Oblique (Medial Rotation)':
               'assets/images/practice/elbow/elbow_ap_oblique_medial_rotation.webp',
           'Lateral': 'assets/images/practice/elbow/elbow_lateral.webp',
@@ -114,7 +114,7 @@ class BodyRegions {
         projectionImages: {
           'AP': 'assets/images/practice/wrist/wrist_ap.webp',
           'AP Oblique (Medial Rotation)':
-              'assets/images/practice/wrist/wrist_ap_oblique_medial_rotation.webp',
+              'assets/images/practice/wrist/wrist_ap_oblique.webp',
           'Lateral': 'assets/images/practice/wrist/wrist_lateral.webp',
           'PA': 'assets/images/practice/wrist/wrist_pa.webp',
           'PA Oblique': 'assets/images/practice/wrist/wrist_pa_oblique.webp',
