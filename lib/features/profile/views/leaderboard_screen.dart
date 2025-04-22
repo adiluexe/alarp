@@ -154,11 +154,20 @@ class LeaderboardScreen extends ConsumerWidget {
                             vertical: 10,
                           ),
                           child: LeaderboardCard(
-                            topUsers: [entry],
+                            topUsers: [
+                              // Capitalize display name for each entry
+                              (
+                                rank: entry.rank,
+                                username: _capitalizeDisplayName(
+                                  entry.username,
+                                ),
+                                score: entry.score,
+                              ),
+                            ],
                           )._buildLeaderboardTile(
                             context,
                             rank: entry.rank,
-                            username: entry.username,
+                            username: _capitalizeDisplayName(entry.username),
                             score: entry.score,
                             isCurrentUser: false,
                           ),
@@ -166,7 +175,8 @@ class LeaderboardScreen extends ConsumerWidget {
                       );
                     },
                     separatorBuilder:
-                        (context, index) => const SizedBox(height: 12),
+                        (context, index) =>
+                            const SizedBox(height: 4), // Decreased spacing
                   );
                 },
                 loading: () => const Center(child: CircularProgressIndicator()),
@@ -269,4 +279,20 @@ extension LeaderboardTileBuilder on LeaderboardCard {
               : null,
     );
   }
+}
+
+// Helper to capitalize display names (e.g., 'john, d.' -> 'John, D.')
+String _capitalizeDisplayName(String name) {
+  final parts = name.split(',');
+  if (parts.length == 2) {
+    final first = parts[0].trim();
+    final last = parts[1].trim();
+    return '${_capitalize(first)}, ${_capitalize(last)}';
+  }
+  return _capitalize(name);
+}
+
+String _capitalize(String s) {
+  if (s.isEmpty) return s;
+  return s[0].toUpperCase() + s.substring(1).toLowerCase();
 }
