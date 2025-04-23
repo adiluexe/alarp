@@ -74,6 +74,10 @@ abstract class ProfileRepository {
   /// Returns a list of ChallengeAttempt records.
   /// Throws an exception if the operation fails.
   Future<List<ChallengeAttempt>> getChallengeHistory({int limit = 20});
+
+  /// Fetches the profile data for the current user.
+  /// Returns a map containing profile data or null if not found or error.
+  Future<Map<String, dynamic>?> getProfile();
 }
 
 // Provider for the ProfileRepository implementation
@@ -144,5 +148,11 @@ class SupabaseProfileRepository implements ProfileRepository {
   Future<List<ChallengeAttempt>> getChallengeHistory({int limit = 20}) async {
     // Correctly delegate the call to the datasource
     return _dataSource.getChallengeHistory(limit: limit);
+  }
+
+  @override
+  Future<Map<String, dynamic>?> getProfile() async {
+    // Delegate the call to the datasource
+    return _dataSource.getProfile();
   }
 }

@@ -14,7 +14,13 @@ class AppLifecycleService with WidgetsBindingObserver {
   // Update constructor to accept Ref
   AppLifecycleService(this._ref) {
     WidgetsBinding.instance.addObserver(this);
-    _checkDateAndResetIfNeeded(); // Initial check when service is created
+    _initializeTimeTracking(); // Call the new initialization method
+  }
+
+  // New method to handle initialization logic
+  Future<void> _initializeTimeTracking() async {
+    await _checkDateAndResetIfNeeded(); // Check date first
+    await _loadInitialTotalTime(); // Then load initial time
   }
 
   // Helper to get today's date as a string
@@ -38,6 +44,30 @@ class AppLifecycleService with WidgetsBindingObserver {
       await prefsService.setLastRecordedDateString(todayString);
       // Optionally: Sync total time here if needed on date change
       // await _syncTotalAppTime();
+    }
+  }
+
+  // New method to load total time from Supabase on startup
+  Future<void> _loadInitialTotalTime() async {
+    final prefsService = _ref.read(sharedPreferencesServiceProvider);
+    if (prefsService == null) return;
+
+    try {
+      final profileData =
+          await _ref.read(profileRepositoryProvider).getProfile();
+      final serverTotalSeconds =
+          profileData?['total_app_time_seconds'] as int? ?? 0;
+
+      // Update SharedPreferences with the value from the server
+      await prefsService.setTotalAppTimeSeconds(serverTotalSeconds);
+      print(
+        "Initialized local total app time from server: $serverTotalSeconds seconds",
+      );
+    } catch (e) {
+      print("Error loading initial total app time from server: $e");
+      // Optionally load local value as fallback?
+      // final localTotalSeconds = prefsService.getTotalAppTimeSeconds();
+      // print("Using local fallback total time: $localTotalSeconds seconds");
     }
   }
 

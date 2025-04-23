@@ -190,6 +190,36 @@ class SupabaseProfileDataSource {
     }
   }
 
+  /// Fetches the profile data for the current user.
+  /// Returns a map containing profile data or null if not found or error.
+  Future<Map<String, dynamic>?> getProfile() async {
+    if (_userId == null) {
+      print("User not logged in. Cannot get profile.");
+      return null;
+    }
+    try {
+      final response =
+          await _client
+              .from('profiles')
+              .select() // Select all columns
+              .eq('id', _userId)
+              .maybeSingle(); // Use maybeSingle to return null if no row matches
+
+      if (response == null) {
+        print("No profile found for user $_userId");
+        return null;
+      }
+      // Explicitly cast to Map<String, dynamic>
+      return response as Map<String, dynamic>;
+    } on PostgrestException catch (e) {
+      print("Supabase error fetching profile: ${e.message}");
+      return null; // Return null on error
+    } catch (e) {
+      print("Unexpected error fetching profile: $e");
+      return null; // Return null on unexpected errors
+    }
+  }
+
   /// Fetches the challenge history for the current user from 'challenge_history'.
   Future<List<ChallengeAttempt>> getChallengeHistory({int limit = 20}) async {
     if (_userId == null) {
