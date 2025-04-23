@@ -8,6 +8,7 @@ import 'package:alarp/core/theme/app_theme.dart';
 import 'package:alarp/core/navigation/app_router.dart';
 import 'package:alarp/features/challenge/models/challenge.dart';
 import 'package:alarp/core/providers/supabase_providers.dart'; // Import the profile provider
+import 'package:alarp/data/repositories/practice_repository.dart'; // Import practice providers
 
 // Convert to ConsumerWidget
 class HomeScreen extends ConsumerWidget {
@@ -17,6 +18,8 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Watch the user profile provider
     final userProfileAsync = ref.watch(userProfileProvider);
+    // Watch the weekly accuracy provider
+    final weeklyAccuracyAsync = ref.watch(weeklyAccuracyProvider);
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
@@ -43,7 +46,8 @@ class HomeScreen extends ConsumerWidget {
                   final completedLessons =
                       0; // TODO: Fetch actual completed lessons
                   final totalLessons = 36; // TODO: Fetch actual total lessons
-                  final weeklyAccuracy = 0.0; // TODO: Fetch actual accuracy
+                  // Use the fetched weekly accuracy, default to 0.0 if loading/error
+                  final weeklyAccuracy = weeklyAccuracyAsync.value ?? 0.0;
 
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -69,6 +73,7 @@ class HomeScreen extends ConsumerWidget {
                       children: [
                         _buildHeader(context, 'Loading...', 0),
                         const SizedBox(height: 24),
+                        // Pass 0.0 during loading
                         _buildStats(context, 0, 0, 0.0),
                       ],
                     ),
@@ -78,6 +83,8 @@ class HomeScreen extends ConsumerWidget {
                       children: [
                         _buildHeader(context, 'Error', 0),
                         const SizedBox(height: 24),
+                        // Pass 0.0 on error, maybe show error message elsewhere
+                        _buildStats(context, 0, 0, 0.0),
                         Center(child: Text('Error loading profile: $error')),
                       ],
                     ),

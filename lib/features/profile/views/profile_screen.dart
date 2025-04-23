@@ -13,6 +13,7 @@ import 'package:alarp/features/profile/controllers/leaderboard_providers.dart';
 import 'package:alarp/core/navigation/app_router.dart';
 import 'package:alarp/features/profile/controllers/challenge_history_provider.dart';
 import 'package:intl/intl.dart';
+import 'package:alarp/data/repositories/practice_repository.dart'; // Import practice providers
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -35,6 +36,8 @@ class ProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final userProfileAsync = ref.watch(userProfileProvider);
     final currentUser = ref.watch(currentUserProvider);
+    // Watch the overall accuracy provider
+    final overallAccuracyAsync = ref.watch(overallAccuracyProvider);
 
     const String dailyChallengeId = 'upper_extremities_10rounds';
 
@@ -62,7 +65,8 @@ class ProfileScreen extends ConsumerWidget {
 
             final completedLessons = 0;
             final totalLessons = 36;
-            final averageAccuracy = 0.0;
+            // Use the fetched overall accuracy, default to 0.0 if loading/error
+            final averageAccuracy = overallAccuracyAsync.value ?? 0.0;
             final leaderboardRank = userRankAsync.asData?.value?.rank ?? 0;
             final achievementsData = [];
 

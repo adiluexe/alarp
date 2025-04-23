@@ -169,24 +169,32 @@ class SupabasePracticeDataSource implements PracticeDataSource {
   }
 
   // Helper function to calculate average accuracy from a list of attempts
+  // Updated to handle list of maps containing only 'accuracy'
   double _calculateAverage(List<dynamic> data) {
     if (data.isEmpty) {
       return 0.0;
     }
-    final attempts =
+    // Directly extract accuracy values, handling potential nulls or incorrect types
+    final accuracies =
         data
-            .map(
-              (item) => PracticeAttempt.fromJson(item as Map<String, dynamic>),
-            )
+            .map((item) {
+              if (item is Map<String, dynamic> && item['accuracy'] is num) {
+                return item['accuracy'] as num;
+              }
+              return null; // Ignore invalid items
+            })
+            .whereType<num>() // Filter out nulls
             .toList();
-    if (attempts.isEmpty) {
+
+    if (accuracies.isEmpty) {
       return 0.0;
     }
-    final double sum = attempts.fold(
+
+    final double sum = accuracies.fold(
       0.0,
-      (prev, element) => prev + element.accuracy,
+      (prev, element) => prev + element.toDouble(),
     );
-    return sum / attempts.length;
+    return sum / accuracies.length;
   }
 
   @override
