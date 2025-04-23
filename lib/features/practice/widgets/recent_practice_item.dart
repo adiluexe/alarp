@@ -83,12 +83,12 @@ class RecentPracticeItem extends ConsumerWidget {
           ),
         ),
         contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16.0,
-          vertical: 12.0, // Slightly increase vertical padding
+          horizontal: 12.0,
+          vertical: 4.0, // Slightly increase vertical padding
         ),
         title: Text(
-          // Capitalize names
-          '${_capitalize(attempt.bodyPartId)} - ${_capitalize(attempt.projectionName)}',
+          // Capitalize only bodyPartId
+          '${_capitalize(attempt.bodyPartId)} - ${attempt.projectionName}', // Remove _capitalize from projectionName
           style: theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.bold, // Keep bold
             // fontFamily: 'Satoshi', // Already default via theme
