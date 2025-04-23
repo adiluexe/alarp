@@ -5,14 +5,21 @@ import 'package:alarp/features/practice/widgets/recent_practice_item.dart';
 import 'package:alarp/features/practice/widgets/region_carousel_card.dart';
 import 'package:go_router/go_router.dart'; // Import GoRouter
 import 'package:alarp/core/navigation/app_router.dart'; // Import AppRoutes
+import 'package:flutter_riverpod/flutter_riverpod.dart'; // Import Riverpod
+import 'package:alarp/data/repositories/practice_repository.dart'; // Import Practice Repository
+import 'package:alarp/features/practice/models/practice_attempt.dart'; // Import PracticeAttempt
 
 import 'package:alarp/features/practice/models/body_region.dart'; // Import BodyRegions
 
-class PracticeScreen extends StatelessWidget {
+// Convert to ConsumerWidget
+class PracticeScreen extends ConsumerWidget {
   const PracticeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Watch the recent practice attempts provider
+    final recentAttemptsAsync = ref.watch(recentPracticeAttemptsProvider);
+
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       body: SafeArea(
@@ -81,18 +88,53 @@ class PracticeScreen extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 12),
-                    const RecentPracticeItem(
-                      title: 'PA Chest X-ray',
-                      region: 'Thorax',
-                      lastPracticed: '2 days ago',
-                      accuracy: 0.85,
-                    ),
-                    const SizedBox(height: 12),
-                    const RecentPracticeItem(
-                      title: 'Lateral Skull',
-                      region: 'Head & Neck',
-                      lastPracticed: '5 days ago',
-                      accuracy: 0.72,
+                    // Use AsyncValue.when to handle loading/error/data states
+                    recentAttemptsAsync.when(
+                      data: (attempts) {
+                        if (attempts.isEmpty) {
+                          return const Center(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(vertical: 20.0),
+                              child: Text('No recent practice sessions found.'),
+                            ),
+                          );
+                        }
+                        // Display max 2 recent items
+                        return Column(
+                          children:
+                              attempts
+                                  .take(2)
+                                  .map(
+                                    (attempt) => Padding(
+                                      padding: const EdgeInsets.only(
+                                        bottom: 12,
+                                      ),
+                                      child: RecentPracticeItem(
+                                        attempt: attempt,
+                                      ),
+                                    ),
+                                  )
+                                  .toList(),
+                        );
+                      },
+                      loading:
+                          () => const Center(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(vertical: 20.0),
+                              child: CircularProgressIndicator(),
+                            ),
+                          ),
+                      error:
+                          (error, stack) => Center(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 20.0,
+                              ),
+                              child: Text(
+                                'Error loading recent practice: $error',
+                              ),
+                            ),
+                          ),
                     ),
                     const SizedBox(height: 24),
                     Container(height: 1, color: Colors.grey.withOpacity(0.2)),

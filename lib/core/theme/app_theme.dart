@@ -173,7 +173,10 @@ class AppTheme {
         color: Colors.white,
         elevation: 1,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+        margin: const EdgeInsets.symmetric(
+          vertical: 4,
+          horizontal: 4,
+        ), // Reduced vertical margin
       ),
       sliderTheme: SliderThemeData(
         activeTrackColor: primaryColor,

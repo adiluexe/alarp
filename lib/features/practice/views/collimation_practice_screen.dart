@@ -9,7 +9,13 @@ import '../widgets/collimation_controls_widget.dart';
 import '../widgets/collimation_painter.dart';
 import '../models/body_part.dart';
 import '../models/body_region.dart';
-import '../data/collimation_target_data.dart'; // Ensure this import exists and is correct
+import '../data/collimation_target_data.dart';
+import 'package:alarp/data/repositories/practice_repository.dart';
+import 'package:alarp/core/providers/supabase_providers.dart';
+// Hide conflicting providers from datasource import
+import 'package:alarp/data/datasources/supabase_practice_datasource.dart'
+    hide recentPracticeAttemptsProvider, allPracticeAttemptsProvider;
+import 'dart:developer' as developer;
 
 // Helper function to find BodyPart (replace with better state management/repository later)
 BodyPart? _findBodyPart(String regionId, String bodyPartId) {
@@ -37,14 +43,14 @@ const String _placeholderImage = 'assets/images/alarp_icon.png';
 class CollimationPracticeScreen extends ConsumerStatefulWidget {
   final String regionId;
   final String bodyPartId;
-  final String initialProjectionName; // Renamed for clarity
+  final String initialProjectionName;
 
   const CollimationPracticeScreen({
-    Key? key,
+    super.key,
     required this.regionId,
     required this.bodyPartId,
     required this.initialProjectionName,
-  }) : super(key: key);
+  });
 
   @override
   ConsumerState<CollimationPracticeScreen> createState() =>
@@ -67,20 +73,30 @@ class _CollimationPracticeScreenState
     _bodyRegionData = _findBodyRegion(widget.regionId); // Fetch region data
 
     // --- Logging Start ---
-    print(
+    developer.log(
       'initState: regionId=${widget.regionId}, bodyPartId=${widget.bodyPartId}',
+      name: 'CollimationPractice',
     );
-    print('initState: _bodyPartData found: ${_bodyPartData != null}');
+    developer.log(
+      'initState: _bodyPartData found: ${_bodyPartData != null}',
+      name: 'CollimationPractice',
+    );
     if (_bodyPartData != null) {
-      print('initState: _bodyPartData title: ${_bodyPartData!.title}');
-      print(
+      developer.log(
+        'initState: _bodyPartData title: ${_bodyPartData!.title}',
+        name: 'CollimationPractice',
+      );
+      developer.log(
         'initState: _bodyPartData projections: ${_bodyPartData!.projections}',
+        name: 'CollimationPractice',
       );
-      print(
+      developer.log(
         'initState: _bodyPartData imageAsset: ${_bodyPartData!.imageAsset}',
+        name: 'CollimationPractice',
       );
-      print(
+      developer.log(
         'initState: _bodyPartData projectionImages: ${_bodyPartData!.projectionImages}',
+        name: 'CollimationPractice',
       );
     }
     // --- Logging End ---
@@ -94,8 +110,9 @@ class _CollimationPracticeScreenState
               ? _availableProjections.first
               : 'N/A';
     }
-    print(
+    developer.log(
       'initState: _selectedProjectionName initialized to: $_selectedProjectionName',
+      name: 'CollimationPractice',
     ); // Log initial projection
   }
 
@@ -104,6 +121,62 @@ class _CollimationPracticeScreenState
     ref.read(collimationStateProvider.notifier).reset();
     // Potentially trigger controller recalculation if needed, though watching should handle it
   }
+
+  // --- Add method to save practice attempt ---
+  Future<void> _saveAttempt(
+    BuildContext context,
+    CollimationController controller,
+  ) async {
+    developer.log(
+      'Attempting to save practice attempt...',
+      name: 'CollimationPractice',
+    );
+    // No need to read userId here, repository handles it
+
+    // Directly call repository method without creating local PracticeAttempt
+    final repository = ref.read(practiceRepositoryProvider);
+    final result = await repository.addPracticeAttempt(
+      bodyPartId: widget.bodyPartId,
+      projectionName: _selectedProjectionName,
+      accuracy: controller.overallAccuracy, // Use the calculated accuracy
+    );
+
+    result.fold(
+      (failure) {
+        developer.log(
+          'Failed to save practice attempt: ${failure.message}',
+          error: failure,
+          name: 'CollimationPractice',
+        );
+        if (mounted) {
+          // Check if widget is still in the tree
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to save attempt: ${failure.message}'),
+            ),
+          );
+        }
+      },
+      (_) {
+        developer.log(
+          'Practice attempt saved successfully!',
+          name: 'CollimationPractice',
+        );
+        if (mounted) {
+          // Check if widget is still in the tree
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Practice attempt saved!')),
+          );
+          // Invalidate providers to refresh data (using the specific datasource providers)
+          ref.invalidate(recentPracticeAttemptsProvider);
+          ref.invalidate(allPracticeAttemptsProvider);
+          ref.invalidate(weeklyPracticeAccuracyProvider);
+          ref.invalidate(overallPracticeAccuracyProvider);
+        }
+      },
+    );
+  }
+  // --- End save method ---
 
   @override
   void dispose() {
@@ -141,9 +214,18 @@ class _CollimationPracticeScreenState
     }
 
     // --- Logging Start ---
-    print('build: _selectedProjectionName: $_selectedProjectionName');
-    print('build: projectionSpecificImage found: $projectionSpecificImage');
-    print('build: Final imageAsset path: $imageAsset');
+    developer.log(
+      'build: _selectedProjectionName: $_selectedProjectionName',
+      name: 'CollimationPractice',
+    );
+    developer.log(
+      'build: projectionSpecificImage found: $projectionSpecificImage',
+      name: 'CollimationPractice',
+    );
+    developer.log(
+      'build: Final imageAsset path: $imageAsset',
+      name: 'CollimationPractice',
+    );
     // --- Logging End ---
 
     // Use body region's background color
@@ -171,6 +253,9 @@ class _CollimationPracticeScreenState
               onPressed: () {
                 // Pass the controller instance with the current projection
                 _showResultDialog(context, controller);
+                // --- Save attempt when checking accuracy ---
+                _saveAttempt(context, controller);
+                // --- End save attempt ---
               },
             ),
           ),
@@ -185,7 +270,7 @@ class _CollimationPracticeScreenState
                 horizontal: 16.0,
                 vertical: 12.0,
               ),
-              color: appBarColor.withOpacity(0.1), // Use correct color variable
+              color: appBarColor.withAlpha((255 * 0.1).round()),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -213,10 +298,12 @@ class _CollimationPracticeScreenState
                           newValue != _selectedProjectionName) {
                         setState(() {
                           _selectedProjectionName = newValue;
-                          print(
+                          developer.log(
                             'Dropdown changed: _selectedProjectionName set to: $_selectedProjectionName',
+                            name: 'CollimationPractice',
                           ); // Log dropdown change
                         });
+                        _resetCollimationState(); // Reset state on projection change
                       }
                     },
                     items:
@@ -252,12 +339,12 @@ class _CollimationPracticeScreenState
                             imageAsset, // Use the determined imageAsset
                             fit: BoxFit.cover, // Change fit to cover
                             errorBuilder: (context, error, stackTrace) {
-                              // --- Logging Start ---
-                              print(
+                              developer.log(
                                 'Image.asset errorBuilder triggered for path: $imageAsset',
+                                error: error,
+                                stackTrace: stackTrace,
+                                name: 'CollimationPractice',
                               );
-                              print('Image Error: $error');
-                              // --- Logging End ---
                               return Center(
                                 child: Icon(
                                   SolarIconsOutline.galleryRemove,
@@ -286,9 +373,9 @@ class _CollimationPracticeScreenState
                             left: 12,
                             child: Container(
                               decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(
-                                  0.5,
-                                ), // Semi-transparent bg
+                                color: Colors.black.withAlpha(
+                                  (255 * 0.5).round(),
+                                ),
                                 borderRadius: BorderRadius.circular(
                                   20,
                                 ), // Make it circular
@@ -322,11 +409,13 @@ class _CollimationPracticeScreenState
                               decoration: BoxDecoration(
                                 color: _getAccuracyColor(
                                   controller.collimationAccuracy,
-                                ).withOpacity(0.85), // Semi-transparent bg
+                                ).withAlpha((255 * 0.85).round()),
                                 borderRadius: BorderRadius.circular(12),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.2),
+                                    color: Colors.black.withAlpha(
+                                      (255 * 0.2).round(),
+                                    ),
                                     blurRadius: 4,
                                     offset: const Offset(0, 1),
                                   ),
@@ -365,9 +454,9 @@ class _CollimationPracticeScreenState
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(
-                                  0.6,
-                                ), // Semi-transparent bg
+                                color: Colors.black.withAlpha(
+                                  (255 * 0.6).round(),
+                                ),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Column(
@@ -502,7 +591,7 @@ class _CollimationPracticeScreenState
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withAlpha((255 * 0.1).round()),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(
