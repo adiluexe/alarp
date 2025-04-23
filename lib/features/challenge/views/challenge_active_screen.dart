@@ -295,84 +295,118 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
             ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: AspectRatio(
-              aspectRatio: 1.0,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: colorScheme.outline.withOpacity(0.3),
-                    width: 1.0,
-                  ),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(15),
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      Image.asset(
-                        imageAsset,
-                        fit: BoxFit.contain,
-                        errorBuilder:
-                            (context, error, stackTrace) => const Center(
-                              child: Icon(
-                                SolarIconsOutline.galleryRemove,
-                                size: 60,
-                                color: Colors.grey,
+            child: SizedBox(
+              height: 450, // Set fixed height
+              child: Stack(
+                // Wrap image container in a Stack for overlay
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: colorScheme.outline.withOpacity(0.3),
+                        width: 1.0,
+                      ),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(15),
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          Image.asset(
+                            imageAsset,
+                            fit:
+                                BoxFit.cover, // Use contain to avoid distortion
+                            errorBuilder:
+                                (context, error, stackTrace) => const Center(
+                                  child: Icon(
+                                    SolarIconsOutline.galleryRemove,
+                                    size: 60,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                          ),
+                          Positioned.fill(
+                            child: IgnorePointer(
+                              child: CustomPaint(
+                                painter: CollimationPainter(
+                                  width: colState.width,
+                                  height: colState.height,
+                                  centerX: colState.centerX,
+                                  centerY: colState.centerY,
+                                  angle: colState.angle,
+                                ),
                               ),
                             ),
+                          ),
+                        ],
                       ),
-                      Positioned.fill(
-                        child: IgnorePointer(
-                          child: CustomPaint(
-                            painter: CollimationPainter(
-                              width: colState.width,
-                              height: colState.height,
-                              centerX: colState.centerX,
-                              centerY: colState.centerY,
-                              angle: colState.angle,
-                            ),
+                    ),
+                  ),
+                  // Submit Icon Button Overlay
+                  Positioned(
+                    top: 10, // Adjusted position slightly
+                    right: 10, // Adjusted position slightly
+                    child: Material(
+                      color: Colors.transparent,
+                      elevation: 4.0, // Add elevation for better shadow
+                      shape:
+                          const CircleBorder(), // Ensure shadow follows circle
+                      clipBehavior: Clip.antiAlias, // Clip ripple effect
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(
+                          24,
+                        ), // Larger radius for ripple
+                        onTap:
+                            wasCorrect == null
+                                ? () => notifier.submitCollimation()
+                                : null, // Disable tap if already answered
+                        child: Ink(
+                          decoration: BoxDecoration(
+                            gradient:
+                                wasCorrect == null
+                                    ? const LinearGradient(
+                                      // Apply gradient if active
+                                      colors: [
+                                        AppTheme.primaryColor,
+                                        AppTheme.secondaryColor,
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    )
+                                    : null, // No gradient if disabled
+                            color:
+                                wasCorrect == null
+                                    ? null // Color comes from gradient
+                                    : Colors.grey.shade500.withOpacity(
+                                      0.85,
+                                    ), // Darker grey when disabled
+                            shape: BoxShape.circle,
+                          ),
+                          padding: const EdgeInsets.all(
+                            12,
+                          ), // Slightly increased padding
+                          child: Icon(
+                            SolarIconsBold.checkCircle,
+                            color:
+                                wasCorrect == null
+                                    ? Colors
+                                        .white // White on gradient
+                                    : Colors.white.withOpacity(
+                                      0.7,
+                                    ), // Dimmed white when disabled
+                            size: 24, // Slightly larger icon
                           ),
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
           ),
           Expanded(child: CollimationControlsWidget(params: params)),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                icon: const Icon(SolarIconsBold.checkCircle),
-                label: const Text('Submit Collimation'),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  textStyle: theme.textTheme.labelLarge?.copyWith(fontSize: 16),
-                ).copyWith(
-                  backgroundColor: MaterialStateProperty.resolveWith<Color?>((
-                    Set<MaterialState> states,
-                  ) {
-                    if (states.contains(MaterialState.disabled)) {
-                      return Colors.grey.shade400;
-                    }
-                    return colorScheme.primary;
-                  }),
-                  foregroundColor: MaterialStateProperty.all<Color>(
-                    colorScheme.onPrimary,
-                  ),
-                ),
-                onPressed:
-                    wasCorrect == null
-                        ? () => notifier.submitCollimation()
-                        : null,
-              ),
-            ),
-          ),
         ],
       );
     }
