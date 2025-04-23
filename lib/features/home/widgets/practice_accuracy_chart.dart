@@ -142,6 +142,7 @@ class PracticeAccuracyChart extends ConsumerWidget {
                             '${value.toInt()}%',
                             style: textTheme.bodySmall?.copyWith(
                               color: Colors.grey.shade600,
+                              fontSize: 8, // Reduced font size
                             ),
                           ),
                         );
