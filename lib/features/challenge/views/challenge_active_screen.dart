@@ -8,13 +8,13 @@ import '../models/challenge_step.dart';
 import '../state/challenge_state.dart';
 import '../controllers/challenge_controller.dart';
 import '../widgets/positioning_selection_widget.dart';
-import '../widgets/ir_size_quiz_widget.dart'; // New import
-import '../widgets/ir_orientation_quiz_widget.dart'; // New import
-import '../widgets/patient_position_quiz_widget.dart'; // New import
+import '../widgets/ir_size_quiz_widget.dart';
+import '../widgets/ir_orientation_quiz_widget.dart';
+import '../widgets/patient_position_quiz_widget.dart';
 import '../../practice/widgets/collimation_painter.dart';
 import '../../practice/widgets/collimation_controls_widget.dart';
 import '../../practice/models/collimation_state.dart';
-import '../widgets/challenge_results_dialog.dart'; // Import the new dialog widget
+import '../widgets/challenge_results_dialog.dart';
 
 // Provider to get the specific challenge instance for this screen
 final activeChallengeProvider = Provider<Challenge>((ref) {
@@ -54,25 +54,25 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
   @override
   Widget build(BuildContext context) {
     final challenge = ref.watch(activeChallengeProvider);
+    final challengeState = ref.watch(challengeControllerProvider(challenge));
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
-    // Define the gradient (matching the one from challenge_screen.dart)
-    final Gradient? appBarGradient =
-        challenge.isTodaysChallenge
-            ? LinearGradient(
-              colors: [
-                AppTheme.primaryColor.withAlpha((255 * 0.8).round()),
-                AppTheme.accentColor.withAlpha((255 * 0.6).round()),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            )
-            : null; // No gradient if not today's challenge
+    // Calculate progress
+    final totalSteps = challenge.steps.length;
+    final currentStepIndex = challengeState.currentStepIndex;
+    final progress = totalSteps > 0 ? (currentStepIndex + 1) / totalSteps : 0.0;
 
-    // Use default background color if no gradient
-    final appBarBackgroundColor =
-        appBarGradient == null
-            ? (challenge.backgroundColor ?? AppTheme.primaryColor)
-            : null; // Set to null if gradient is used
+    // Gradient for Progress Indicator (can be same as AppBar or different)
+    final progressGradient = LinearGradient(
+      colors: [
+        // Use vibrant colors for the progress bar itself
+        Colors.lightBlueAccent.shade100,
+        Colors.purpleAccent.shade100,
+      ],
+      begin: Alignment.centerLeft,
+      end: Alignment.centerRight,
+    );
 
     // Listen for status changes to SHOW the results dialog
     ref.listen<ChallengeState>(challengeControllerProvider(challenge), (
@@ -99,12 +99,19 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
+        backgroundColor:
+            Colors.transparent, // Make AppBar background transparent
+        elevation: 0, // Remove shadow if desired
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [AppTheme.primaryColor, AppTheme.secondaryColor],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
         title: Text(challenge.title),
-        flexibleSpace:
-            appBarGradient != null
-                ? Container(decoration: BoxDecoration(gradient: appBarGradient))
-                : null,
-        backgroundColor: appBarBackgroundColor,
         foregroundColor: Colors.white,
         leading: IconButton(
           icon: const Icon(SolarIconsOutline.altArrowLeft),
@@ -171,17 +178,26 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
             ),
           ),
         ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(10.0),
+          child: ShaderMask(
+            shaderCallback:
+                (bounds) => progressGradient.createShader(
+                  Rect.fromLTWH(0, 0, bounds.width, bounds.height),
+                ),
+            child: LinearProgressIndicator(
+              value: progress,
+              valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+              backgroundColor: colorScheme.primary.withOpacity(0.2),
+              minHeight: 10.0,
+            ),
+          ),
+        ),
       ),
-      body: Consumer(
-        builder: (context, ref, _) {
-          final challengeState = ref.watch(
-            challengeControllerProvider(challenge),
-          );
-          final challengeNotifier = ref.read(
-            challengeControllerProvider(challenge).notifier,
-          );
-          return _buildStepWidget(context, challengeState, challengeNotifier);
-        },
+      body: _buildStepWidget(
+        context,
+        challengeState,
+        ref.read(challengeControllerProvider(challenge).notifier),
       ),
     );
   }
@@ -193,6 +209,8 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
   ) {
     final step = challengeState.currentStep;
     final wasCorrect = challengeState.wasLastAnswerCorrect;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     if (challengeState.status == ChallengeStatus.completedSuccess ||
         challengeState.status == ChallengeStatus.completedFailureTime) {
@@ -254,18 +272,19 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
         children: [
           if (step.instruction != null)
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
               child: Text(
                 step.instruction!,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.onBackground.withOpacity(0.9),
+                ),
                 textAlign: TextAlign.center,
               ),
             ),
           if (wasCorrect != null)
             Padding(
-              padding: const EdgeInsets.only(top: 8.0),
+              padding: const EdgeInsets.only(bottom: 8.0),
               child: Icon(
                 wasCorrect
                     ? SolarIconsBold.checkCircle
@@ -275,61 +294,77 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
               ),
             ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
-            child: Container(
-              height: 400,
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    Image.asset(
-                      imageAsset,
-                      fit: BoxFit.cover,
-                      errorBuilder:
-                          (context, error, stackTrace) => const Center(
-                            child: Icon(
-                              Icons.image_not_supported,
-                              size: 60,
-                              color: Colors.grey,
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: AspectRatio(
+              aspectRatio: 1.0,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: colorScheme.outline.withOpacity(0.3),
+                    width: 1.0,
+                  ),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(15),
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      Image.asset(
+                        imageAsset,
+                        fit: BoxFit.contain,
+                        errorBuilder:
+                            (context, error, stackTrace) => const Center(
+                              child: Icon(
+                                SolarIconsOutline.galleryRemove,
+                                size: 60,
+                                color: Colors.grey,
+                              ),
                             ),
-                          ),
-                    ),
-                    Positioned.fill(
-                      child: IgnorePointer(
-                        child: CustomPaint(
-                          painter: CollimationPainter(
-                            width: colState.width,
-                            height: colState.height,
-                            centerX: colState.centerX,
-                            centerY: colState.centerY,
-                            angle: colState.angle,
+                      ),
+                      Positioned.fill(
+                        child: IgnorePointer(
+                          child: CustomPaint(
+                            painter: CollimationPainter(
+                              width: colState.width,
+                              height: colState.height,
+                              centerX: colState.centerX,
+                              centerY: colState.centerY,
+                              angle: colState.angle,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
           Expanded(child: CollimationControlsWidget(params: params)),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
                 icon: const Icon(SolarIconsBold.checkCircle),
                 label: const Text('Submit Collimation'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryColor,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  disabledBackgroundColor: Colors.grey.shade400,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  textStyle: theme.textTheme.labelLarge?.copyWith(fontSize: 16),
+                ).copyWith(
+                  backgroundColor: MaterialStateProperty.resolveWith<Color?>((
+                    Set<MaterialState> states,
+                  ) {
+                    if (states.contains(MaterialState.disabled)) {
+                      return Colors.grey.shade400;
+                    }
+                    return colorScheme.primary;
+                  }),
+                  foregroundColor: MaterialStateProperty.all<Color>(
+                    colorScheme.onPrimary,
+                  ),
                 ),
                 onPressed:
                     wasCorrect == null
@@ -343,7 +378,14 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
     }
 
     return Center(
-      child: Text('Unknown challenge step type: ${step.runtimeType}'),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Text(
+          'Unknown challenge step type: ${step.runtimeType}',
+          style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.error),
+          textAlign: TextAlign.center,
+        ),
+      ),
     );
   }
 

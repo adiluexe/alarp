@@ -2,136 +2,151 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:solar_icons/solar_icons.dart'; // Import icons
 import '../models/challenge_step.dart';
-import '../../../core/theme/app_theme.dart'; // For consistent styling
 
 class PatientPositionQuizWidget extends ConsumerWidget {
   final PatientPositionQuizStep step;
   final Function(int) onSelected;
   final int? selectedIndex;
-  final bool? wasCorrect; // Added
+  final bool? wasCorrect;
 
   const PatientPositionQuizWidget({
     super.key,
     required this.step,
     required this.onSelected,
     this.selectedIndex,
-    this.wasCorrect, // Added
+    this.wasCorrect,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final bool isAnswered = selectedIndex != null;
 
     return ListView(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
       children: [
-        if (step.instruction != null)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 24.0),
-            child: Text(
-              step.instruction!,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
+        Padding(
+          padding: const EdgeInsets.only(bottom: 24.0),
+          child: Column(
+            children: [
+              Text(
+                step.question,
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.onBackground,
+                ),
+                textAlign: TextAlign.center,
               ),
-            ),
+              if (step.instruction != null && step.instruction!.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Text(
+                    step.instruction!,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: colorScheme.onBackground.withOpacity(0.7),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+            ],
           ),
-        Text(step.question, style: theme.textTheme.titleLarge),
-        const SizedBox(height: 24),
+        ),
         ...step.options.asMap().entries.map((entry) {
           final index = entry.key;
           final option = entry.value;
           final isSelected = selectedIndex == index;
           final isCorrectAnswer = index == step.correctAnswerIndex;
 
-          Color tileColor = Colors.transparent;
-          Color borderColor = Colors.grey.shade300;
-          double borderWidth = 1;
-          IconData? trailingIcon;
-          Color? iconColor;
+          Color cardColor = colorScheme.surface;
+          Color borderColor = colorScheme.outline.withOpacity(0.3);
+          Color textColor = colorScheme.onSurface;
+          IconData? resultIcon;
+          Color? resultIconColor;
+          double elevation = 1.0;
+          double borderWidth = 1.5;
 
-          if (isAnswered) {
-            if (isSelected) {
-              if (wasCorrect == true) {
-                borderColor = Colors.green.shade400;
-                borderWidth = 2;
-                tileColor = Colors.green.shade50;
-                trailingIcon = SolarIconsBold.checkCircle;
-                iconColor = Colors.green.shade700;
-              } else if (wasCorrect == false) {
-                borderColor = Colors.red.shade400;
-                borderWidth = 2;
-                tileColor = Colors.red.shade50;
-                trailingIcon = SolarIconsBold.closeCircle;
-                iconColor = Colors.red.shade700;
-              }
-            } else if (isCorrectAnswer) {
-              // Optionally highlight the correct answer if the user chose wrong
-              // tileColor = Colors.green.withOpacity(0.1);
-              // borderColor = Colors.green.withOpacity(0.5);
+          if (isAnswered && isSelected) {
+            elevation = 2.0;
+            borderWidth = 2.5;
+            if (wasCorrect == true) {
+              cardColor = Colors.green.shade50;
+              borderColor = Colors.green;
+              textColor = Colors.green.shade900;
+              resultIcon = SolarIconsBold.checkCircle;
+              resultIconColor = Colors.green.shade700;
+            } else if (wasCorrect == false) {
+              cardColor = Colors.red.shade50;
+              borderColor = Colors.red;
+              textColor = Colors.red.shade900;
+              resultIcon = SolarIconsBold.closeCircle;
+              resultIconColor = Colors.red.shade700;
             }
+          } else if (isAnswered && isCorrectAnswer) {
+            borderColor = Colors.green.withOpacity(0.6);
+            borderWidth = 2.0;
+          } else if (isAnswered && !isSelected) {
+            textColor = textColor.withOpacity(0.6);
           }
 
           return Card(
-            elevation: 0, // Remove default card elevation
-            margin: const EdgeInsets.symmetric(vertical: 6.0),
+            elevation: elevation,
+            margin: const EdgeInsets.only(bottom: 12),
+            color: cardColor,
+            shadowColor: colorScheme.shadow.withOpacity(0.1),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
               side: BorderSide(color: borderColor, width: borderWidth),
             ),
-            color: tileColor,
-            clipBehavior:
-                Clip.antiAlias, // Ensure content respects border radius
-            child: ListTile(
-              title: Text(option),
-              leading: Radio<int>(
-                value: index,
-                groupValue: selectedIndex,
-                onChanged:
-                    isAnswered
-                        ? null
-                        : (value) {
-                          if (value != null) {
-                            onSelected(value);
-                          }
-                        },
-                activeColor: AppTheme.primaryColor,
-                // Disable radio button after selection
-                fillColor:
-                    isAnswered
-                        ? MaterialStateProperty.resolveWith<Color?>((
-                          Set<MaterialState> states,
-                        ) {
-                          if (states.contains(MaterialState.selected)) {
-                            // Use primary color if selected, even when disabled
-                            return AppTheme.primaryColor.withOpacity(0.6);
-                          }
-                          // Use disabled color if not selected
-                          return Colors.grey.withOpacity(0.4);
-                        })
-                        : null,
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              onTap: isAnswered ? null : () => onSelected(index),
+              borderRadius: BorderRadius.circular(15),
+              child: Opacity(
+                opacity:
+                    (isAnswered && !isSelected && !isCorrectAnswer) ? 0.6 : 1.0,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20.0,
+                    vertical: 20.0,
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          option,
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            fontWeight: FontWeight.w500,
+                            color: textColor,
+                            height: 1.4,
+                          ),
+                        ),
+                      ),
+                      if (isAnswered && isSelected && resultIcon != null)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 16.0),
+                          child: Icon(
+                            resultIcon,
+                            color: resultIconColor,
+                            size: 32,
+                          ),
+                        ),
+                      if (isAnswered &&
+                          !isSelected &&
+                          isCorrectAnswer &&
+                          wasCorrect == false)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 16.0),
+                          child: Icon(
+                            SolarIconsOutline.checkCircle,
+                            color: Colors.green.withOpacity(0.8),
+                            size: 32,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
               ),
-              trailing:
-                  trailingIcon != null
-                      ? Icon(trailingIcon, color: iconColor)
-                      : null,
-              onTap:
-                  isAnswered
-                      ? null
-                      : () {
-                        onSelected(index);
-                      },
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 8.0,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              // Dim non-selected options after answering
-              enabled: !isAnswered || isSelected,
-              selected: isSelected,
-              selectedTileColor: tileColor, // Use the calculated tile color
             ),
           );
         }).toList(),

@@ -144,6 +144,16 @@ class AppTheme {
       ),
     ).apply(bodyColor: textColor, displayColor: textColor);
 
+    // Define the gradient for reuse - Updated to match user request
+    final appBarGradient = LinearGradient(
+      colors: [
+        primaryColor.withAlpha((0.8 * 255).round()), // 80% opacity
+        accentColor.withAlpha((0.6 * 255).round()), // 60% opacity
+      ],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    );
+
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
@@ -151,7 +161,8 @@ class AppTheme {
       fontFamily: 'Satoshi',
       textTheme: textTheme,
       appBarTheme: AppBarTheme(
-        backgroundColor: primaryColor,
+        backgroundColor:
+            Colors.transparent, // Make background transparent for gradient
         foregroundColor: colorScheme.onPrimary,
         elevation: 0,
         titleTextStyle: textTheme.headlineSmall?.copyWith(
