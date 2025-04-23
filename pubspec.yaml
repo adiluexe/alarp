@@ -85,6 +85,13 @@ flutter:
     - .env
     - assets/images/
     - assets/images/challenge/
+    - assets/images/challenge/
+    - assets/images/challenge/elbow/
+    - assets/images/challenge/forearm/
+    - assets/images/challenge/hand/
+    - assets/images/challenge/humerus/
+    - assets/images/challenge/shoulder/
+    - assets/images/challenge/wrist/
     - assets/images/practice/
     - assets/images/practice/elbow/
     - assets/images/practice/forearm/
