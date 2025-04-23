@@ -286,7 +286,7 @@ class Challenge {
         id: '5_pos',
         question: 'Select the correct PA Wrist position:',
         imageAssets: [
-          'assets/images/challenge/wrist/wrist_pa_oblique.png',
+          'assets/images/challenge/hand/hand_lateral.png',
           'assets/images/challenge/wrist/wrist_pa.png',
           'assets/images/challenge/hand/hand_pa.png',
           'assets/images/challenge/forearm/forearm_ap.png',
@@ -360,7 +360,7 @@ class Challenge {
         id: '7_pos',
         question: 'Select the correct PA Hand position:',
         imageAssets: [
-          'assets/images/challenge/hand/hand_pa_oblique.png',
+          'assets/images/challenge/wrist/wrist_lateral.png',
           'assets/images/challenge/hand/hand_pa.png',
           'assets/images/challenge/wrist/wrist_pa.png',
           'assets/images/challenge/forearm/forearm_ap.png',
@@ -429,47 +429,43 @@ class Challenge {
         projectionName: 'Lateral',
         instruction: 'Step 5: Adjust Collimation for Hand Lateral',
       ),
-      // 9. Shoulder AP External Rotation
+      // 9. Shoulder Transthoracic
       PositioningSelectionStep(
         id: '9_pos',
-        question:
-            'Select the correct AP Shoulder (External Rotation) position:',
+        question: 'Select the correct Shoulder Transthoracic position:',
         imageAssets: [
-          'assets/images/challenge/shoulder/shoulder_ap_internal_rotation.png',
+          'assets/images/challenge/shoulder/shoulder_transthoracic.png',
           'assets/images/challenge/shoulder/shoulder_ap_external_rotation.png',
           'assets/images/challenge/shoulder/shoulder_ap_neutral_rotation.png',
           'assets/images/challenge/shoulder/shoulder_scapular_y.png',
         ],
-        correctAnswerIndex: 1,
-        instruction:
-            'Step 1: Choose Positioning for Shoulder AP External Rotation',
+        correctAnswerIndex: 0,
+        instruction: 'Step 1: Choose Positioning for Shoulder Transthoracic',
       ),
       IRSizeQuizStep(
         id: '9_ir_size',
         options: ["8x10", "10x12", "14x17 divided", "14x17"],
         correctAnswerIndex: 1,
-        instruction: 'Step 2: Select IR Size for Shoulder AP External Rotation',
+        instruction: 'Step 2: Select IR Size for Shoulder Transthoracic',
       ),
       IROrientationQuizStep(
         id: '9_ir_orient',
         options: ["Crosswise", "Lengthwise"],
-        correctAnswerIndex: 0,
-        instruction:
-            'Step 3: Select IR Orientation for Shoulder AP External Rotation',
+        correctAnswerIndex: 1,
+        instruction: 'Step 3: Select IR Orientation for Shoulder Transthoracic',
       ),
       PatientPositionQuizStep(
         id: '9_px_pos',
         options: ["Standing", "Seated"],
         correctAnswerIndex: 0,
         instruction:
-            'Step 4: Select Patient Position for Shoulder AP External Rotation',
+            'Step 4: Select Patient Position for Shoulder Transthoracic',
       ),
       CollimationStep(
         id: '9_collimation',
         bodyPartId: 'shoulder',
-        projectionName: 'AP External Rotation',
-        instruction:
-            'Step 5: Adjust Collimation for Shoulder AP External Rotation',
+        projectionName: 'Transthoracic',
+        instruction: 'Step 5: Adjust Collimation for Shoulder Transthoracic',
       ),
       // 10. Humerus AP Upright
       PositioningSelectionStep(
@@ -479,7 +475,7 @@ class Challenge {
           'assets/images/challenge/humerus/humerus_lateral_upright.png',
           'assets/images/challenge/humerus/humerus_ap_upright.png',
           'assets/images/challenge/shoulder/shoulder_ap_external_rotation.png',
-          'assets/images/challenge/forearm/forearm_ap.png',
+          'assets/images/challenge/shoulder/shoulder_scapular_y.png',
         ],
         correctAnswerIndex: 1,
         instruction: 'Step 1: Choose Positioning for Humerus AP Upright',

@@ -437,8 +437,9 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
         .replaceAll('(', '')
         .replaceAll(')', '');
     final standardizedBodyPart = bodyPartId.toLowerCase();
+    // Point to the challenge image directory instead of practice
     final imagePath =
-        'assets/images/practice/$standardizedBodyPart/${standardizedBodyPart}_$standardizedProjection.webp';
+        'assets/images/challenge/$standardizedBodyPart/${standardizedBodyPart}_$standardizedProjection.png';
     return imagePath;
   }
 }

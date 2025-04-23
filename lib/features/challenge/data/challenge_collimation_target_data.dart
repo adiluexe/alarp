@@ -90,10 +90,10 @@ const Map<String, Map<String, double>> _challengeTargetData = {
 
   // Shoulder
   'shoulder_scap_y': {
-    'width': 0.0, // Assuming 0.0 if blank
-    'height': 0.66,
-    'centerX': -0.55, // horizontal
-    'centerY': 0.84, // vertical
+    'width': 0.72, // Assuming 0.0 if blank
+    'height': 0.45,
+    'centerX': -0.53, // horizontal
+    'centerY': 0.92, // vertical
     'angle': 0.0,
   },
   'shoulder_transthoracic': {
