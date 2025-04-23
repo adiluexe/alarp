@@ -4,17 +4,17 @@
 const Map<String, Map<String, double>> _targetData = {
   // Forearm (Updated)
   'forearm_ap': {
-    'width': 0.27, // Updated
-    'height': 0.48, // Updated
-    'centerX': 0.06, // Updated horizontal
-    'centerY': 0.18, // Updated vertical
+    'width': 0.53, // Updated
+    'height': 0.92, // Updated
+    'centerX': 0.16, // Updated horizontal
+    'centerY': 0.19, // Updated vertical
     'angle': 0.0,
   },
   'forearm_lateral': {
-    'width': 0.28, // Updated
-    'height': 0.50, // Updated
-    'centerX': -0.13, // Updated horizontal
-    'centerY': -0.69, // Updated vertical
+    'width': 0.48, // Updated
+    'height': 0.87, // Updated
+    'centerX': 0.15, // Updated horizontal
+    'centerY': -0.28, // Updated vertical
     'angle': 0.0,
   },
 
@@ -41,144 +41,144 @@ const Map<String, Map<String, double>> _targetData = {
     'angle': 0.0,
   },
   'shoulder_scapular_y': {
-    'width': 0.46, // Updated
-    'height': 0.28, // Updated
-    'centerX': -0.59, // Updated horizontal
-    'centerY': -0.35, // Updated vertical
+    'width': 0.52, // Updated
+    'height': 0.31, // Updated
+    'centerX': -0.58, // Updated horizontal
+    'centerY': -0.20, // Updated vertical
     'angle': 0.0,
   },
   'shoulder_transthoracic': {
-    'width': 0.37, // Updated
-    'height': 0.40, // Updated
-    'centerX': -0.13, // Updated horizontal
-    'centerY': 0.09, // Updated vertical
+    'width': 0.75, // Updated
+    'height': 0.83, // Updated
+    'centerX': -0.49, // Updated horizontal
+    'centerY': -0.27, // Updated vertical
     'angle': 0.0,
   },
 
   // Humerus (Updated - using existing keys)
   'humerus_ap_upright': {
-    'width': 0.31, // Updated
-    'height': 0.43, // Updated
-    'centerX': -0.28, // Updated horizontal
-    'centerY': -0.44, // Updated vertical
+    'width': 0.57, // Updated
+    'height': 0.79, // Updated
+    'centerX': -0.15, // Updated horizontal
+    'centerY': -0.09, // Updated vertical
     'angle': 0.0,
   },
   'humerus_lateral_upright': {
-    'width': 0.40, // Updated
-    'height': 0.39, // Updated
-    'centerX': 0.04, // Updated horizontal
-    'centerY': -0.16, // Updated vertical
+    'width': 0.73, // Updated
+    'height': 0.70, // Updated
+    'centerX': 0.76, // Updated horizontal
+    'centerY': -0.27, // Updated vertical
     'angle': 0.0,
   },
 
   // Elbow (Updated)
   'elbow_ap': {
-    'width': 0.22, // Updated
-    'height': 0.22, // Updated
-    'centerX': 0.05, // Updated horizontal
-    'centerY': 0.29, // Updated vertical
+    'width': 0.53, // Updated
+    'height': 0.54, // Updated
+    'centerX': 0.13, // Updated horizontal
+    'centerY': 0.14, // Updated vertical
     'angle': 0.0,
   },
   'elbow_ap_oblique_lateral_rotation': {
-    'width': 0.27, // Updated
-    'height': 0.29, // Updated
-    'centerX': 0.0, // Updated horizontal
-    'centerY': 0.59, // Updated vertical
+    'width': 0.53, // Updated
+    'height': 0.57, // Updated
+    'centerX': 0.05, // Updated horizontal
+    'centerY': 0.09, // Updated vertical
     'angle': 0.0,
   },
   'elbow_ap_oblique_medial_rotation': {
-    'width': 0.25, // Updated
-    'height': 0.29, // Updated
-    'centerX': -0.12, // Updated horizontal
-    'centerY': 0.53, // Updated vertical
+    'width': 0.51, // Updated
+    'height': 0.57, // Updated
+    'centerX': -0.11, // Updated horizontal
+    'centerY': 0.09, // Updated vertical
     'angle': 0.0,
   },
   'elbow_lateral': {
-    'width': 0.30, // Updated
-    'height': 0.25, // Updated
-    'centerX': -0.11, // Updated horizontal
-    'centerY': -0.74, // Updated vertical
+    'width': 0.67, // Updated
+    'height': 0.55, // Updated
+    'centerX': 0.01, // Updated horizontal
+    'centerY': -0.42, // Updated vertical
     'angle': 0.0,
   },
 
   // Wrist (Updated)
   'wrist_ap': {
-    'width': 0.30, // Updated
-    'height': 0.39, // Updated
-    'centerX': -0.05, // Updated horizontal
-    'centerY': 0.08, // Updated vertical
+    'width': 0.36, // Updated
+    'height': 0.46, // Updated
+    'centerX': -0.13, // Updated horizontal
+    'centerY': -0.04, // Updated vertical
     'angle': 0.0,
   },
   'wrist_ap_oblique_medial_rotation': {
-    'width': 0.32, // Updated
-    'height': 0.39, // Updated
-    'centerX': 0.0, // Updated horizontal
-    'centerY': 0.09, // Updated vertical
+    'width': 0.38, // Updated
+    'height': 0.44, // Updated
+    'centerX': -0.02, // Updated horizontal
+    'centerY': 0.20, // Updated vertical
     'angle': 0.0,
   },
   'wrist_lateral': {
-    'width': 0.32, // Updated
-    'height': 0.37, // Updated
-    'centerX': -0.10, // Updated horizontal
-    'centerY': 0.21, // Updated vertical
+    'width': 0.37, // Updated
+    'height': 0.41, // Updated
+    'centerX': -0.11, // Updated horizontal
+    'centerY': 0.35, // Updated vertical
     'angle': 0.0,
   },
   'wrist_pa': {
-    'width': 0.32, // Updated
-    'height': 0.35, // Updated
-    'centerX': -0.12, // Updated horizontal
-    'centerY': -0.22, // Updated vertical
+    'width': 0.35, // Updated
+    'height': 0.41, // Updated
+    'centerX': -0.15, // Updated horizontal
+    'centerY': 0.11, // Updated vertical
     'angle': 0.0,
   },
   'wrist_pa_oblique': {
-    'width': 0.35, // Updated
-    'height': 0.38, // Updated
-    'centerX': 0.0, // Updated horizontal
-    'centerY': 0.12, // Updated vertical
+    'width': 0.40, // Updated
+    'height': 0.43, // Updated
+    'centerX': 0.01, // Updated horizontal
+    'centerY': 0.29, // Updated vertical
     'angle': 0.0,
   },
   'wrist_pa_radial_deviation': {
-    'width': 0.33, // Updated
-    'height': 0.39, // Updated
-    'centerX': 0.10, // Updated horizontal
-    'centerY': 0.39, // Updated vertical
+    'width': 0.38, // Updated
+    'height': 0.45, // Updated
+    'centerX': 0.15, // Updated horizontal
+    'centerY': 0.33, // Updated vertical
     'angle': 0.0,
   },
   'wrist_pa_ulnar_deviation': {
-    'width': 0.40, // Updated
-    'height': 0.42, // Updated
-    'centerX': -0.09, // Updated horizontal
-    'centerY': 0.29, // Updated vertical
+    'width': 0.48, // Updated
+    'height': 0.49, // Updated
+    'centerX': -0.16, // Updated horizontal
+    'centerY': 0.39, // Updated vertical
     'angle': 0.0,
   },
 
   // Hand (Updated)
   'hand_lateral': {
-    'width': 0.39, // Updated
-    'height': 0.51, // Updated
-    'centerX': 0.18, // Updated horizontal
-    'centerY': -0.36, // Updated vertical
+    'width': 0.59, // Updated
+    'height': 0.62, // Updated
+    'centerX': 0.29, // Updated horizontal
+    'centerY': -0.16, // Updated vertical
     'angle': 0.0,
   },
   'hand_norgaard': {
-    'width': 0.74, // Updated
-    'height': 0.41, // Updated
-    'centerX': -0.10, // Updated horizontal
-    'centerY': -0.13, // Updated vertical
+    'width': 0.78, // Updated
+    'height': 0.44, // Updated
+    'centerX': -0.30, // Updated horizontal
+    'centerY': -0.09, // Updated vertical
     'angle': 0.0,
   },
   'hand_pa': {
-    'width': 0.49, // Updated
-    'height': 0.49, // Updated
-    'centerX': 0.14, // Updated horizontal
-    'centerY': -0.01, // Updated vertical
+    'width': 0.59, // Updated
+    'height': 0.61, // Updated
+    'centerX': 0.25, // Updated horizontal
+    'centerY': 0.19, // Updated vertical
     'angle': 0.0,
   },
   'hand_pa_oblique': {
-    'width': 0.45, // Updated
-    'height': 0.35, // Updated
-    'centerX': 0.37, // Updated horizontal
-    'centerY': -0.09, // Updated vertical
+    'width': 0.59, // Updated
+    'height': 0.59, // Updated
+    'centerX': 0.53, // Updated horizontal
+    'centerY': 0.05, // Updated vertical
     'angle': 0.0,
   },
 
@@ -298,7 +298,7 @@ const Map<String, TargetInfo> _targetInfoData = {
   ),
   'shoulder_transthoracic': TargetInfo(
     irSize: '10x12',
-    irOrientation: 'lengthwise', // Corrected typo
+    irOrientation: 'lengthwise',
     pxPosition: 'standing',
   ),
   // Humerus (Updated)
@@ -317,44 +317,44 @@ const Map<String, TargetInfo> _targetInfoData = {
   'hand_lateral': TargetInfo(
     irSize: '10x12',
     irOrientation: 'lengthwise',
-    pxPosition: 'seated', // Standardized capitalization
+    pxPosition: 'Seated', // Standardized capitalization
   ),
   'hand_norgaard': TargetInfo(
     irSize: '10x12',
     irOrientation: 'crosswise',
-    pxPosition: 'seated', // Standardized capitalization
+    pxPosition: 'Seated', // Standardized capitalization
   ),
   'hand_pa': TargetInfo(
     irSize: '10x12',
     irOrientation: 'lengthwise',
-    pxPosition: 'seated', // Standardized capitalization
+    pxPosition: 'Seated', // Standardized capitalization
   ),
   'hand_pa_oblique': TargetInfo(
     irSize: '10x12',
     irOrientation: 'lengthwise',
-    pxPosition: 'seated', // Standardized capitalization
+    pxPosition: 'Seated', // Standardized capitalization
   ),
 
   // Elbow (Updated)
   'elbow_ap': TargetInfo(
     irSize: '8x10',
     irOrientation: 'lengthwise',
-    pxPosition: 'seated', // Standardized capitalization
+    pxPosition: 'Seated', // Standardized capitalization
   ),
   'elbow_ap_oblique_lateral_rotation': TargetInfo(
     irSize: '8x10',
     irOrientation: 'lengthwise',
-    pxPosition: 'seated', // Standardized capitalization
+    pxPosition: 'Seated', // Standardized capitalization
   ),
   'elbow_ap_oblique_medial_rotation': TargetInfo(
     irSize: '8x10',
     irOrientation: 'lengthwise',
-    pxPosition: 'seated', // Standardized capitalization
+    pxPosition: 'Seated', // Standardized capitalization
   ),
   'elbow_lateral': TargetInfo(
     irSize: '8x10',
     irOrientation: 'lengthwise',
-    pxPosition: 'seated', // Standardized capitalization
+    pxPosition: 'Seated', // Standardized capitalization
   ),
 };
 
