@@ -1,7 +1,7 @@
-// Defines the target collimation values for different body part/projection combinations.
+// Defines the target collimation values for PRACTICE mode.
 
-// Example target data structure (replace/expand with your actual data)
-const Map<String, Map<String, double>> _targetData = {
+// Example target data structure for Practice
+const Map<String, Map<String, double>> _practiceTargetData = {
   // Forearm (Updated)
   'forearm_ap': {
     'width': 0.53, // Updated
@@ -185,8 +185,8 @@ const Map<String, Map<String, double>> _targetData = {
   // Add all other bodyPart_projection combinations here...
 };
 
-// Default values if no specific target is found
-const Map<String, double> _defaultTargets = {
+// Default values if no specific practice target is found
+const Map<String, double> _defaultPracticeTargets = {
   'width': 0.5,
   'height': 0.5,
   'centerX': 0.0,
@@ -194,10 +194,10 @@ const Map<String, double> _defaultTargets = {
   'angle': 0.0,
 };
 
-/// Retrieves the target collimation values for a given body part and projection.
+/// Retrieves the PRACTICE target collimation values for a given body part and projection.
 ///
 /// Returns default values if no specific target is defined for the combination.
-Map<String, double> getTargetCollimationValues(
+Map<String, double> getPracticeTargetCollimationValues(
   String bodyPartId,
   String projectionName,
 ) {
@@ -206,167 +206,170 @@ Map<String, double> getTargetCollimationValues(
       '${bodyPartId.toLowerCase()}_${projectionName.toLowerCase().replaceAll(' ', '_').replaceAll('(', '').replaceAll(')', '')}'; // Standardize key
 
   // Return specific targets if found, otherwise return default
-  return _targetData[key] ?? _defaultTargets;
+  return _practiceTargetData[key] ?? _defaultPracticeTargets;
 }
 
-// --- New Data Structure and Function for Extra Info ---
+// --- New Data Structure and Function for Extra Info (Practice) ---
 
-// Structure to hold the extra textual information
-class TargetInfo {
+// Structure to hold the extra textual information for Practice
+class PracticeTargetInfo {
   final String irSize;
   final String irOrientation;
   final String pxPosition;
 
-  const TargetInfo({
+  const PracticeTargetInfo({
     this.irSize = 'N/A',
     this.irOrientation = 'N/A',
     this.pxPosition = 'N/A',
   });
 }
 
-// Map to store the extra info
-const Map<String, TargetInfo> _targetInfoData = {
+// Map to store the extra info for Practice
+const Map<String, PracticeTargetInfo> _practiceTargetInfoData = {
   // Wrist (Updated)
-  'wrist_ap': TargetInfo(
+  'wrist_ap': PracticeTargetInfo(
     irSize: '8x10',
     irOrientation: 'lengthwise',
     pxPosition: 'seated',
   ),
-  'wrist_ap_oblique_medial_rotation': TargetInfo(
+  'wrist_ap_oblique_medial_rotation': PracticeTargetInfo(
     irSize: '8x10',
     irOrientation: 'lengthwise',
     pxPosition: 'seated',
   ),
-  'wrist_lateral': TargetInfo(
+  'wrist_lateral': PracticeTargetInfo(
     irSize: '8x10',
     irOrientation: 'lengthwise',
     pxPosition: 'seated',
   ),
-  'wrist_pa': TargetInfo(
+  'wrist_pa': PracticeTargetInfo(
     irSize: '8x10',
     irOrientation: 'lengthwise',
     pxPosition: 'seated',
   ),
-  'wrist_pa_oblique': TargetInfo(
+  'wrist_pa_oblique': PracticeTargetInfo(
     irSize: '8x10',
     irOrientation: 'lengthwise',
     pxPosition: 'seated',
   ),
-  'wrist_pa_radial_deviation': TargetInfo(
+  'wrist_pa_radial_deviation': PracticeTargetInfo(
     irSize: '8x10',
     irOrientation: 'lengthwise',
     pxPosition: 'seated',
   ),
-  'wrist_pa_ulnar_deviation': TargetInfo(
+  'wrist_pa_ulnar_deviation': PracticeTargetInfo(
     irSize: '8x10',
     irOrientation: 'lengthwise',
     pxPosition: 'seated',
   ),
 
   // Forearm (Updated)
-  'forearm_ap': TargetInfo(
+  'forearm_ap': PracticeTargetInfo(
     irSize: '14x17 divided', // Updated
     irOrientation: 'lengthwise',
     pxPosition: 'seated',
   ),
-  'forearm_lateral': TargetInfo(
+  'forearm_lateral': PracticeTargetInfo(
     irSize: '14x17 divided', // Updated
     irOrientation: 'lengthwise',
     pxPosition: 'seated',
   ),
 
   // Shoulder (Updated)
-  'shoulder_ap_external_rotation': TargetInfo(
+  'shoulder_ap_external_rotation': PracticeTargetInfo(
     irSize: '10x12',
     irOrientation: 'crosswise',
     pxPosition: 'standing',
   ),
-  'shoulder_ap_internal_rotation': TargetInfo(
+  'shoulder_ap_internal_rotation': PracticeTargetInfo(
     irSize: '10x12',
     irOrientation: 'crosswise',
     pxPosition: 'standing',
   ),
-  'shoulder_ap_neutral_rotation': TargetInfo(
+  'shoulder_ap_neutral_rotation': PracticeTargetInfo(
     irSize: '10x12',
     irOrientation: 'crosswise',
     pxPosition: 'standing',
   ),
-  'shoulder_scapular_y': TargetInfo(
+  'shoulder_scapular_y': PracticeTargetInfo(
     irSize: '10x12',
     irOrientation: 'crosswise',
     pxPosition: 'standing',
   ),
-  'shoulder_transthoracic': TargetInfo(
+  'shoulder_transthoracic': PracticeTargetInfo(
     irSize: '10x12',
     irOrientation: 'lengthwise',
     pxPosition: 'standing',
   ),
   // Humerus (Updated)
-  'humerus_ap_upright': TargetInfo(
+  'humerus_ap_upright': PracticeTargetInfo(
     irSize: '14x17', // Updated
     irOrientation: 'crosswise',
     pxPosition: 'standing',
   ),
-  'humerus_lateral_upright': TargetInfo(
+  'humerus_lateral_upright': PracticeTargetInfo(
     irSize: '14x17', // Updated
     irOrientation: 'crosswise',
     pxPosition: 'standing',
   ),
 
   // Hand (Updated)
-  'hand_lateral': TargetInfo(
+  'hand_lateral': PracticeTargetInfo(
     irSize: '10x12',
     irOrientation: 'lengthwise',
     pxPosition: 'Seated', // Standardized capitalization
   ),
-  'hand_norgaard': TargetInfo(
+  'hand_norgaard': PracticeTargetInfo(
     irSize: '10x12',
     irOrientation: 'crosswise',
     pxPosition: 'Seated', // Standardized capitalization
   ),
-  'hand_pa': TargetInfo(
+  'hand_pa': PracticeTargetInfo(
     irSize: '10x12',
     irOrientation: 'lengthwise',
     pxPosition: 'Seated', // Standardized capitalization
   ),
-  'hand_pa_oblique': TargetInfo(
+  'hand_pa_oblique': PracticeTargetInfo(
     irSize: '10x12',
     irOrientation: 'lengthwise',
     pxPosition: 'Seated', // Standardized capitalization
   ),
 
   // Elbow (Updated)
-  'elbow_ap': TargetInfo(
+  'elbow_ap': PracticeTargetInfo(
     irSize: '8x10',
     irOrientation: 'lengthwise',
     pxPosition: 'Seated', // Standardized capitalization
   ),
-  'elbow_ap_oblique_lateral_rotation': TargetInfo(
+  'elbow_ap_oblique_lateral_rotation': PracticeTargetInfo(
     irSize: '8x10',
     irOrientation: 'lengthwise',
     pxPosition: 'Seated', // Standardized capitalization
   ),
-  'elbow_ap_oblique_medial_rotation': TargetInfo(
+  'elbow_ap_oblique_medial_rotation': PracticeTargetInfo(
     irSize: '8x10',
     irOrientation: 'lengthwise',
     pxPosition: 'Seated', // Standardized capitalization
   ),
-  'elbow_lateral': TargetInfo(
+  'elbow_lateral': PracticeTargetInfo(
     irSize: '8x10',
     irOrientation: 'lengthwise',
     pxPosition: 'Seated', // Standardized capitalization
   ),
 };
 
-// Default info if no specific target is found
-const TargetInfo _defaultTargetInfo = TargetInfo();
+// Default info if no specific practice target is found
+const PracticeTargetInfo _defaultPracticeTargetInfo = PracticeTargetInfo();
 
-/// Retrieves the target information (IR size, orientation, position) for a given body part and projection.
+/// Retrieves the PRACTICE target information (IR size, orientation, position).
 ///
 /// Returns default values if no specific target info is defined for the combination.
-TargetInfo getTargetInfo(String bodyPartId, String projectionName) {
-  // Use the same standardized key as getTargetCollimationValues
+PracticeTargetInfo getPracticeTargetInfo(
+  String bodyPartId,
+  String projectionName,
+) {
+  // Use the same standardized key as getPracticeTargetCollimationValues
   final key =
       '${bodyPartId.toLowerCase()}_${projectionName.toLowerCase().replaceAll(' ', '_').replaceAll('(', '').replaceAll(')', '')}';
-  return _targetInfoData[key] ?? _defaultTargetInfo;
+  return _practiceTargetInfoData[key] ?? _defaultPracticeTargetInfo;
 }

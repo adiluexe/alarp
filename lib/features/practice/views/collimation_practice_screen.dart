@@ -9,7 +9,7 @@ import '../widgets/collimation_controls_widget.dart';
 import '../widgets/collimation_painter.dart';
 import '../models/body_part.dart';
 import '../models/body_region.dart';
-import '../data/collimation_target_data.dart';
+import '../data/collimation_target_data.dart'; // Now specifically for practice
 import 'package:alarp/data/repositories/practice_repository.dart';
 import 'package:alarp/core/providers/supabase_providers.dart';
 // Hide conflicting providers from datasource import
@@ -193,8 +193,11 @@ class _CollimationPracticeScreenState
       projectionName: _selectedProjectionName,
     );
     final controller = ref.watch(collimationControllerProvider(params));
-    // Fetch the extra target info
-    final targetInfo = getTargetInfo(params.bodyPartId, params.projectionName);
+    // Fetch the extra target info using the practice-specific function
+    final targetInfo = getPracticeTargetInfo(
+      params.bodyPartId,
+      params.projectionName,
+    ); // Use practice getter
 
     // Determine image asset - Prioritize projection-specific image
     String imageAsset = _placeholderImage; // Start with placeholder
@@ -465,17 +468,20 @@ class _CollimationPracticeScreenState
                                   _buildInfoRow(
                                     context,
                                     'IR Size:',
-                                    targetInfo.irSize,
+                                    targetInfo
+                                        .irSize, // Use data from PracticeTargetInfo
                                   ),
                                   _buildInfoRow(
                                     context,
                                     'IR Orient:',
-                                    targetInfo.irOrientation,
+                                    targetInfo
+                                        .irOrientation, // Use data from PracticeTargetInfo
                                   ),
                                   _buildInfoRow(
                                     context,
                                     'Position:',
-                                    targetInfo.pxPosition,
+                                    targetInfo
+                                        .pxPosition, // Use data from PracticeTargetInfo
                                   ),
                                 ],
                               ),

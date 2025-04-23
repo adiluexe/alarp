@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/collimation_state.dart';
-import '../data/collimation_target_data.dart'; // Import the new file
+import '../data/collimation_target_data.dart'; // Import the practice-specific file
 
 // Define a type for the provider family parameter
 typedef CollimationParams = ({String bodyPartId, String projectionName});
@@ -18,8 +18,11 @@ class CollimationController {
   CollimationController(this.ref, CollimationParams params)
     : bodyPartId = params.bodyPartId,
       projectionName = params.projectionName {
-    // Get targets using the imported function
-    _targets = getTargetCollimationValues(bodyPartId, projectionName);
+    // Get targets using the practice-specific function
+    _targets = getPracticeTargetCollimationValues(
+      bodyPartId,
+      projectionName,
+    ); // Use practice getter
   }
 
   CollimationStateData get _collimationState =>

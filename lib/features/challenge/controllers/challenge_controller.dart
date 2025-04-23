@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/challenge.dart';
 import '../models/challenge_step.dart';
 import '../state/challenge_state.dart';
-import '../../practice/data/collimation_target_data.dart'; // Corrected import path
+import '../data/challenge_collimation_target_data.dart'; // Import the challenge-specific data
 import '../../practice/models/collimation_state.dart'; // Import CollimationStateData and provider
 import '../models/projection.dart'; // Added correct import
 import '../models/step_result.dart'; // Import StepResult
@@ -424,14 +424,18 @@ final projectionProvider = Provider.family<
   Projection?,
   ({String bodyPartId, String projectionName})
 >((ref, params) {
-  // --- Get Target Data ---
-  final targetValues = getTargetCollimationValues(
+  // --- Get Target Data using CHALLENGE functions ---
+  final targetValues = getChallengeTargetCollimationValues(
+    // Use challenge getter
     params.bodyPartId,
     params.projectionName,
   );
-  final targetInfo = getTargetInfo(params.bodyPartId, params.projectionName);
+  final targetInfo = getChallengeTargetInfo(
+    params.bodyPartId,
+    params.projectionName,
+  ); // Use challenge getter
 
-  // --- Get Image Path ---
+  // --- Get Image Path for CHALLENGE images ---
   // Standardize names for image path construction
   final standardizedBodyPart = params.bodyPartId.toLowerCase();
   final standardizedProjection = params.projectionName
@@ -440,8 +444,9 @@ final projectionProvider = Provider.family<
       .replaceAll('(', '')
       .replaceAll(')', '');
 
+  // Point to the challenge image directory
   final imagePath =
-      'assets/images/practice/$standardizedBodyPart/${standardizedBodyPart}_$standardizedProjection.webp';
+      'assets/images/challenge/$standardizedBodyPart/${standardizedBodyPart}_$standardizedProjection.webp';
 
   // --- Create CollimationStateData from targetValues ---
   final targetCollimationState = CollimationStateData(
@@ -458,7 +463,7 @@ final projectionProvider = Provider.family<
     name: params.projectionName,
     imageUrl: imagePath,
     targetCollimation: targetCollimationState,
-    // Add other info if needed
+    // Use data from ChallengeTargetInfo
     irSize: targetInfo.irSize,
     irOrientation: targetInfo.irOrientation,
     pxPosition: targetInfo.pxPosition,
