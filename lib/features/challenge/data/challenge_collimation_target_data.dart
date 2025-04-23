@@ -97,10 +97,10 @@ const Map<String, Map<String, double>> _challengeTargetData = {
     'angle': 0.0,
   },
   'shoulder_transthoracic': {
-    'width': 0.72,
-    'height': 0.45,
-    'centerX': -0.53, // horizontal
-    'centerY': -0.92, // vertical
+    'width': 0.55,
+    'height': 0.70,
+    'centerX': -0.50, // horizontal
+    'centerY': 0.50, // vertical
     'angle': 0.0,
   },
 

@@ -64,15 +64,15 @@ class ChallengeStartScreen extends ConsumerWidget {
                   fontWeight: FontWeight.w600,
                   color: AppTheme.primaryColor,
                 ),
-                textAlign: TextAlign.center,
+                textAlign: TextAlign.left,
               ),
               const SizedBox(height: 16),
               Text(
                 challenge.description,
-                style: textTheme.titleMedium?.copyWith(
+                style: textTheme.titleSmall?.copyWith(
                   color: AppTheme.textColor.withOpacity(0.8),
                 ),
-                textAlign: TextAlign.center,
+                textAlign: TextAlign.left,
               ),
               const SizedBox(height: 40),
               Card(

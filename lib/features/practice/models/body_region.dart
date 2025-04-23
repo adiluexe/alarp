@@ -131,9 +131,9 @@ class BodyRegions {
         projections: ['Lateral', 'Norgaard', 'PA', 'PA Oblique'],
         imageAsset: 'assets/images/practice/hand.png',
         projectionImages: {
-          'Lateral': 'assets/images/challenge/hand/hand_lateral.png',
+          'Lateral': 'assets/images/practice/hand/hand_lateral.webp',
           'Norgaard': 'assets/images/practice/hand/hand_norgaard.webp',
-          'PA': 'assets/images/challenge/hand/hand_pa.png',
+          'PA': 'assets/images/practice/hand/hand_pa.webp',
           'PA Oblique': 'assets/images/practice/hand/hand_pa_oblique.webp',
         },
       ),
