@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'challenge_step.dart';
 
 // Placeholder image path
-const String _handLateral = 'assets/images/practice/hand/hand_lateral.webp';
-const String _elbowLateral = 'assets/images/practice/elbow/elbow_lateral.webp';
-const String _elbowAP = 'assets/images/practice/elbow/elbow_ap.webp';
+const String _handLateral = 'assets/images/challenge/hand/hand_lateral.png';
+const String _elbowLateral = 'assets/images/challenge/elbow/elbow_lateral.png';
+const String _elbowAP = 'assets/images/challenge/elbow/elbow_ap.png';
 // Define the specific image path
 const String _apForearmCorrectImage =
-    'assets/images/practice/forearm/forearm_ap.webp';
+    'assets/images/challenge/forearm/forearm_ap.png';
 
 /// Represents a single challenge instance.
 class Challenge {
@@ -86,10 +86,10 @@ class Challenge {
         id: 'step1_pos',
         question: 'Select the correct AP Forearm position:',
         imageAssets: [
-          'assets/images/challenge/ap_forearm.webp', // Correct
-          'assets/images/challenge/ap_elbow.webp', // Incorrect
-          'assets/images/challenge/lateral_elbow.webp', // Incorrect
-          'assets/images/challenge/lateral_forearm.webp', // Incorrect
+          'assets/images/challenge/ap_forearm.png', // Correct
+          'assets/images/challenge/ap_elbow.png', // Incorrect
+          'assets/images/challenge/lateral_elbow.png', // Incorrect
+          'assets/images/challenge/lateral_forearm.png', // Incorrect
         ],
         correctAnswerIndex: 0,
         instruction: 'Step 1: Choose the Positioning',
@@ -138,10 +138,10 @@ class Challenge {
         id: '1_pos',
         question: 'Select the correct AP Forearm position:',
         imageAssets: [
-          'assets/images/practice/forearm/forearm_lateral.webp',
-          'assets/images/practice/forearm/forearm_ap.webp',
-          'assets/images/practice/elbow/elbow_ap.webp',
-          'assets/images/practice/hand/hand_pa.webp',
+          'assets/images/challenge/forearm/forearm_lateral.png',
+          'assets/images/challenge/forearm/forearm_ap.png',
+          'assets/images/challenge/elbow/elbow_ap.png',
+          'assets/images/challenge/hand/hand_pa.png',
         ],
         correctAnswerIndex: 1,
         instruction: 'Step 1: Choose Positioning for Forearm AP',
@@ -175,10 +175,10 @@ class Challenge {
         id: '2_pos',
         question: 'Select the correct Lateral Forearm position:',
         imageAssets: [
-          'assets/images/practice/forearm/forearm_ap.webp',
-          'assets/images/practice/forearm/forearm_lateral.webp',
-          'assets/images/practice/elbow/elbow_lateral.webp',
-          'assets/images/practice/hand/hand_lateral.webp',
+          'assets/images/challenge/forearm/forearm_ap.png',
+          'assets/images/challenge/forearm/forearm_lateral.png',
+          'assets/images/challenge/elbow/elbow_lateral.png',
+          'assets/images/challenge/hand/hand_lateral.png',
         ],
         correctAnswerIndex: 1,
         instruction: 'Step 1: Choose Positioning for Forearm Lateral',
@@ -212,10 +212,10 @@ class Challenge {
         id: '3_pos',
         question: 'Select the correct AP Elbow position:',
         imageAssets: [
-          'assets/images/practice/elbow/elbow_lateral.webp',
-          'assets/images/practice/elbow/elbow_ap.webp',
-          'assets/images/practice/forearm/forearm_ap.webp',
-          'assets/images/practice/hand/hand_pa.webp',
+          'assets/images/challenge/elbow/elbow_lateral.png',
+          'assets/images/challenge/elbow/elbow_ap.png',
+          'assets/images/challenge/forearm/forearm_ap.png',
+          'assets/images/challenge/hand/hand_pa.png',
         ],
         correctAnswerIndex: 1,
         instruction: 'Step 1: Choose Positioning for Elbow AP',
@@ -249,10 +249,10 @@ class Challenge {
         id: '4_pos',
         question: 'Select the correct Lateral Elbow position:',
         imageAssets: [
-          'assets/images/practice/elbow/elbow_ap.webp',
-          'assets/images/practice/elbow/elbow_lateral.webp',
-          'assets/images/practice/forearm/forearm_lateral.webp',
-          'assets/images/practice/hand/hand_lateral.webp',
+          'assets/images/challenge/elbow/elbow_ap.png',
+          'assets/images/challenge/elbow/elbow_lateral.png',
+          'assets/images/challenge/forearm/forearm_lateral.png',
+          'assets/images/challenge/hand/hand_lateral.png',
         ],
         correctAnswerIndex: 1,
         instruction: 'Step 1: Choose Positioning for Elbow Lateral',
@@ -286,10 +286,10 @@ class Challenge {
         id: '5_pos',
         question: 'Select the correct PA Wrist position:',
         imageAssets: [
-          'assets/images/practice/wrist/wrist_pa_oblique.webp',
-          'assets/images/practice/wrist/wrist_pa.webp',
-          'assets/images/practice/hand/hand_pa.webp',
-          'assets/images/practice/forearm/forearm_ap.webp',
+          'assets/images/challenge/wrist/wrist_pa_oblique.png',
+          'assets/images/challenge/wrist/wrist_pa.png',
+          'assets/images/challenge/hand/hand_pa.png',
+          'assets/images/challenge/forearm/forearm_ap.png',
         ],
         correctAnswerIndex: 1,
         instruction: 'Step 1: Choose Positioning for Wrist PA',
@@ -323,10 +323,10 @@ class Challenge {
         id: '6_pos',
         question: 'Select the correct Lateral Wrist position:',
         imageAssets: [
-          'assets/images/practice/wrist/wrist_pa.webp',
-          'assets/images/practice/wrist/wrist_lateral.webp',
-          'assets/images/practice/hand/hand_lateral.webp',
-          'assets/images/practice/forearm/forearm_lateral.webp',
+          'assets/images/challenge/wrist/wrist_pa.png',
+          'assets/images/challenge/wrist/wrist_lateral.png',
+          'assets/images/challenge/hand/hand_lateral.png',
+          'assets/images/challenge/forearm/forearm_lateral.png',
         ],
         correctAnswerIndex: 1,
         instruction: 'Step 1: Choose Positioning for Wrist Lateral',
@@ -360,10 +360,10 @@ class Challenge {
         id: '7_pos',
         question: 'Select the correct PA Hand position:',
         imageAssets: [
-          'assets/images/practice/hand/hand_pa_oblique.webp',
-          'assets/images/practice/hand/hand_pa.webp',
-          'assets/images/practice/wrist/wrist_pa.webp',
-          'assets/images/practice/forearm/forearm_ap.webp',
+          'assets/images/challenge/hand/hand_pa_oblique.png',
+          'assets/images/challenge/hand/hand_pa.png',
+          'assets/images/challenge/wrist/wrist_pa.png',
+          'assets/images/challenge/forearm/forearm_ap.png',
         ],
         correctAnswerIndex: 1,
         instruction: 'Step 1: Choose Positioning for Hand PA',
@@ -397,10 +397,10 @@ class Challenge {
         id: '8_pos',
         question: 'Select the correct Lateral Hand position:',
         imageAssets: [
-          'assets/images/practice/hand/hand_pa.webp',
-          'assets/images/practice/hand/hand_lateral.webp',
-          'assets/images/practice/wrist/wrist_lateral.webp',
-          'assets/images/practice/forearm/forearm_lateral.webp',
+          'assets/images/challenge/hand/hand_pa.png',
+          'assets/images/challenge/hand/hand_lateral.png',
+          'assets/images/challenge/wrist/wrist_lateral.png',
+          'assets/images/challenge/forearm/forearm_lateral.png',
         ],
         correctAnswerIndex: 1,
         instruction: 'Step 1: Choose Positioning for Hand Lateral',
@@ -435,10 +435,10 @@ class Challenge {
         question:
             'Select the correct AP Shoulder (External Rotation) position:',
         imageAssets: [
-          'assets/images/practice/shoulder/shoulder_ap_internal_rotation.webp',
-          'assets/images/practice/shoulder/shoulder_ap_external_rotation.webp',
-          'assets/images/practice/shoulder/shoulder_ap_neutral_rotation.webp',
-          'assets/images/practice/shoulder/shoulder_scapular_y.webp',
+          'assets/images/challenge/shoulder/shoulder_ap_internal_rotation.png',
+          'assets/images/challenge/shoulder/shoulder_ap_external_rotation.png',
+          'assets/images/challenge/shoulder/shoulder_ap_neutral_rotation.png',
+          'assets/images/challenge/shoulder/shoulder_scapular_y.png',
         ],
         correctAnswerIndex: 1,
         instruction:
@@ -476,10 +476,10 @@ class Challenge {
         id: '10_pos',
         question: 'Select the correct AP Humerus (Upright) position:',
         imageAssets: [
-          'assets/images/practice/humerus/humerus_lateral_upright.webp',
-          'assets/images/practice/humerus/humerus_ap_upright.webp',
-          'assets/images/practice/shoulder/shoulder_ap_external_rotation.webp',
-          'assets/images/practice/forearm/forearm_ap.webp',
+          'assets/images/challenge/humerus/humerus_lateral_upright.png',
+          'assets/images/challenge/humerus/humerus_ap_upright.png',
+          'assets/images/challenge/shoulder/shoulder_ap_external_rotation.png',
+          'assets/images/challenge/forearm/forearm_ap.png',
         ],
         correctAnswerIndex: 1,
         instruction: 'Step 1: Choose Positioning for Humerus AP Upright',
