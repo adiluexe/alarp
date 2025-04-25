@@ -5,19 +5,21 @@
 ## ✨ Core Features
 
 - **Learn:** Access educational guides on radiographic positioning for various body regions and projections. Includes interactive 3D models for visual reference and understanding spatial relationships.
-- **Practice:** Hone your skills primarily with **2D collimation practice**. Adjust collimation borders (rectangle + crosshairs) on anatomical images using intuitive controls. Includes reference information for correct IR size, IR orientation, and patient positioning for the selected projection. Features a **real-time accuracy tracker** providing feedback on collimation precision.
-- **Challenge:** Test your knowledge and speed in gamified, timed tasks. Challenges involve selecting the correct positioning, IR size, IR orientation, patient position, and performing accurate collimation under time pressure.
-- **Profile:** Track your progress, view statistics, and potentially compete on leaderboards _(future feature)_.
-- **Authentication:** Secure user accounts using Supabase (Email/Password, Google) - _(Future Implementation)_.
+- **Practice:** Hone your skills primarily with **2D collimation practice**. Adjust collimation borders (rectangle + crosshairs) on anatomical images using intuitive controls. Includes reference information for correct IR size, IR orientation, and patient positioning for the selected projection. Features a **real-time accuracy tracker** providing feedback on collimation precision. Tracks practice history.
+- **Challenge:** Test your knowledge and speed in gamified, timed tasks. Challenges currently focus on upper extremities and involve selecting the correct positioning, IR size, IR orientation, patient position, and performing accurate collimation under time pressure. Includes daily and all-time leaderboards. Tracks challenge history.
+- **Profile:** Track your progress, view statistics (including total app time, challenge history, practice history), and compete on daily/all-time leaderboards.
+- **Authentication:** Secure user accounts using Supabase (Email/Password with OTP verification).
 
 ## 📸 Screenshots
+
+<!-- Add screenshots here -->
 
 ## 🛠️ Tech Stack
 
 - **Framework:** Flutter (latest stable)
 - **Language:** Dart (with null safety)
 - **State Management:** Riverpod (`flutter_riverpod`, `hooks_riverpod`)
-- **Backend & Database:** Supabase (Auth, PostgreSQL)
+- **Backend & Database:** Supabase (Auth, PostgreSQL, Edge Functions/RPCs)
 - **Routing:** GoRouter
 - **UI:** Material Design 3
 - **2D Graphics:** Flutter `CustomPaint` for collimation overlay
@@ -27,14 +29,21 @@
 
 1.  **Prerequisites:**
     - Flutter SDK installed (check `flutter doctor`)
-    - _(Future)_ A Supabase project will be required for backend features (Auth, Database).
+    - A Supabase project set up.
 2.  **Clone the repository:**
     ```bash
     git clone https://github.com/your_username/alarp.git
     cd alarp
     ```
-3.  **_(Future)_ Set up Supabase:**
-    - Instructions for setting up the `.env` file with Supabase credentials and running database migrations will be added here once the backend integration is complete.
+3.  **Set up Supabase:**
+    - Create a `.env` file in the root directory.
+    - Add your Supabase URL and Anon Key:
+      ```dotenv
+      SUPABASE_URL=YOUR_SUPABASE_URL
+      SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
+      ```
+    - Run the necessary database migrations/setup scripts located in `supabase/migrations - _ensure this path is correct if it differs_). You might need the Supabase CLI: `supabase db push`.
+    - Set up the required RPC functions in your Supabase project (e.g., `increment_streak_if_needed`, `get_daily_leaderboard`, `get_user_daily_rank`, etc.).
 4.  **Install dependencies:**
     ```bash
     flutter pub get
