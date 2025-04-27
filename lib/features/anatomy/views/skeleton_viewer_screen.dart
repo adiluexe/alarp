@@ -16,7 +16,9 @@ class _SkeletonViewerScreenState extends State<SkeletonViewerScreen> {
   final Flutter3DController _controller = Flutter3DController();
   double _progressValue = 0.0;
   String? _loadError;
-  bool _isGuidedViewActive = false; // State for toggling guided view
+  bool _isGuidedViewActive = false;
+  bool _isLegendExpanded = false;
+  double _rotationSpeed = 0.5;
 
   // Helper function to parse hex color string
   Color _hexToColor(String code) {
@@ -34,6 +36,12 @@ class _SkeletonViewerScreenState extends State<SkeletonViewerScreen> {
     });
   }
 
+  void _toggleLegend() {
+    setState(() {
+      _isLegendExpanded = !_isLegendExpanded;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final String currentModelSrc =
@@ -47,27 +55,16 @@ class _SkeletonViewerScreenState extends State<SkeletonViewerScreen> {
       appBar: AppBar(
         title: Text(
           _isGuidedViewActive ? 'Guided Skeleton' : 'Explore Skeleton',
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         foregroundColor: Colors.white,
         leading: IconButton(
           icon: const Icon(SolarIconsOutline.altArrowLeft),
           onPressed: () => context.go(AppRoutes.home),
         ),
-        actions: [
-          // Toggle Button
-          IconButton(
-            icon: Icon(
-              _isGuidedViewActive
-                  ? SolarIconsBold
-                      .eye // Icon for guided view active
-                  : SolarIconsOutline.eye, // Icon for standard view
-              color: Colors.white,
-            ),
-            tooltip:
-                _isGuidedViewActive ? 'Show Standard View' : 'Show Guided View',
-            onPressed: _toggleGuidedView,
-          ),
-        ],
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -166,12 +163,56 @@ class _SkeletonViewerScreenState extends State<SkeletonViewerScreen> {
               ),
             ),
 
-          // Conditionally display the legend
+          // Control Panel
+          Positioned(
+            top: 16,
+            right: 16,
+            child: Card(
+              color: Colors.white.withOpacity(0.9),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: _buildControlButton(
+                  icon:
+                      _isGuidedViewActive
+                          ? SolarIconsBold.eye
+                          : SolarIconsOutline.eye,
+                  tooltip:
+                      _isGuidedViewActive
+                          ? 'Show Standard View'
+                          : 'Show Guided View',
+                  onPressed: _toggleGuidedView,
+                ),
+              ),
+            ),
+          ),
+
+          // Legend
           if (_isGuidedViewActive &&
               _progressValue == 1.0 &&
               _loadError == null)
             _buildLegend(context),
         ],
+      ),
+    );
+  }
+
+  Widget _buildControlButton({
+    required IconData icon,
+    required String tooltip,
+    required VoidCallback onPressed,
+  }) {
+    return Tooltip(
+      message: tooltip,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: onPressed,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(icon, color: AppTheme.primaryColor, size: 24),
+          ),
+        ),
       ),
     );
   }
@@ -188,51 +229,82 @@ class _SkeletonViewerScreenState extends State<SkeletonViewerScreen> {
     };
 
     return Positioned(
-      bottom: 10,
-      left: 10,
-      child: Card(
-        color: AppTheme.backgroundColor.withOpacity(0.9),
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
+      bottom: 16,
+      left: 16,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        width: _isLegendExpanded ? 200 : 48,
+        child: Card(
+          color: Colors.white.withOpacity(0.9),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min, // Make column take minimum space
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                'Legend',
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.textColor,
-                ),
-              ),
-              const SizedBox(height: 4),
-              ...legendItems.entries.map((entry) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 2.0),
+              // Legend Header
+              InkWell(
+                onTap: _toggleLegend,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Container(
-                        width: 12,
-                        height: 12,
-                        decoration: BoxDecoration(
-                          color: _hexToColor(entry.value),
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.black54, width: 0.5),
-                        ),
+                      Icon(
+                        _isLegendExpanded
+                            ? SolarIconsOutline.arrowLeft
+                            : SolarIconsOutline.list,
+                        color: AppTheme.primaryColor,
+                        size: 24,
                       ),
-                      const SizedBox(width: 6),
-                      Text(
-                        entry.key,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppTheme.textColor,
-                          fontSize: 11, // Slightly smaller font for legend
+                      if (_isLegendExpanded) ...[
+                        const SizedBox(width: 8),
+                        Text(
+                          'Bone Legend',
+                          style: Theme.of(
+                            context,
+                          ).textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.textColor,
+                          ),
                         ),
-                      ),
+                      ],
                     ],
                   ),
-                );
-              }).toList(),
+                ),
+              ),
+              if (_isLegendExpanded) ...[
+                const Divider(height: 1),
+                ...legendItems.entries.map((entry) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 8.0,
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 16,
+                          height: 16,
+                          decoration: BoxDecoration(
+                            color: _hexToColor(entry.value),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.black54,
+                              width: 0.5,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            entry.key,
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: AppTheme.textColor),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ],
             ],
           ),
         ),
