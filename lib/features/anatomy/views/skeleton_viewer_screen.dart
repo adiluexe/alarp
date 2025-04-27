@@ -220,12 +220,33 @@ class _SkeletonViewerScreenState extends State<SkeletonViewerScreen> {
   // Widget to build the legend
   Widget _buildLegend(BuildContext context) {
     final legendItems = {
-      'Hip bone/pelvis': '#FFC8A2',
-      'Ulna': '#D2E5C6',
-      'Radius': '#E5C8C6', // Corrected hex code based on user input
-      'Fibula': '#AAD272',
-      'Cranial bone': '#EA7D70',
-      'Facial bone': '#FFBF98',
+      'Skull': {'Cranial bone': '#CF7C7C', 'Facial Bone': '#FFC9A7'},
+      'Upper Extremity': {
+        'Humerus': '#7DD1E6',
+        'Radius': '#E5C8C6',
+        'Ulna': '#D2E5C6',
+        'Carpal': '#9190C4',
+        'Metacarpal': '#1BB1C0',
+        'Hand Phalanges': '#354357',
+      },
+      'Lower Extremity': {
+        'Femur': '#608A93',
+        'Patella': '#DAA3A7',
+        'Tibia': '#D2A8B7',
+        'Fibula': '#79B6BC',
+        'Tarsal': '#45432B',
+        'Metatarsal': '#243E49',
+        'Foot Phalanges': '#121821',
+      },
+      'Vertebrae': {
+        'Cervical vertebrae': '#3AB046',
+        'Thoracic vertebrae': '#E79A46',
+        'Lumbar vertebrae': '#7D38AE',
+        'Sacrum': '#BF4C4E',
+        'Coccyx': '#CF9E41',
+      },
+      'Thorax': {'Rib': '#F8D885', 'Sternum': '#ECADDD'},
+      'Shoulder': {'Scapula': '#6F95A8'},
     };
 
     return Positioned(
@@ -233,87 +254,135 @@ class _SkeletonViewerScreenState extends State<SkeletonViewerScreen> {
       left: 16,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
-        width: _isLegendExpanded ? 200 : 48,
+        width: _isLegendExpanded ? 250 : 48,
+        height:
+            _isLegendExpanded ? MediaQuery.of(context).size.height * 0.6 : 48,
         child: Card(
           color: Colors.white.withOpacity(0.9),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Legend Header
-              InkWell(
-                onTap: _toggleLegend,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: SizedBox(
-                    width: _isLegendExpanded ? 200 : 48,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Icon(
-                          _isLegendExpanded
-                              ? SolarIconsOutline.arrowLeft
-                              : SolarIconsOutline.list,
-                          color: AppTheme.primaryColor,
-                          size: 24,
-                        ),
-                        if (_isLegendExpanded) ...[
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              'Bone Legend',
-                              style: Theme.of(
-                                context,
-                              ).textTheme.titleSmall?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: AppTheme.textColor,
+          child:
+              _isLegendExpanded
+                  ? Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Legend Header
+                      InkWell(
+                        onTap: _toggleLegend,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Icon(
+                                SolarIconsOutline.altArrowLeft,
+                                color: AppTheme.primaryColor,
+                                size: 16,
                               ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  'Bone Legend',
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.titleSmall?.copyWith(
+                                    fontWeight: FontWeight.w900,
+                                    color: AppTheme.primaryColor,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ],
+                        ),
+                      ),
+                      // const Divider(height: 1),
+                      Flexible(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children:
+                                legendItems.entries
+                                    .expand(
+                                      (region) => [
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            left: 16.0,
+                                            right: 16.0,
+                                            top: 12.0,
+                                            bottom: 4.0,
+                                          ),
+                                          child: Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: Text(
+                                              region.key,
+                                              style: Theme.of(
+                                                context,
+                                              ).textTheme.titleSmall?.copyWith(
+                                                fontWeight: FontWeight.bold,
+                                                color: AppTheme.primaryColor,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        ...region.value.entries.map((entry) {
+                                          return Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 16.0,
+                                              vertical: 6.0,
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                Container(
+                                                  width: 16,
+                                                  height: 16,
+                                                  decoration: BoxDecoration(
+                                                    color: _hexToColor(
+                                                      entry.value,
+                                                    ),
+                                                    shape: BoxShape.circle,
+                                                    border: Border.all(
+                                                      color: Colors.black54,
+                                                      width: 0.5,
+                                                    ),
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 12),
+                                                Expanded(
+                                                  child: Text(
+                                                    entry.key,
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .bodySmall
+                                                        ?.copyWith(
+                                                          color:
+                                                              AppTheme
+                                                                  .textColor,
+                                                        ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        }),
+                                      ],
+                                    )
+                                    .toList(),
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                  : InkWell(
+                    onTap: _toggleLegend,
+                    child: const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Icon(
+                        SolarIconsOutline.list,
+                        color: AppTheme.primaryColor,
+                        size: 24,
+                      ),
                     ),
                   ),
-                ),
-              ),
-              if (_isLegendExpanded) ...[
-                const Divider(height: 1),
-                ...legendItems.entries.map((entry) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0,
-                      vertical: 8.0,
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 16,
-                          height: 16,
-                          decoration: BoxDecoration(
-                            color: _hexToColor(entry.value),
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Colors.black54,
-                              width: 0.5,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            entry.key,
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(color: AppTheme.textColor),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }).toList(),
-              ],
-            ],
-          ),
         ),
       ),
     );
