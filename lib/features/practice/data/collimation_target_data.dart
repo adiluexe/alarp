@@ -304,12 +304,12 @@ const Map<String, PracticeTargetInfo> _practiceTargetInfoData = {
   // Humerus (Updated)
   'humerus_ap_upright': PracticeTargetInfo(
     irSize: '14x17', // Updated
-    irOrientation: 'crosswise',
+    irOrientation: 'lengthwise',
     pxPosition: 'standing',
   ),
   'humerus_lateral_upright': PracticeTargetInfo(
     irSize: '14x17', // Updated
-    irOrientation: 'crosswise',
+    irOrientation: 'lengthwise',
     pxPosition: 'standing',
   ),
 

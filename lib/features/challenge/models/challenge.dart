@@ -489,7 +489,7 @@ class Challenge {
       IROrientationQuizStep(
         id: '10_ir_orient',
         options: ["Crosswise", "Lengthwise"],
-        correctAnswerIndex: 0,
+        correctAnswerIndex: 1,
         instruction: 'Step 3: Select IR Orientation for Humerus AP Upright',
       ),
       PatientPositionQuizStep(

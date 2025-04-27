@@ -81,7 +81,7 @@ This guide covers standard AP and Lateral projections of the humerus.
 *   Consider patient condition (trauma vs. non-trauma).
 
 ## AP Projection
-*   **IR Size:** 14x17 inches divided (35x43cm divided) lengthwise
+*   **IR Size:** 14x17 inches (35x43cm) lengthwise
 *   **Patient Position:** Upright/Seated.
 *   **Part Position:** Arm slightly abducted; Hand Supinated. Humeral Epicondyles parallel with IR.
 *   **Central Ray (CR):** Perpendicular.
@@ -89,7 +89,7 @@ This guide covers standard AP and Lateral projections of the humerus.
 *   **Structures Shown:** AP Projection of Entire Humerus. Epicondyles showed without rotation.
 
 ## Lateromedial Projection
-*   **IR Size:** 14x17 inches divided (35x43cm divided) lengthwise
+*   **IR Size:** 14x17 inches (35x43cm) lengthwise
 *   **Patient Position:** Upright.
 *   **Part Position:** Arm internally rotated. Elbow flexed 90 degrees with the palmar surface on the hip. Humeral Epicondyles parallel with IR.
 *   **Central Ray (CR):** Perpendicular.
@@ -205,7 +205,7 @@ This guide covers common projections for the wrist joint and carpal bones.
 *   Note any patient pain or limited mobility.
 
 ## PA Projection
-*   **IR Size:** 10x12 inches (24x30cm) lengthwise
+*   **IR Size:** 8x10 inches (18x24cm) lengthwise
 *   **Patient Position:** Seated.
 *   **Part Position:** Rest the forearm on the table, and center the wrist to the IR. Hand pronated.
 *   **Central Ray (CR):** Perpendicular to midcarpal area.
