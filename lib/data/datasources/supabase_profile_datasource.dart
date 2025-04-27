@@ -1,7 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:alarp/core/providers/supabase_providers.dart'; // For supabaseClientProvider and userIdProvider
+import 'package:alarp/core/providers/supabase_providers.dart'; // For supabaseClientProvider, userIdProvider, and userProfileProvider
 import 'package:alarp/features/challenge/models/challenge_attempt.dart'; // Import ChallengeAttempt
+import 'dart:developer' as developer; // Use developer log
 
 // Define a type for leaderboard entry data using a record
 typedef LeaderboardEntry = ({int rank, String username, int score});
@@ -11,60 +12,52 @@ typedef LeaderboardEntry = ({int rank, String username, int score});
 class SupabaseProfileDataSource {
   final SupabaseClient _client;
   final String? _userId; // Get current user ID
+  final Ref _ref; // Add Ref
 
-  SupabaseProfileDataSource(this._client, this._userId);
+  SupabaseProfileDataSource(
+    this._client,
+    this._userId,
+    this._ref,
+  ); // Modify constructor
 
-  /// Calls the Supabase RPC function 'increment_streak_if_needed'.
-  Future<void> callIncrementStreakIfNeeded() async {
-    if (_userId == null) {
-      throw Exception("User not logged in. Cannot update streak.");
-    }
-
-    try {
-      // Call the RPC function, passing the user ID as an argument
-      await _client.rpc(
-        'increment_streak_if_needed',
-        params: {'user_id': _userId},
-      );
-      // No return value needed based on the function definition
-    } on PostgrestException catch (e) {
-      // Handle potential Supabase errors (e.g., function not found, RLS issues)
-      print("Supabase error calling increment_streak_if_needed: ${e.message}");
-      throw Exception("Failed to update daily streak: ${e.message}");
-    } catch (e) {
-      // Handle other unexpected errors
-      print("Unexpected error calling increment_streak_if_needed: $e");
-      throw Exception("An unexpected error occurred while updating streak.");
-    }
-  }
+  // Removed callIncrementStreakIfNeeded() - RPC is called directly now
 
   /// Updates the 'total_app_time_seconds' for the current user in Supabase.
   Future<void> updateTotalAppTime(int totalSeconds) async {
     if (_userId == null) {
-      throw Exception("User not logged in. Cannot update total app time.");
+      developer.log(
+        "User not logged in. Cannot update total app time.",
+        name: 'SupabaseProfileDataSource',
+      );
+      // Optionally throw, but maybe just log and return for this case
+      return;
     }
     if (totalSeconds < 0) {
-      // Basic validation
-      print(
-        "Warning: Attempted to update total app time with negative value: $totalSeconds",
-      );
-      return;
+      throw ArgumentError("Total app time cannot be negative.");
     }
 
     try {
       await _client
           .from('profiles')
           .update({'total_app_time_seconds': totalSeconds})
-          .eq('id', _userId); // Update the row matching the current user's ID
-
-      print(
-        "Successfully updated total_app_time_seconds to $totalSeconds for user $_userId",
+          .eq('id', _userId);
+      developer.log(
+        "Total app time updated successfully.",
+        name: 'SupabaseProfileDataSource',
       );
     } on PostgrestException catch (e) {
-      print("Supabase error updating total_app_time_seconds: ${e.message}");
+      developer.log(
+        "Supabase error updating total app time: ${e.message}",
+        error: e,
+        name: 'SupabaseProfileDataSource',
+      );
       throw Exception("Failed to update total app time: ${e.message}");
     } catch (e) {
-      print("Unexpected error updating total_app_time_seconds: $e");
+      developer.log(
+        "Unexpected error updating total app time: $e",
+        error: e,
+        name: 'SupabaseProfileDataSource',
+      );
       throw Exception(
         "An unexpected error occurred while updating total app time.",
       );
@@ -86,7 +79,7 @@ class SupabaseProfileDataSource {
     }
 
     try {
-      // Insert into the challenge_history table
+      // 1. Insert into the challenge_history table
       await _client.from('challenge_history').insert({
         'user_id': _userId,
         'challenge_id': challengeId,
@@ -95,16 +88,64 @@ class SupabaseProfileDataSource {
         'step_results': stepResultsJson, // Store the detailed step results
         // 'completed_at' and 'created_at' have default values in the DB
       });
+      developer.log(
+        'Challenge history record added successfully',
+        name: 'SupabaseProfileDataSource',
+      );
+
+      // 2. Call RPC to increment streak
+      try {
+        await _client.rpc(
+          'increment_streak_if_needed',
+          params: {
+            'p_user_id': _userId,
+          }, // Ensure param name matches RPC definition
+        );
+        developer.log(
+          'Streak increment check triggered after challenge submission',
+          name: 'SupabaseProfileDataSource',
+        );
+        // ---> Invalidate the user profile provider to force UI refresh <---
+        _ref.invalidate(userProfileProvider);
+        developer.log(
+          'Invalidated userProfileProvider after challenge submission.',
+          name: 'SupabaseProfileDataSource',
+        );
+      } on PostgrestException catch (e) {
+        // Log streak update failure but don't throw; main operation succeeded
+        developer.log(
+          'Error calling increment_streak_if_needed after challenge: ${e.message}',
+          error: e,
+          name: 'SupabaseProfileDataSource',
+        );
+      } catch (e) {
+        // Log unexpected streak update failure
+        developer.log(
+          'Unexpected error calling increment_streak_if_needed after challenge: $e',
+          error: e,
+          name: 'SupabaseProfileDataSource',
+        );
+      }
 
       // Note: Leaderboard RPCs (`get_daily_leaderboard`, `get_user_daily_rank`)
       // are assumed to read from `challenge_history` now or handle aggregation separately.
       // We don't need to interact with `challenge_scores` here anymore.
     } on PostgrestException catch (e) {
+      developer.log(
+        'Error submitting challenge history: ${e.message}',
+        error: e,
+        name: 'SupabaseProfileDataSource',
+      );
       // Provide more specific error context
       throw Exception(
         "Failed to submit challenge history record: ${e.message}",
       );
     } catch (e) {
+      developer.log(
+        'Unexpected error submitting challenge history: $e',
+        error: e,
+        name: 'SupabaseProfileDataSource',
+      );
       throw Exception(
         "An unexpected error occurred while submitting challenge history.",
       );
@@ -138,15 +179,24 @@ class SupabaseProfileDataSource {
         }).toList();
       }
       // Return empty list if response is not a list (e.g., error or unexpected format)
-      print(
+      developer.log(
         "Warning: Unexpected response format from get_daily_leaderboard: $response",
+        name: 'SupabaseProfileDataSource',
       );
       return [];
     } on PostgrestException catch (e) {
-      print("Supabase error fetching leaderboard: ${e.message}");
+      developer.log(
+        "Supabase error fetching leaderboard: ${e.message}",
+        error: e,
+        name: 'SupabaseProfileDataSource',
+      );
       throw Exception("Failed to fetch leaderboard: ${e.message}");
     } catch (e) {
-      print("Unexpected error fetching leaderboard: $e");
+      developer.log(
+        "Unexpected error fetching leaderboard: $e",
+        error: e,
+        name: 'SupabaseProfileDataSource',
+      );
       throw Exception(
         "An unexpected error occurred while fetching leaderboard.",
       );
@@ -158,14 +208,20 @@ class SupabaseProfileDataSource {
   /// Returns a record (rank, score) or null if the user hasn't played today or an error occurs.
   Future<({int rank, int score})?> getUserDailyRank(String challengeId) async {
     if (_userId == null) {
-      print("User not logged in. Cannot get rank.");
+      developer.log(
+        "User not logged in. Cannot get rank.",
+        name: 'SupabaseProfileDataSource',
+      );
       // Return null as rank is not applicable for non-logged-in users
       return null;
     }
     try {
       final response = await _client.rpc(
         'get_user_daily_rank',
-        params: {'p_challenge_id': challengeId},
+        params: {
+          'p_challenge_id': challengeId,
+          'user_id': _userId,
+        }, // Pass user ID
       );
 
       // Response is List<dynamic> with 0 or 1 item (Map<String, dynamic>)
@@ -180,11 +236,19 @@ class SupabaseProfileDataSource {
       // User has no rank for this challenge today (empty list returned from RPC)
       return null;
     } on PostgrestException catch (e) {
-      print("Supabase error fetching user rank: ${e.message}");
+      developer.log(
+        "Supabase error fetching user rank: ${e.message}",
+        error: e,
+        name: 'SupabaseProfileDataSource',
+      );
       // Return null on error, as the rank is unavailable
       return null;
     } catch (e) {
-      print("Unexpected error fetching user rank: $e");
+      developer.log(
+        "Unexpected error fetching user rank: $e",
+        error: e,
+        name: 'SupabaseProfileDataSource',
+      );
       // Return null on unexpected errors
       return null;
     }
@@ -194,7 +258,10 @@ class SupabaseProfileDataSource {
   /// Returns a map containing profile data or null if not found or error.
   Future<Map<String, dynamic>?> getProfile() async {
     if (_userId == null) {
-      print("User not logged in. Cannot get profile.");
+      developer.log(
+        "User not logged in. Cannot get profile.",
+        name: 'SupabaseProfileDataSource',
+      );
       return null;
     }
     try {
@@ -206,16 +273,27 @@ class SupabaseProfileDataSource {
               .maybeSingle(); // Use maybeSingle to return null if no row matches
 
       if (response == null) {
-        print("No profile found for user $_userId");
+        developer.log(
+          "No profile found for user $_userId",
+          name: 'SupabaseProfileDataSource',
+        );
         return null;
       }
       // Explicitly cast to Map<String, dynamic>
       return response as Map<String, dynamic>;
     } on PostgrestException catch (e) {
-      print("Supabase error fetching profile: ${e.message}");
+      developer.log(
+        "Supabase error fetching profile: ${e.message}",
+        error: e,
+        name: 'SupabaseProfileDataSource',
+      );
       return null; // Return null on error
     } catch (e) {
-      print("Unexpected error fetching profile: $e");
+      developer.log(
+        "Unexpected error fetching profile: $e",
+        error: e,
+        name: 'SupabaseProfileDataSource',
+      );
       return null; // Return null on unexpected errors
     }
   }
@@ -223,7 +301,10 @@ class SupabaseProfileDataSource {
   /// Fetches the challenge history for the current user from 'challenge_history'.
   Future<List<ChallengeAttempt>> getChallengeHistory({int limit = 20}) async {
     if (_userId == null) {
-      print("User not logged in. Cannot get challenge history.");
+      developer.log(
+        "User not logged in. Cannot get challenge history.",
+        name: 'SupabaseProfileDataSource',
+      );
       return []; // Return empty list for non-logged-in users
     }
     try {
@@ -237,10 +318,18 @@ class SupabaseProfileDataSource {
       // Response is List<Map<String, dynamic>>
       return response.map((json) => ChallengeAttempt.fromJson(json)).toList();
     } on PostgrestException catch (e) {
-      print("Supabase error fetching challenge history: ${e.message}");
+      developer.log(
+        "Supabase error fetching challenge history: ${e.message}",
+        error: e,
+        name: 'SupabaseProfileDataSource',
+      );
       throw Exception("Failed to fetch challenge history: ${e.message}");
     } catch (e) {
-      print("Unexpected error fetching challenge history: $e");
+      developer.log(
+        "Unexpected error fetching challenge history: $e",
+        error: e,
+        name: 'SupabaseProfileDataSource',
+      );
       throw Exception(
         "An unexpected error occurred while fetching challenge history.",
       );
@@ -273,6 +362,7 @@ class SupabaseProfileDataSource {
           userHighScores[userId] = score;
         }
       }
+
       // Sort by score desc and take top N
       final topUsers =
           userHighScores.entries.toList()
@@ -312,10 +402,18 @@ class SupabaseProfileDataSource {
       }
       return leaderboard;
     } on PostgrestException catch (e) {
-      print("Supabase error fetching all-time leaderboard: ${e.message}");
+      developer.log(
+        "Supabase error fetching all-time leaderboard: ${e.message}",
+        error: e,
+        name: 'SupabaseProfileDataSource',
+      );
       throw Exception("Failed to fetch all-time leaderboard: ${e.message}");
     } catch (e) {
-      print("Unexpected error fetching all-time leaderboard: ${e}");
+      developer.log(
+        "Unexpected error fetching all-time leaderboard: ${e}",
+        error: e,
+        name: 'SupabaseProfileDataSource',
+      );
       throw Exception(
         "An unexpected error occurred while fetching all-time leaderboard.",
       );
@@ -328,6 +426,7 @@ final supabaseProfileDataSourceProvider = Provider<SupabaseProfileDataSource>((
   ref,
 ) {
   final client = ref.watch(supabaseClientProvider);
-  final userId = ref.watch(userIdProvider); // Get the current user's ID
-  return SupabaseProfileDataSource(client, userId);
+  final userId = ref.watch(userIdProvider);
+  // Pass ref to the constructor
+  return SupabaseProfileDataSource(client, userId, ref);
 });

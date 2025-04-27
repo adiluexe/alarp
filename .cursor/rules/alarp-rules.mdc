@@ -1,0 +1,86 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## GitHub Copilot Custom Instructions: ALARP Project
+
+### Project Overview
+
+- **Name:** ALARP (A Learning Aid In Radiographic Positioning)
+- **Goal:** Flutter mobile app for Radiologic Technology students.
+- **Primary Function:** Help students learn radiographic positioning concepts and practice collimation skills.
+- **Target Audience:** Radiologic Technology students.
+
+### Core Features & Recent Changes
+
+1. **Learn:** Educational guides on positioning for various body regions/projections. This section _may_ include a non-interactive 3D model viewer (`flutter_3d_controller`) for visual reference (using `ModelViewerWidget`).
+2. **Practice:** **(Recent Change)** Focuses primarily on **2D collimation practice**. Users will see a 2D anatomical image (radiograph or illustration) and use controls (sliders) to adjust a collimation overlay (rectangle + crosshairs). Accuracy is measured against target collimation boundaries for the specific projection. _Avoid suggesting complex 3D positioning interactions for this mode._ (Reference: Consider Ziltron's collimation simulator for UI/interaction ideas).
+3. **Challenge:** Gamified version of the Practice mode (timed collimation tasks with scoring).
+4. **Profile:** User stats, progress tracking, achievements, leaderboard (potentially).
+5. **Auth:** User authentication (likely Email/Google via Supabase).
+
+### Tech Stack
+
+- **Framework:** Flutter (latest stable version)
+- **Language:** Dart (with null safety)
+- **State Management:** **Riverpod** (`flutter_riverpod`, `hooks_riverpod`). Prefer `StateNotifierProvider`, `FutureProvider`, `StreamProvider`. Use `ref` for accessing providers. _`Note: Some existing code snippets might use Provider, aim to refactor towards or use Riverpod for new features.`_
+- **Backend & Database:** Supabase (Auth, PostgreSQL database)
+- **Routing:** `go_router` for declarative routing.
+- **UI:** Material Design 3 principles. Custom theme defined in `AppTheme`.
+- **HTTP:** Use Supabase client (`supabase_flutter`).
+- **3D Viewer (Learn Section Only):** `flutter_3d_controller` (used non-interactively or with one-way state binding).
+- **2D Graphics (Practice Section):** Flutter's `CustomPaint` for collimation overlay.
+
+### Architecture & File Structure
+
+- **Pattern:** MVC-inspired (Model-View-Controller) organized by feature.
+- **Structure:**
+  - `lib/core/`: Shared utilities, theme, navigation, base models, core providers/services.
+  - `lib/features/{feature_name}/`: Contains `models`, `views` (screens/widgets), `controllers` (using Riverpod Notifiers) for each feature (auth, home, learn, practice, challenge, profile).
+  - `lib/data/`: Contains `repositories` (abstract interfaces) and `datasources` (Supabase implementations). Controllers depend on Repositories.
+- **Dependency Injection:** Use Riverpod providers (`ref.read`, `ref.watch`).
+
+### State Management (Riverpod)
+
+- Use `StateNotifier` and `StateNotifierProvider` for mutable state managed by controllers.
+- Use `Provider` for simple dependency injection (e.g., repositories).
+- Use `FutureProvider` / `StreamProvider` for handling asynchronous data fetching (e.g., from Supabase).
+- Ensure state classes are immutable where possible (e.g., using `copyWith` method). StateNotifiers manage the immutable state instance.
+
+### UI & Theme
+
+- **Theme:** Use the central `AppTheme.lightTheme` defined in `lib/core/theme/app_theme.dart`. Access theme data via `Theme.of(context)`.
+- **Colors:** Use defined theme colors (`primaryColor`, `secondaryColor`, `backgroundColor`, `textColor`, etc.).
+- **Fonts:** Use `Chillax` for headers and `Satoshi` for body text (defined in `AppTheme` and `pubspec.yaml`).
+- **Widgets:** Build responsive UIs. Prefer composing smaller, reusable widgets. Use `StatelessWidget` and `ConsumerWidget` (from `flutter_riverpod`) where possible. Use `StatefulWidget` or `HookConsumerWidget` when local widget state (like animations, text controllers) is needed.
+- **Layout:** Use standard Flutter layout widgets (Column, Row, Stack, Expanded, Padding, SizedBox, ListView, GridView). Aim for clarity and maintainability.
+
+### Coding Style & Best Practices
+
+- **Style:** Follow Effective Dart guidelines (`dart format`). Use `flutter_lints` or similar for analysis.
+- **Null Safety:** Code must be null-safe.
+- **Immutability:** Prefer immutable data structures (use `final`, `const`, packages like `freezed` if needed for models).
+- **Asynchronicity:** Use `async`/`await` for asynchronous operations. Handle potential errors using `try`/`catch`. Use `FutureBuilder` or Riverpod's `AsyncValue` (`.when`) for displaying async state in UI.
+- **Error Handling:** Implement user-friendly error messages (e.g., Snackbars, Dialogs) for failed operations (network requests, data loading). Log errors where appropriate.
+- **Comments:** Write clear comments explaining complex logic, assumptions, or TODOs. Use /// for documentation comments on public APIs.
+- **Testing:** While not explicitly requested yet, aim for testable code. Controllers should be unit-testable. Consider widget tests for UI components.
+- **Readability:** Prioritize clear variable names and logical code flow.
+
+### Key Mechanics (Collimation Practice)
+
+- Load appropriate 2D image for the selected body part/projection.
+- Use `CollimationState` (holding width, height, centerX, centerY) likely managed via a Riverpod provider.
+- Use `CollimationPainter` (`CustomPaint`) to draw the adjustable rectangle/crosshairs over the 2D image.
+- Use sliders (`PositionControlsWidget` or similar) to update the `CollimationState`.
+- Implement accuracy checking by comparing `CollimationState` values against target boundaries for the specific projection.
+
+### Things to Avoid
+
+- Avoid direct use of `setState` in complex scenarios; prefer Riverpod state management.
+- Avoid tight coupling between UI and business logic/data layers.
+- Avoid large, monolithic widgets; break them down.
+- Do not suggest complex 3D interactions or two-way binding for the `Practice` mode (focus on 2D collimation).
+- Do not use deprecated Flutter APIs.
+- Ensure all licenses for assets (images) are checked and respected.
+

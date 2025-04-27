@@ -1,203 +1,155 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart'; // For date formatting
-import 'package:alarp/core/services/shared_preferences_service.dart';
 import 'package:alarp/data/repositories/profile_repository.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:developer' as developer;
 
-const int DAILY_USAGE_THRESHOLD_SECONDS = 900; // 15 minutes
+// Provider for the AppLifecycleService
+final appLifecycleServiceProvider = Provider<AppLifecycleService>((ref) {
+  return AppLifecycleService(ref);
+});
 
 class AppLifecycleService with WidgetsBindingObserver {
-  // Use Ref instead of the deprecated Reader
   final Ref _ref;
-  DateTime? _resumeTime;
+  Timer? _timer;
+  int _accumulatedSeconds = 0;
+  static const String _prefsKey = 'accumulatedAppTimeSeconds';
+  static const int _syncIntervalSeconds = 60; // Sync every 60 seconds
 
-  // Update constructor to accept Ref
   AppLifecycleService(this._ref) {
     WidgetsBinding.instance.addObserver(this);
-    _initializeTimeTracking(); // Call the new initialization method
+    _loadAccumulatedTime();
+    _startTimer();
   }
 
-  // New method to handle initialization logic
-  Future<void> _initializeTimeTracking() async {
-    await _checkDateAndResetIfNeeded(); // Check date first
-    await _loadInitialTotalTime(); // Then load initial time
-  }
-
-  // Helper to get today's date as a string
-  String _getTodayDateString() {
-    return DateFormat('yyyy-MM-dd').format(DateTime.now());
-  }
-
-  // Checks if the date has changed and resets daily counters if needed
-  Future<void> _checkDateAndResetIfNeeded() async {
-    // Use _ref.read instead of _read()
-    final prefsService = _ref.read(sharedPreferencesServiceProvider);
-    if (prefsService == null) return; // Prefs not ready
-
-    final todayString = _getTodayDateString();
-    final lastDateString = prefsService.getLastRecordedDateString();
-
-    if (lastDateString != todayString) {
-      print("New day detected. Resetting daily counters.");
-      await prefsService.setDailyForegroundSeconds(0);
-      await prefsService.setStreakTriggeredToday(false);
-      await prefsService.setLastRecordedDateString(todayString);
-      // Optionally: Sync total time here if needed on date change
-      // await _syncTotalAppTime();
-    }
-  }
-
-  // New method to load total time from Supabase on startup
-  Future<void> _loadInitialTotalTime() async {
-    final prefsService = _ref.read(sharedPreferencesServiceProvider);
-    if (prefsService == null) return;
-
+  // Load accumulated time from SharedPreferences
+  Future<void> _loadAccumulatedTime() async {
     try {
-      final profileData =
-          await _ref.read(profileRepositoryProvider).getProfile();
-      final serverTotalSeconds =
-          profileData?['total_app_time_seconds'] as int? ?? 0;
-
-      // Update SharedPreferences with the value from the server
-      await prefsService.setTotalAppTimeSeconds(serverTotalSeconds);
-      print(
-        "Initialized local total app time from server: $serverTotalSeconds seconds",
+      final prefs = await SharedPreferences.getInstance();
+      _accumulatedSeconds = prefs.getInt(_prefsKey) ?? 0;
+      developer.log(
+        'Loaded accumulated app time: $_accumulatedSeconds seconds',
+        name: 'AppLifecycleService',
       );
     } catch (e) {
-      print("Error loading initial total app time from server: $e");
-      // Optionally load local value as fallback?
-      // final localTotalSeconds = prefsService.getTotalAppTimeSeconds();
-      // print("Using local fallback total time: $localTotalSeconds seconds");
+      developer.log(
+        'Error loading accumulated time: $e',
+        error: e,
+        name: 'AppLifecycleService',
+      );
     }
   }
 
-  // Syncs the locally tracked total app time to Supabase
-  Future<void> _syncTotalAppTime() async {
-    final prefsService = _ref.read(sharedPreferencesServiceProvider);
-    if (prefsService == null) return;
-
-    final localTotalSeconds = prefsService.getTotalAppTimeSeconds();
-
-    // Use the actual repository method now
+  // Save accumulated time to SharedPreferences
+  Future<void> _saveAccumulatedTime() async {
     try {
-      // Read the repository provider using _ref
-      await _ref
-          .read(profileRepositoryProvider)
-          .updateTotalAppTime(localTotalSeconds);
-      print("Synced total app time: $localTotalSeconds seconds");
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt(_prefsKey, _accumulatedSeconds);
+      developer.log(
+        'Saved accumulated app time: $_accumulatedSeconds seconds',
+        name: 'AppLifecycleService',
+      );
     } catch (e) {
-      print("Error syncing total app time: $e");
-      // Handle error - maybe retry later or log more formally?
+      developer.log(
+        'Error saving accumulated time: $e',
+        error: e,
+        name: 'AppLifecycleService',
+      );
+    }
+  }
+
+  // Start the timer to increment accumulated time
+  void _startTimer() {
+    _timer?.cancel(); // Cancel any existing timer
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      _accumulatedSeconds++;
+      // Sync with backend periodically
+      if (_accumulatedSeconds % _syncIntervalSeconds == 0) {
+        _syncWithBackend();
+      }
+    });
+    developer.log('App usage timer started.', name: 'AppLifecycleService');
+  }
+
+  // Stop the timer
+  void _stopTimer() {
+    _timer?.cancel();
+    developer.log('App usage timer stopped.', name: 'AppLifecycleService');
+  }
+
+  // Sync accumulated time with the backend
+  Future<void> _syncWithBackend() async {
+    try {
+      final profileRepository = _ref.read(profileRepositoryProvider);
+      await profileRepository.updateTotalAppTime(_accumulatedSeconds);
+      developer.log(
+        'Synced accumulated time with backend: $_accumulatedSeconds seconds',
+        name: 'AppLifecycleService',
+      );
+      // Optionally, save locally after successful sync as well
+      await _saveAccumulatedTime();
+    } catch (e) {
+      developer.log(
+        'Error syncing accumulated time with backend: $e',
+        error: e,
+        name: 'AppLifecycleService',
+      );
+      // Decide if local save should happen even if backend sync fails
+      // await _saveAccumulatedTime(); // Save locally regardless?
     }
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) async {
+  void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-
-    // Use _ref.read instead of _read()
-    final prefsService = _ref.read(sharedPreferencesServiceProvider);
-    if (prefsService == null) return; // Prefs not ready
-
-    // Ensure date is current before processing state changes
-    await _checkDateAndResetIfNeeded();
-
+    developer.log(
+      'App lifecycle state changed: $state',
+      name: 'AppLifecycleService',
+    );
     switch (state) {
       case AppLifecycleState.resumed:
-        print("App Resumed");
-        _resumeTime = DateTime.now();
-        break;
-      case AppLifecycleState.paused:
-        print("App Paused");
-        if (_resumeTime != null) {
-          final now = DateTime.now();
-          final duration = now.difference(_resumeTime!).inSeconds;
-          _resumeTime = null; // Reset resume time
-
-          if (duration > 0) {
-            // Update Daily Time
-            final currentDailySeconds =
-                prefsService.getDailyForegroundSeconds();
-            final newDailySeconds = currentDailySeconds + duration;
-            await prefsService.setDailyForegroundSeconds(newDailySeconds);
-            print(
-              "Added $duration seconds to daily time. Total today: $newDailySeconds",
-            );
-
-            // Update Total Time
-            final currentTotalSeconds = prefsService.getTotalAppTimeSeconds();
-            final newTotalSeconds = currentTotalSeconds + duration;
-            await prefsService.setTotalAppTimeSeconds(newTotalSeconds);
-            print("Total app time: $newTotalSeconds seconds");
-
-            // Check Streak Threshold
-            final streakTriggered = prefsService.getStreakTriggeredToday();
-            if (!streakTriggered &&
-                newDailySeconds >= DAILY_USAGE_THRESHOLD_SECONDS) {
-              print(
-                "Daily usage threshold met ($DAILY_USAGE_THRESHOLD_SECONDS seconds). Triggering streak check.",
-              );
-              try {
-                // Call the repository method to trigger the backend function
-                // Use _ref.read instead of _read()
-                await _ref
-                    .read(profileRepositoryProvider)
-                    .recordActivityAndCheckStreak();
-                // Mark streak as triggered for today locally
-                await prefsService.setStreakTriggeredToday(true);
-                print("Streak check triggered successfully for today.");
-              } catch (e) {
-                print("Error triggering streak check: $e");
-                // Handle error (e.g., log, maybe retry later?)
-              }
-            }
-
-            // Optionally sync total time on pause
-            await _syncTotalAppTime();
-          }
-        }
+        _loadAccumulatedTime(); // Reload time when resuming
+        _startTimer();
         break;
       case AppLifecycleState.inactive:
+      case AppLifecycleState.paused:
       case AppLifecycleState.detached:
-      case AppLifecycleState.hidden: // Handle newer hidden state if necessary
-        // App is inactive or detached, similar to paused for time tracking
-        if (_resumeTime != null) {
-          final now = DateTime.now();
-          final duration = now.difference(_resumeTime!).inSeconds;
-          _resumeTime = null; // Reset resume time
-          if (duration > 0) {
-            // Update times (similar to paused state)
-            final currentDailySeconds =
-                prefsService.getDailyForegroundSeconds();
-            await prefsService.setDailyForegroundSeconds(
-              currentDailySeconds + duration,
-            );
-            final currentTotalSeconds = prefsService.getTotalAppTimeSeconds();
-            await prefsService.setTotalAppTimeSeconds(
-              currentTotalSeconds + duration,
-            );
-            print("Added $duration seconds during inactive/detached state.");
-            // Sync total time on exit?
-            await _syncTotalAppTime();
-          }
-        }
+      case AppLifecycleState.hidden: // Handle hidden state as well
+        _stopTimer();
+        _syncWithBackend(); // Sync time when app goes into background/closes
+        _saveAccumulatedTime(); // Ensure local save on exit/pause
         break;
     }
   }
 
+  // Method to be called when user performs a significant activity (e.g., completes challenge/practice)
+  // This method is now redundant for streak checking as it's handled directly
+  // in the datasource methods for adding practice/challenge results.
+  // It might still be useful for other "activity recorded" logic if needed later.
+  // Future<void> recordActivity() async {
+  //   developer.log('User activity recorded.', name: 'AppLifecycleService');
+  //   // The streak check is now handled elsewhere.
+  //   // try {
+  //   //   final profileRepository = _ref.read(profileRepositoryProvider);
+  //   //   await profileRepository.recordActivityAndCheckStreak(); // <-- THIS LINE CAUSED THE ERROR
+  //   //   developer.log('Streak check triggered by activity.', name: 'AppLifecycleService');
+  //   // } catch (e) {
+  //   //   developer.log(
+  //   //     'Error triggering streak check: $e',
+  //   //     error: e,
+  //   //     name: 'AppLifecycleService',
+  //   //   );
+  //   // }
+  // }
+
+  // Dispose method to clean up resources
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    // Ensure final time is recorded if app is disposed unexpectedly?
-    // This might be complex/unreliable. Syncing on pause/inactive is safer.
-    print("AppLifecycleService disposed");
+    _stopTimer();
+    // Perform a final sync and save before disposing
+    _syncWithBackend();
+    _saveAccumulatedTime();
+    developer.log('AppLifecycleService disposed.', name: 'AppLifecycleService');
   }
 }
-
-// Provider for the AppLifecycleService
-final appLifecycleServiceProvider = Provider<AppLifecycleService>((ref) {
-  // Pass ref to the constructor
-  final service = AppLifecycleService(ref);
-  // Ensure dispose is called when the provider is disposed
-  ref.onDispose(() => service.dispose());
-  return service;
-});

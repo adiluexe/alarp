@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:developer' as developer; // Use developer log
 
 // Import the LeaderboardEntry type defined in the datasource
 import 'package:alarp/data/datasources/supabase_profile_datasource.dart'
@@ -12,19 +13,13 @@ import 'package:alarp/data/datasources/supabase_profile_datasource.dart'; // Ens
 
 /// Abstract interface for profile-related data operations.
 abstract class ProfileRepository {
-  /// Records that the user completed an activity (Practice/Challenge)
-  /// and triggers the backend logic to update the daily streak if necessary.
-  ///
-  /// Throws an exception if the operation fails.
-  Future<void> recordActivityAndCheckStreak();
-
   /// Updates the total accumulated app usage time for the current user.
   ///
   /// [totalSeconds]: The total number of seconds the app has been used.
   /// Throws an exception if the operation fails.
   Future<void> updateTotalAppTime(int totalSeconds);
 
-  /// Submits the score for a completed challenge.
+  /// Submits the score for a completed challenge. Also triggers streak check.
   ///
   /// [challengeId]: Identifier of the challenge (e.g., 'ap_chest_timed').
   /// [challengeTitle]: Title of the challenge.
@@ -93,15 +88,28 @@ class SupabaseProfileRepository implements ProfileRepository {
 
   SupabaseProfileRepository(this._dataSource);
 
-  @override
-  Future<void> recordActivityAndCheckStreak() async {
-    // Delegate the call to the datasource
-    await _dataSource.callIncrementStreakIfNeeded();
+  // Helper to wrap calls and log errors (optional, but good practice)
+  Future<T> _tryCatch<T>(Future<T> Function() action, String operation) async {
+    try {
+      return await action();
+    } catch (e, s) {
+      developer.log(
+        'Error during $operation: $e',
+        error: e,
+        stackTrace: s,
+        name: 'SupabaseProfileRepository',
+      );
+      // Re-throw the original exception to be handled by the caller (e.g., controller)
+      rethrow;
+    }
   }
 
   @override
   Future<void> updateTotalAppTime(int totalSeconds) async {
-    await _dataSource.updateTotalAppTime(totalSeconds);
+    await _tryCatch(
+      () => _dataSource.updateTotalAppTime(totalSeconds),
+      'updateTotalAppTime',
+    );
   }
 
   @override
@@ -111,12 +119,14 @@ class SupabaseProfileRepository implements ProfileRepository {
     int score,
     List<Map<String, dynamic>> stepResultsJson,
   ) async {
-    // Correctly delegate the call to the datasource with all arguments
-    await _dataSource.submitChallengeScore(
-      challengeId,
-      challengeTitle,
-      score,
-      stepResultsJson,
+    await _tryCatch(
+      () => _dataSource.submitChallengeScore(
+        challengeId,
+        challengeTitle,
+        score,
+        stepResultsJson,
+      ),
+      'submitChallengeScore',
     );
   }
 
@@ -125,8 +135,10 @@ class SupabaseProfileRepository implements ProfileRepository {
     String challengeId, {
     int limit = 10,
   }) {
-    // Delegate the call to the datasource
-    return _dataSource.getDailyLeaderboard(challengeId, limit: limit);
+    return _tryCatch(
+      () => _dataSource.getDailyLeaderboard(challengeId, limit: limit),
+      'getDailyLeaderboard',
+    );
   }
 
   @override
@@ -134,25 +146,30 @@ class SupabaseProfileRepository implements ProfileRepository {
     String challengeId, {
     int limit = 10,
   }) {
-    // Delegate the call to the datasource
-    return _dataSource.getAllTimeLeaderboard(challengeId, limit: limit);
+    return _tryCatch(
+      () => _dataSource.getAllTimeLeaderboard(challengeId, limit: limit),
+      'getAllTimeLeaderboard',
+    );
   }
 
   @override
   Future<({int rank, int score})?> getUserDailyRank(String challengeId) {
-    // Delegate the call to the datasource
-    return _dataSource.getUserDailyRank(challengeId);
+    return _tryCatch(
+      () => _dataSource.getUserDailyRank(challengeId),
+      'getUserDailyRank',
+    );
   }
 
   @override
   Future<List<ChallengeAttempt>> getChallengeHistory({int limit = 20}) async {
-    // Correctly delegate the call to the datasource
-    return _dataSource.getChallengeHistory(limit: limit);
+    return _tryCatch(
+      () => _dataSource.getChallengeHistory(limit: limit),
+      'getChallengeHistory',
+    );
   }
 
   @override
   Future<Map<String, dynamic>?> getProfile() async {
-    // Delegate the call to the datasource
-    return _dataSource.getProfile();
+    return _tryCatch(() => _dataSource.getProfile(), 'getProfile');
   }
 }

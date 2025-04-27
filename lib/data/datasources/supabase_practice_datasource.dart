@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart'
     hide AuthException; // Hide Supabase AuthException
 import 'dart:developer' as developer; // Use developer log
+import 'package:alarp/core/providers/supabase_providers.dart'; // For supabaseClientProvider and userProfileProvider
 
 // Interface for the Practice Data Source
 abstract class PracticeDataSource {
@@ -25,8 +26,9 @@ abstract class PracticeDataSource {
 // Implementation using Supabase
 class SupabasePracticeDataSource implements PracticeDataSource {
   final SupabaseClient _client;
+  final Ref _ref; // Add Ref
 
-  SupabasePracticeDataSource(this._client);
+  SupabasePracticeDataSource(this._client, this._ref); // Modify constructor
 
   String _getUserId() {
     final user = _client.auth.currentUser;
@@ -44,6 +46,7 @@ class SupabasePracticeDataSource implements PracticeDataSource {
   }) async {
     final userId = _getUserId();
     try {
+      // 1. Insert the practice attempt
       await _client.from('practice_attempts').insert({
         'user_id': userId,
         'body_part_id': bodyPartId,
@@ -54,6 +57,40 @@ class SupabasePracticeDataSource implements PracticeDataSource {
         'Practice attempt added successfully',
         name: 'SupabasePracticeDataSource',
       );
+
+      // 2. Call RPC to increment streak
+      try {
+        await _client.rpc(
+          'increment_streak_if_needed',
+          params: {
+            'p_user_id': userId,
+          }, // Ensure param name matches RPC definition
+        );
+        developer.log(
+          'Streak increment check triggered after practice attempt',
+          name: 'SupabasePracticeDataSource',
+        );
+        // ---> Invalidate the user profile provider to force UI refresh <---
+        _ref.invalidate(userProfileProvider);
+        developer.log(
+          'Invalidated userProfileProvider after practice attempt.',
+          name: 'SupabasePracticeDataSource',
+        );
+      } on PostgrestException catch (e) {
+        // Log streak update failure but don't throw; main operation succeeded
+        developer.log(
+          'Error calling increment_streak_if_needed after practice: ${e.message}',
+          error: e,
+          name: 'SupabasePracticeDataSource',
+        );
+      } catch (e) {
+        // Log unexpected streak update failure
+        developer.log(
+          'Unexpected error calling increment_streak_if_needed after practice: $e',
+          error: e,
+          name: 'SupabasePracticeDataSource',
+        );
+      }
     } on PostgrestException catch (e) {
       developer.log(
         'Error adding practice attempt: ${e.message}',
@@ -160,6 +197,7 @@ class SupabasePracticeDataSource implements PracticeDataSource {
       developer.log(
         'Unexpected error fetching all practice attempts: $e',
         error: e,
+
         name: 'SupabasePracticeDataSource',
       );
       throw ServerException(
@@ -169,32 +207,21 @@ class SupabasePracticeDataSource implements PracticeDataSource {
   }
 
   // Helper function to calculate average accuracy from a list of attempts
-  // Updated to handle list of maps containing only 'accuracy'
   double _calculateAverage(List<dynamic> data) {
     if (data.isEmpty) {
       return 0.0;
     }
-    // Directly extract accuracy values, handling potential nulls or incorrect types
     final accuracies =
         data
-            .map((item) {
-              if (item is Map<String, dynamic> && item['accuracy'] is num) {
-                return item['accuracy'] as num;
-              }
-              return null; // Ignore invalid items
-            })
-            .whereType<num>() // Filter out nulls
+            .map(
+              (item) => (item as Map<String, dynamic>)['accuracy'] as num? ?? 0,
+            )
             .toList();
-
     if (accuracies.isEmpty) {
       return 0.0;
     }
-
-    final double sum = accuracies.fold(
-      0.0,
-      (prev, element) => prev + element.toDouble(),
-    );
-    return sum / accuracies.length;
+    final sum = accuracies.reduce((a, b) => a + b);
+    return (sum / accuracies.length).toDouble();
   }
 
   @override
@@ -286,19 +313,15 @@ class SupabasePracticeDataSource implements PracticeDataSource {
 
 // Provider for the PracticeDataSource implementation
 final supabasePracticeDataSourceProvider = Provider<PracticeDataSource>((ref) {
-  // Use ref.watch for Supabase client as it might change (e.g., auth state)
   final client = ref.watch(supabaseClientProvider);
-  return SupabasePracticeDataSource(client);
+  // Pass ref to the constructor
+  return SupabasePracticeDataSource(client, ref);
 });
 
-// Provider for Supabase client (assuming it's defined elsewhere, e.g., core/providers)
-// If not, define it here or in a central providers file.
-final supabaseClientProvider = Provider<SupabaseClient>((ref) {
-  // This assumes Supabase is initialized elsewhere and accessible.
-  return Supabase.instance.client;
-});
-
-// === Add Providers for Data Fetching ===
+// === Providers for Data Fetching ===
+// These seem duplicated from the repository file. Keeping the ones below
+// as they directly use the datasource, which might be intended.
+// Consider consolidating these providers in one place (either here or repository).
 
 final recentPracticeAttemptsProvider =
     FutureProvider.autoDispose<List<PracticeAttempt>>((ref) {
