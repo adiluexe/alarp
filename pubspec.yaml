@@ -101,9 +101,8 @@ flutter:
     - assets/images/practice/wrist/
     - assets/fonts/
     - assets/models/
-    - assets/models/body_colored.obj
+    - assets/models/body_colored.glb
     - assets/models/body.glb
-    - assets/models/skelly1.obj
     - assets/images/alarp_icon.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
