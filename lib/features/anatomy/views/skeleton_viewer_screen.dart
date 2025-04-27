@@ -116,8 +116,11 @@ class _SkeletonViewerScreenState extends State<SkeletonViewerScreen> {
                   debugPrint('Failed to load skeleton model: $error');
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Error loading model: $error'),
+                      content: Text(
+                        'Error loading model: $error\nPlease ensure the model file exists and is in the correct format.',
+                      ),
                       backgroundColor: Colors.red,
+                      duration: const Duration(seconds: 5),
                     ),
                   );
                 }
@@ -148,11 +151,17 @@ class _SkeletonViewerScreenState extends State<SkeletonViewerScreen> {
             Center(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  // Corrected multi-line string
-                  'Failed to load model.\\nPlease check the asset path and format.',
-                  style: TextStyle(color: Colors.red[700]),
-                  textAlign: TextAlign.center,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.error_outline, color: Colors.red[700], size: 48),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Failed to load model.\nPlease check:\n1. The model file exists in assets/models/\n2. The file format is correct (.obj)\n3. The model is not corrupted',
+                      style: TextStyle(color: Colors.red[700]),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
                 ),
               ),
             ),
