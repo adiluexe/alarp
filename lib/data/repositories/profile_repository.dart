@@ -73,6 +73,9 @@ abstract class ProfileRepository {
   /// Fetches the profile data for the current user.
   /// Returns a map containing profile data or null if not found or error.
   Future<Map<String, dynamic>?> getProfile();
+
+  /// Atomically increments the user's total app time in seconds using the Supabase RPC.
+  Future<void> incrementAppTime(int seconds);
 }
 
 // Provider for the ProfileRepository implementation
@@ -171,5 +174,13 @@ class SupabaseProfileRepository implements ProfileRepository {
   @override
   Future<Map<String, dynamic>?> getProfile() async {
     return _tryCatch(() => _dataSource.getProfile(), 'getProfile');
+  }
+
+  @override
+  Future<void> incrementAppTime(int seconds) async {
+    await _tryCatch(
+      () => _dataSource.incrementAppTime(seconds),
+      'incrementAppTime',
+    );
   }
 }

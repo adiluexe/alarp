@@ -7,7 +7,6 @@ class PrefKeys {
   static const String lastRecordedDate =
       'last_recorded_date'; // Store as ISO 8601 String (yyyy-MM-dd)
   static const String streakTriggeredToday = 'streak_triggered_today';
-  static const String totalAppTimeSeconds = 'total_app_time_seconds';
 }
 
 class SharedPreferencesService {
@@ -39,16 +38,6 @@ class SharedPreferencesService {
 
   Future<void> setStreakTriggeredToday(bool triggered) async {
     await _prefs.setBool(PrefKeys.streakTriggeredToday, triggered);
-  }
-
-  // --- Total App Time ---
-
-  int getTotalAppTimeSeconds() {
-    return _prefs.getInt(PrefKeys.totalAppTimeSeconds) ?? 0;
-  }
-
-  Future<void> setTotalAppTimeSeconds(int seconds) async {
-    await _prefs.setInt(PrefKeys.totalAppTimeSeconds, seconds);
   }
 
   // --- Utility ---

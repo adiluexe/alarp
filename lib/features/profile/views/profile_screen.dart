@@ -465,8 +465,6 @@ class ProfileScreen extends ConsumerWidget {
         );
 
         if (confirm == true) {
-          final prefsService = ref.read(sharedPreferencesServiceProvider);
-          await prefsService?.clearAll();
           await ref.read(authControllerProvider.notifier).signOut();
           if (context.mounted) {
             context.go(AppRoutes.getStarted);

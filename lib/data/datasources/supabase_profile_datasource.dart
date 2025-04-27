@@ -419,6 +419,46 @@ class SupabaseProfileDataSource {
       );
     }
   }
+
+  /// Atomically increments the user's total_app_time_seconds using the Supabase RPC.
+  Future<void> incrementAppTime(int seconds) async {
+    if (_userId == null) {
+      developer.log(
+        "User not logged in. Cannot increment app time.",
+        name: 'SupabaseProfileDataSource',
+      );
+      return;
+    }
+    if (seconds <= 0) return;
+    try {
+      await _client.rpc(
+        'increment_app_time',
+        params: {'p_user_id': _userId, 'p_seconds': seconds},
+      );
+      developer.log(
+        'Incremented app time by $seconds seconds via RPC.',
+        name: 'SupabaseProfileDataSource',
+      );
+      // Invalidate the user profile provider to force UI refresh
+      _ref.invalidate(userProfileProvider);
+    } on PostgrestException catch (e) {
+      developer.log(
+        'Supabase error incrementing app time: \\${e.message}',
+        error: e,
+        name: 'SupabaseProfileDataSource',
+      );
+      throw Exception('Failed to increment app time: \\${e.message}');
+    } catch (e) {
+      developer.log(
+        'Unexpected error incrementing app time: \\${e}',
+        error: e,
+        name: 'SupabaseProfileDataSource',
+      );
+      throw Exception(
+        'An unexpected error occurred while incrementing app time.',
+      );
+    }
+  }
 }
 
 // Provider for the SupabaseProfileDataSource
