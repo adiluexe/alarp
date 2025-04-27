@@ -244,29 +244,36 @@ class _SkeletonViewerScreenState extends State<SkeletonViewerScreen> {
                 onTap: _toggleLegend,
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        _isLegendExpanded
-                            ? SolarIconsOutline.arrowLeft
-                            : SolarIconsOutline.list,
-                        color: AppTheme.primaryColor,
-                        size: 24,
-                      ),
-                      if (_isLegendExpanded) ...[
-                        const SizedBox(width: 8),
-                        Text(
-                          'Bone Legend',
-                          style: Theme.of(
-                            context,
-                          ).textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.textColor,
-                          ),
+                  child: SizedBox(
+                    width: _isLegendExpanded ? 200 : 48,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Icon(
+                          _isLegendExpanded
+                              ? SolarIconsOutline.arrowLeft
+                              : SolarIconsOutline.list,
+                          color: AppTheme.primaryColor,
+                          size: 24,
                         ),
+                        if (_isLegendExpanded) ...[
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Bone Legend',
+                              style: Theme.of(
+                                context,
+                              ).textTheme.titleSmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.textColor,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
                 ),
               ),
