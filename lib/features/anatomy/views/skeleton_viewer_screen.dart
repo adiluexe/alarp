@@ -16,28 +16,62 @@ class _SkeletonViewerScreenState extends State<SkeletonViewerScreen> {
   final Flutter3DController _controller = Flutter3DController();
   double _progressValue = 0.0;
   String? _loadError;
+  bool _isGuidedViewActive = false; // State for toggling guided view
+
+  // Helper function to parse hex color string
+  Color _hexToColor(String code) {
+    return Color(int.parse(code.substring(1, 7), radix: 16) + 0xFF000000);
+  }
+
+  void _toggleGuidedView() {
+    setState(() {
+      _isGuidedViewActive = !_isGuidedViewActive;
+      // Reset progress and error when switching models
+      _progressValue = 0.0;
+      _loadError = null;
+      // Note: Changing the src might require the viewer to reload.
+      // Using a Key on Flutter3DViewer ensures it rebuilds.
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    final String currentModelSrc =
+        _isGuidedViewActive
+            ? 'assets/models/body_colored.glb'
+            : 'assets/models/body.glb';
+
     return Scaffold(
       backgroundColor:
           AppTheme.backgroundColor, // Or a darker theme if preferred
       appBar: AppBar(
-        title: const Text('Explore Skeleton'),
+        title: Text(
+          _isGuidedViewActive ? 'Guided Skeleton' : 'Explore Skeleton',
+        ),
         foregroundColor: Colors.white,
         leading: IconButton(
           icon: const Icon(SolarIconsOutline.altArrowLeft),
-          // Change from pop to go to the home route
           onPressed: () => context.go(AppRoutes.home),
         ),
-        // Add flexibleSpace for the gradient
+        actions: [
+          // Toggle Button
+          IconButton(
+            icon: Icon(
+              _isGuidedViewActive
+                  ? SolarIconsBold
+                      .eye // Icon for guided view active
+                  : SolarIconsOutline.eye, // Icon for standard view
+              color: Colors.white,
+            ),
+            tooltip:
+                _isGuidedViewActive ? 'Show Standard View' : 'Show Guided View',
+            onPressed: _toggleGuidedView,
+          ),
+        ],
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [
-                AppTheme.primaryColor,
-                AppTheme.secondaryColor, // Example gradient
-              ],
+              colors: [AppTheme.primaryColor, AppTheme.secondaryColor],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -46,47 +80,47 @@ class _SkeletonViewerScreenState extends State<SkeletonViewerScreen> {
       ),
       body: Stack(
         children: [
-          // Wrap the viewer in a Container to set the background color
           Container(
-            color: AppTheme.primaryColor.withOpacity(
-              0.8,
-            ), // Set the background color with opacity
+            color: AppTheme.primaryColor.withOpacity(0.8),
             child: Flutter3DViewer(
-              // Controller is needed for potential future interactions (animations, etc.)
+              // Use ValueKey to force rebuild when src changes
+              key: ValueKey(currentModelSrc),
               controller: _controller,
-              // Path to your GLB model asset
-              src: 'assets/models/body.glb',
-              // Enable touch interactions (zoom, pan, rotate) - default is true
+              src: currentModelSrc, // Dynamically set the model source
               enableTouch: true,
-              // Optional: Set camera defaults if needed
-              // cameraTarget: CameraTarget(0, 0.8, 0), // Example target
-              // cameraOrbit: CameraOrbit(0, 90, 5), // Example orbit
-              // Show a progress indicator while loading
               progressBarColor: AppTheme.primaryColor,
               onProgress: (double progress) {
-                setState(() {
-                  _progressValue = progress;
-                  _loadError = null; // Clear error on progress
-                });
-                debugPrint('Skeleton loading progress: $progress');
+                // Check if the widget is still mounted before calling setState
+                if (mounted) {
+                  setState(() {
+                    _progressValue = progress;
+                    _loadError = null; // Clear error on progress
+                  });
+                  debugPrint('Skeleton loading progress: $progress');
+                }
               },
               onLoad: (String modelAddress) {
-                setState(() {
-                  _progressValue = 1.0; // Ensure progress is 100% on load
-                });
-                debugPrint('Skeleton model loaded: $modelAddress');
+                if (mounted) {
+                  setState(() {
+                    _progressValue = 1.0; // Ensure progress is 100% on load
+                  });
+                  debugPrint('Skeleton model loaded: $modelAddress');
+                }
               },
               onError: (String error) {
-                setState(() {
-                  _loadError = error;
-                });
-                debugPrint('Failed to load skeleton model: $error');
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Error loading model: $error'),
-                    backgroundColor: Colors.red,
-                  ),
-                );
+                if (mounted) {
+                  setState(() {
+                    _loadError = error;
+                    _progressValue = 0.0; // Reset progress on error
+                  });
+                  debugPrint('Failed to load skeleton model: $error');
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Error loading model: $error'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
               },
             ),
           ),
@@ -103,7 +137,9 @@ class _SkeletonViewerScreenState extends State<SkeletonViewerScreen> {
                   const SizedBox(height: 16),
                   Text(
                     'Loading Skeleton...',
-                    style: TextStyle(color: AppTheme.textColor),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium?.copyWith(color: Colors.white),
                   ),
                 ],
               ),
@@ -113,13 +149,84 @@ class _SkeletonViewerScreenState extends State<SkeletonViewerScreen> {
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Text(
-                  'Failed to load model.\nPlease check the asset path and format.',
+                  // Corrected multi-line string
+                  'Failed to load model.\\nPlease check the asset path and format.',
                   style: TextStyle(color: Colors.red[700]),
                   textAlign: TextAlign.center,
                 ),
               ),
             ),
+
+          // Conditionally display the legend
+          if (_isGuidedViewActive &&
+              _progressValue == 1.0 &&
+              _loadError == null)
+            _buildLegend(context),
         ],
+      ),
+    );
+  }
+
+  // Widget to build the legend
+  Widget _buildLegend(BuildContext context) {
+    final legendItems = {
+      'Hip bone/pelvis': '#FFC8A2',
+      'Ulna': '#D2E5C6',
+      'Radius': '#E5C8C6', // Corrected hex code based on user input
+      'Fibula': '#AAD272',
+      'Cranial bone': '#EA7D70',
+      'Facial bone': '#FFBF98',
+    };
+
+    return Positioned(
+      bottom: 10,
+      left: 10,
+      child: Card(
+        color: AppTheme.backgroundColor.withOpacity(0.9),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min, // Make column take minimum space
+            children: [
+              Text(
+                'Legend',
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.textColor,
+                ),
+              ),
+              const SizedBox(height: 4),
+              ...legendItems.entries.map((entry) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2.0),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 12,
+                        height: 12,
+                        decoration: BoxDecoration(
+                          color: _hexToColor(entry.value),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.black54, width: 0.5),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        entry.key,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppTheme.textColor,
+                          fontSize: 11, // Slightly smaller font for legend
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ],
+          ),
+        ),
       ),
     );
   }
