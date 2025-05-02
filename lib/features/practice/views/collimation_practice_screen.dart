@@ -322,185 +322,179 @@ class _CollimationPracticeScreenState
                 ],
               ),
             ),
+          // --- Refactored Image Container Start ---
           Expanded(
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
-                  child: Container(
-                    height: 450, // Set fixed height
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          Image.asset(
-                            imageAsset, // Use the determined imageAsset
-                            fit: BoxFit.cover, // Change fit to cover
-                            errorBuilder: (context, error, stackTrace) {
-                              developer.log(
-                                'Image.asset errorBuilder triggered for path: $imageAsset',
-                                error: error,
-                                stackTrace: stackTrace,
-                                name: 'CollimationPractice',
-                              );
-                              return Center(
-                                child: Icon(
-                                  SolarIconsOutline.galleryRemove,
-                                  size: 60,
-                                  color: Colors.grey[400],
-                                ),
-                              );
-                            },
-                          ),
-                          Positioned.fill(
-                            child: IgnorePointer(
-                              child: CustomPaint(
-                                painter: CollimationPainter(
-                                  width: colState.width,
-                                  height: colState.height,
-                                  centerX: colState.centerX,
-                                  centerY: colState.centerY,
-                                  angle: colState.angle, // Pass angle
-                                ),
+            flex: 3, // Give more space to the image container
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+              child: AspectRatio(
+                aspectRatio: 3 / 4, // Set desired aspect ratio
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        Image.asset(
+                          imageAsset, // Use the determined imageAsset
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            developer.log(
+                              'Image.asset errorBuilder triggered for path: $imageAsset',
+                              error: error,
+                              stackTrace: stackTrace,
+                              name: 'CollimationPractice',
+                            );
+                            return Center(
+                              child: Icon(
+                                SolarIconsOutline.galleryRemove,
+                                size: 60,
+                                color: Colors.grey[400],
+                              ),
+                            );
+                          },
+                        ),
+                        Positioned.fill(
+                          child: IgnorePointer(
+                            child: CustomPaint(
+                              painter: CollimationPainter(
+                                width: colState.width,
+                                height: colState.height,
+                                centerX: colState.centerX,
+                                centerY: colState.centerY,
+                                angle: colState.angle, // Pass angle
                               ),
                             ),
                           ),
-                          // Reset Button Overlay
-                          Positioned(
-                            top: 12,
-                            left: 12,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.black.withAlpha(
-                                  (255 * 0.5).round(),
-                                ),
-                                borderRadius: BorderRadius.circular(
-                                  20,
-                                ), // Make it circular
+                        ),
+                        // Reset Button Overlay
+                        Positioned(
+                          top: 12,
+                          left: 12,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.black.withAlpha(
+                                (255 * 0.5).round(),
                               ),
-                              child: IconButton(
-                                icon: const Icon(SolarIconsOutline.refresh),
-                                color: Colors.white,
-                                iconSize: 20,
-                                tooltip: 'Reset Collimation',
-                                onPressed:
-                                    _resetCollimationState, // Call reset function
-                                padding:
-                                    EdgeInsets.zero, // Remove default padding
-                                constraints: const BoxConstraints(
-                                  // Ensure it's compact
-                                  minHeight: 36,
-                                  minWidth: 36,
-                                ),
+                              borderRadius: BorderRadius.circular(
+                                20,
+                              ), // Make it circular
+                            ),
+                            child: IconButton(
+                              icon: const Icon(SolarIconsOutline.refresh),
+                              color: Colors.white,
+                              iconSize: 20,
+                              tooltip: 'Reset Collimation',
+                              onPressed: _resetCollimationState,
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(
+                                minHeight: 36,
+                                minWidth: 36,
                               ),
                             ),
                           ),
-                          // Accuracy Display Overlay
-                          Positioned(
-                            top: 12,
-                            right: 12,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 5,
-                              ),
-                              decoration: BoxDecoration(
-                                color: _getAccuracyColor(
-                                  controller.collimationAccuracy,
-                                ).withAlpha((255 * 0.85).round()),
-                                borderRadius: BorderRadius.circular(12),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withAlpha(
-                                      (255 * 0.2).round(),
-                                    ),
-                                    blurRadius: 4,
-                                    offset: const Offset(0, 1),
+                        ),
+                        // Accuracy Display Overlay (Kept Original)
+                        Positioned(
+                          top: 12,
+                          right: 12,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 5,
+                            ),
+                            decoration: BoxDecoration(
+                              color: _getAccuracyColor(
+                                controller.collimationAccuracy,
+                              ).withAlpha((255 * 0.85).round()),
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withAlpha(
+                                    (255 * 0.2).round(),
                                   ),
-                                ],
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    SolarIconsOutline.graphUp, // Or target icon
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 1),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  SolarIconsOutline.graphUp,
+                                  color: Colors.white,
+                                  size: 16,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  '${controller.collimationAccuracy.toStringAsFixed(1)}%',
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.labelMedium?.copyWith(
                                     color: Colors.white,
-                                    size: 16,
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    '${controller.collimationAccuracy.toStringAsFixed(1)}%',
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.labelMedium?.copyWith(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          // New Target Info Display Overlay
-                          Positioned(
-                            top:
-                                52, // Position below the accuracy display (adjust as needed)
-                            right: 12,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.black.withAlpha(
-                                  (255 * 0.6).round(),
                                 ),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  _buildInfoRow(
-                                    context,
-                                    'IR Size:',
-                                    targetInfo
-                                        .irSize, // Use data from PracticeTargetInfo
-                                  ),
-                                  _buildInfoRow(
-                                    context,
-                                    'IR Orient:',
-                                    targetInfo
-                                        .irOrientation, // Use data from PracticeTargetInfo
-                                  ),
-                                  _buildInfoRow(
-                                    context,
-                                    'Position:',
-                                    targetInfo
-                                        .pxPosition, // Use data from PracticeTargetInfo
-                                  ),
-                                ],
-                              ),
+                              ],
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                        // New Target Info Display Overlay (Kept Original)
+                        Positioned(
+                          top: 52, // Adjust as needed
+                          right: 12,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withAlpha(
+                                (255 * 0.6).round(),
+                              ),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildInfoRow(
+                                  context,
+                                  'IR Size:',
+                                  targetInfo.irSize,
+                                ),
+                                _buildInfoRow(
+                                  context,
+                                  'IR Orient:',
+                                  targetInfo.irOrientation,
+                                ),
+                                _buildInfoRow(
+                                  context,
+                                  'Position:',
+                                  targetInfo.pxPosition,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
-                Expanded(
-                  child: CollimationControlsWidget(
-                    // Pass params to controls widget
-                    params: params,
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
+          // --- Refactored Image Container End ---
+          // --- Collimation Controls Start ---
+          Expanded(
+            flex: 2, // Give proportional space to controls
+            child: CollimationControlsWidget(params: params),
+          ),
+          // --- Collimation Controls End ---
         ],
       ),
     );
