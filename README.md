@@ -10,9 +10,11 @@
 - **Profile:** Track your progress, view statistics (including total app time, challenge history, practice history), and compete on daily/all-time leaderboards.
 - **Authentication:** Secure user accounts using Supabase (Email/Password with OTP verification).
 
-## 📸 Screenshots
+## 📸 Screenshots & Demo
 
-<!-- Add screenshots here -->
+**[View App Showcase →](SHOWCASE.md)**
+
+See detailed screenshots and feature demonstrations of ALARP in action, including the 3D anatomy viewer, collimation practice interface, and gamified challenges.
 
 ## 🛠️ Tech Stack
 
