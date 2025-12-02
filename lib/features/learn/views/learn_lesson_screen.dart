@@ -11,6 +11,7 @@ import 'package:alarp/features/learn/widgets/learn_model_viewer.dart';
 import 'package:alarp/features/learn/views/learn_region_detail_screen.dart'
     show learnRegionProvider;
 import 'package:alarp/features/practice/models/body_region.dart';
+import 'package:alarp/features/learn/widgets/quiz_widget.dart';
 
 class LearnLessonScreen extends ConsumerWidget {
   final String lessonId;
@@ -96,6 +97,11 @@ class LearnLessonScreen extends ConsumerWidget {
                 aspectRatio: 16 / 9,
               ),
             ),
+
+          const SizedBox(height: 32),
+
+          // 4. Active Learning Quiz
+          _buildQuizForLesson(lesson.id),
 
           const SizedBox(height: 24), // Padding at the bottom
         ],
@@ -209,6 +215,61 @@ class LearnLessonScreen extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildQuizForLesson(String lessonId) {
+    // Mock data for demonstration - in a real app, this would come from the Lesson model
+    String question;
+    List<String> options;
+    int correctIndex;
+
+    switch (lessonId) {
+      case 'shoulder':
+        question = 'What is the correct CR angle for an AP Shoulder?';
+        options = [
+          '15 degrees cephalad',
+          'Perpendicular',
+          '30 degrees caudad',
+          '45 degrees oblique',
+        ];
+        correctIndex = 1;
+        break;
+      case 'chest':
+        question = 'Where should the CR be centered for a PA Chest?';
+        options = ['T5', 'T7', 'T10', 'Sternal Angle'];
+        correctIndex = 1;
+        break;
+      case 'hand':
+        question = 'Which projection best demonstrates the carpal interspaces?';
+        options = ['PA', 'Lateral', 'AP', 'Oblique'];
+        correctIndex = 2; // AP usually shows interspaces better than PA
+        break;
+      case 'wrist':
+        question = 'For a PA Scaphoid view, how should the hand be positioned?';
+        options = [
+          'Radial deviation',
+          'Ulnar deviation',
+          'Neutral',
+          'Flexed 90 degrees',
+        ];
+        correctIndex = 1;
+        break;
+      default:
+        question = 'What is the primary purpose of this projection?';
+        options = [
+          'Visualize fractures',
+          'Soft tissue analysis',
+          'Joint space evaluation',
+          'All of the above',
+        ];
+        correctIndex = 3;
+    }
+
+    return QuizWidget(
+      question: question,
+      options: options,
+      correctIndex: correctIndex,
     );
   }
 }

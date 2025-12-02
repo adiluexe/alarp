@@ -5,14 +5,91 @@ import 'package:alarp/core/theme/app_theme.dart';
 import 'package:alarp/features/practice/models/body_region.dart'; // Assuming models are shared or moved to core
 import 'package:alarp/core/navigation/app_router.dart'; // Import AppRoutes
 
-class LearnScreen extends StatelessWidget {
+class LearnScreen extends StatefulWidget {
   const LearnScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Use the actual BodyRegions data if available
-    final regions = BodyRegions.allRegions;
+  State<LearnScreen> createState() => _LearnScreenState();
+}
 
+class _LearnScreenState extends State<LearnScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  List<BodyRegion> _filteredRegions = [];
+  String _selectedCategory = 'All';
+  final List<String> _categories = [
+    'All',
+    'Upper Body',
+    'Lower Body',
+    'Spine',
+    'Thorax',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _filteredRegions = BodyRegions.allRegions;
+    _searchController.addListener(_filterRegions);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _filterRegions() {
+    final query = _searchController.text.toLowerCase();
+    setState(() {
+      var regions = BodyRegions.allRegions;
+
+      // Filter by Category
+      if (_selectedCategory != 'All') {
+        regions =
+            regions.where((region) {
+              switch (_selectedCategory) {
+                case 'Upper Body':
+                  return [
+                    'upper_extremity',
+                    'head_&_neck',
+                    'thorax',
+                  ].contains(region.id);
+                case 'Lower Body':
+                  return [
+                    'lower_extremity',
+                    'abdomen_&_pelvis',
+                  ].contains(region.id);
+                case 'Spine':
+                  return region.id == 'spine';
+                case 'Thorax':
+                  return region.id == 'thorax';
+                default:
+                  return true;
+              }
+            }).toList();
+      }
+
+      // Filter by Search Query
+      if (query.isNotEmpty) {
+        regions =
+            regions.where((region) {
+              final titleMatch = region.title.toLowerCase().contains(query);
+              final partMatch = region.bodyParts.any(
+                (part) =>
+                    part.title.toLowerCase().contains(query) ||
+                    part.projections.any(
+                      (proj) => proj.toLowerCase().contains(query),
+                    ),
+              );
+              return titleMatch || partMatch;
+            }).toList();
+      }
+
+      _filteredRegions = regions;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       body: SafeArea(
@@ -38,38 +115,127 @@ class LearnScreen extends StatelessWidget {
                     Text(
                       'Study radiographic positioning by body regions',
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        // Use withAlpha for opacity
                         color: AppTheme.textColor.withAlpha(
                           (255 * 0.7).round(),
                         ),
                       ),
                     ),
                     const SizedBox(height: 24),
+                    // Search Bar
+                    TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        hintText: 'Search regions, parts, or projections...',
+                        prefixIcon: const Icon(SolarIconsOutline.magnifier),
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide.none,
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    // Category Filters
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          for (final category in _categories)
+                            Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: FilterChip(
+                                label: Text(category),
+                                selected: _selectedCategory == category,
+                                onSelected: (selected) {
+                                  setState(() {
+                                    _selectedCategory = category;
+                                    _filterRegions();
+                                  });
+                                },
+                                backgroundColor: Colors.white,
+                                selectedColor: AppTheme.primaryColor
+                                    .withOpacity(0.2),
+                                labelStyle: TextStyle(
+                                  color:
+                                      _selectedCategory == category
+                                          ? AppTheme.primaryColor
+                                          : AppTheme.textColor,
+                                  fontWeight:
+                                      _selectedCategory == category
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                  side: BorderSide(
+                                    color:
+                                        _selectedCategory == category
+                                            ? AppTheme.primaryColor
+                                            : Colors.transparent,
+                                  ),
+                                ),
+                                showCheckmark: false,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
                   ],
                 ),
               ),
             ),
 
             // Body regions grid
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              sliver: SliverGrid(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 16,
-                  crossAxisSpacing: 16,
-                  childAspectRatio: 0.85, // Taller cards
+            if (_filteredRegions.isEmpty)
+              SliverToBoxAdapter(
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(32.0),
+                    child: Column(
+                      children: [
+                        Icon(
+                          SolarIconsOutline.magnifier,
+                          size: 48,
+                          color: AppTheme.textColor.withOpacity(0.5),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'No matching regions found',
+                          style: TextStyle(
+                            color: AppTheme.textColor.withOpacity(0.5),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  final region = regions[index];
-                  return _buildBodyRegionCard(
-                    context,
-                    region: region,
-                    completedPositions: 0, // Placeholder for progress
-                  );
-                }, childCount: regions.length),
+              )
+            else
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                sliver: SliverGrid(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 16,
+                    crossAxisSpacing: 16,
+                    childAspectRatio: 0.85,
+                  ),
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final region = _filteredRegions[index];
+                    return _buildBodyRegionCard(
+                      context,
+                      region: region,
+                      completedPositions: 0,
+                    );
+                  }, childCount: _filteredRegions.length),
+                ),
               ),
-            ),
 
             // Bottom space
             const SliverToBoxAdapter(child: SizedBox(height: 24)),
@@ -122,10 +288,7 @@ class LearnScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Center(
-                child: Text(
-                  region.emoji,
-                  style: const TextStyle(fontSize: 24),
-                ),
+                child: Text(region.emoji, style: const TextStyle(fontSize: 24)),
               ),
             ),
             const Spacer(),
@@ -144,7 +307,7 @@ class LearnScreen extends StatelessWidget {
             const SizedBox(height: 4),
             // Progress Text
             Text(
-              '$completedPositions/${region.positionCount} Topics',
+              '${region.positionCount} Topics',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: contentColor.withOpacity(0.8),
                 fontSize: 11,
