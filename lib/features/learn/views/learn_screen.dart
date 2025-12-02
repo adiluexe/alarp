@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart'; // Import GoRouter
+import 'package:alarp/features/learn/controllers/learn_progress_provider.dart';
 import 'package:solar_icons/solar_icons.dart'; // Import Solar Icons
 import 'package:alarp/core/theme/app_theme.dart';
 import 'package:alarp/features/practice/models/body_region.dart'; // Assuming models are shared or moved to core
 import 'package:alarp/core/navigation/app_router.dart'; // Import AppRoutes
 
-class LearnScreen extends StatefulWidget {
+class LearnScreen extends ConsumerStatefulWidget {
   const LearnScreen({super.key});
 
   @override
-  State<LearnScreen> createState() => _LearnScreenState();
+  ConsumerState<LearnScreen> createState() => _LearnScreenState();
 }
 
-class _LearnScreenState extends State<LearnScreen> {
+class _LearnScreenState extends ConsumerState<LearnScreen> {
   final TextEditingController _searchController = TextEditingController();
   List<BodyRegion> _filteredRegions = [];
   String _selectedCategory = 'All';
@@ -90,6 +92,8 @@ class _LearnScreenState extends State<LearnScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final completedLessonIds = ref.watch(learnProgressProvider);
+
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       body: SafeArea(
@@ -228,10 +232,19 @@ class _LearnScreenState extends State<LearnScreen> {
                   ),
                   delegate: SliverChildBuilderDelegate((context, index) {
                     final region = _filteredRegions[index];
+
+                    // Calculate completed positions for this region
+                    final completedCount =
+                        region.bodyParts
+                            .where(
+                              (part) => completedLessonIds.contains(part.id),
+                            )
+                            .length;
+
                     return _buildBodyRegionCard(
                       context,
                       region: region,
-                      completedPositions: 0,
+                      completedPositions: completedCount,
                     );
                   }, childCount: _filteredRegions.length),
                 ),

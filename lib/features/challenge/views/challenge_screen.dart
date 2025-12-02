@@ -168,16 +168,34 @@ class ChallengeScreen extends ConsumerWidget {
                       ],
                     ),
                     const SizedBox(height: 12),
-                    _buildQuickPlayCard(
-                      context,
-                      title: 'Region Master',
-                      subtitle: 'Focus on specific body areas',
-                      icon: SolarIconsBold.mapPoint,
-                      color: Colors.purpleAccent,
-                      isHorizontal: true,
-                      onTap: () {
-                        // TODO: Navigate to Region Master
-                      },
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildQuickPlayCard(
+                            context,
+                            title: 'Region Master',
+                            subtitle: 'Focus on areas',
+                            icon: SolarIconsBold.mapPoint,
+                            color: Colors.purpleAccent,
+                            onTap: () {
+                              // TODO: Navigate to Region Master
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _buildQuickPlayCard(
+                            context,
+                            title: 'Flashcards',
+                            subtitle: 'Rapid Review',
+                            icon: SolarIconsBold.gallery,
+                            color: Colors.blueAccent,
+                            onTap: () {
+                              context.push(AppRoutes.flashcards);
+                            },
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),

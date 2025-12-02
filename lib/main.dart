@@ -4,8 +4,9 @@ import 'package:alarp/core/navigation/app_router.dart';
 import 'package:alarp/core/theme/app_theme.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:alarp/core/services/app_lifecycle_service.dart';
 import 'package:alarp/core/services/session_time_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:alarp/features/learn/controllers/learn_progress_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,7 +20,16 @@ Future<void> main() async {
     anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
   );
 
-  runApp(const ProviderScope(child: MyApp()));
+  final sharedPreferences = await SharedPreferences.getInstance();
+
+  runApp(
+    ProviderScope(
+      overrides: [
+        sharedPreferencesProvider.overrideWithValue(sharedPreferences),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends ConsumerWidget {

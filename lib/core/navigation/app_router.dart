@@ -5,18 +5,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart'; // Import Riverpod
 import 'package:alarp/features/learn/views/learn_screen.dart';
 import 'package:alarp/features/learn/views/learn_region_detail_screen.dart';
 import 'package:alarp/features/learn/views/learn_lesson_screen.dart'; // Ensure this points to the updated screen
+import 'package:alarp/features/learn/views/flashcard_screen.dart';
 import 'package:alarp/features/practice/views/practice_screen.dart';
 import 'package:alarp/features/practice/views/region_detail_screen.dart';
-// Import the renamed screen
 import 'package:alarp/features/practice/views/collimation_practice_screen.dart';
 import 'package:alarp/features/home/views/home_screen.dart';
 import 'package:alarp/features/challenge/views/challenge_screen.dart';
-import 'package:alarp/features/challenge/views/challenge_start_screen.dart'; // Import start screen
-import 'package:alarp/features/challenge/views/challenge_active_screen.dart'; // Import active screen
+import 'package:alarp/features/challenge/views/challenge_start_screen.dart';
+import 'package:alarp/features/challenge/views/challenge_active_screen.dart';
 import 'package:alarp/features/profile/views/profile_screen.dart';
-import 'package:alarp/core/navigation/navigation.dart'; // Import the main navigation shell
-import 'package:alarp/features/practice/models/body_region.dart'; // Import BodyRegions
-import 'package:alarp/features/challenge/models/challenge.dart'; // Import Challenge model
+import 'package:alarp/core/navigation/navigation.dart';
+import 'package:alarp/features/practice/models/body_region.dart';
+import 'package:alarp/features/challenge/models/challenge.dart';
 import 'package:alarp/features/anatomy/views/skeleton_viewer_screen.dart'; // Import the new screen
 import 'package:alarp/features/practice/views/recent_practice_list_screen.dart'; // Ensure this import is present
 import 'package:alarp/features/profile/views/leaderboard_screen.dart'; // Import the new leaderboard screen
@@ -69,6 +69,7 @@ class AppRoutes {
       '/leaderboard'; // New route for the full leaderboard
   static const challengeHistory =
       '/challenge-history'; // New route for challenge history
+  static const flashcards = '/flashcards'; // New route for flashcards
 
   // Helper method to build the full path for challenge start
   static String challengeStartRoute(String challengeId) =>
@@ -226,6 +227,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.challengeHistory,
         builder: (context, state) => const ChallengeHistoryScreen(),
+      ),
+      // Flashcard Screen (outside ShellRoute)
+      GoRoute(
+        path: AppRoutes.flashcards,
+        builder: (context, state) => const FlashcardScreen(),
       ),
       // MOVED: Collimation Practice Screen (outside ShellRoute)
       GoRoute(

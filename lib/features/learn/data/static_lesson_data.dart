@@ -61,15 +61,47 @@ This guide covers common radiographic projections for the shoulder joint.
 *   **Reference Point:** Scapulohumeral joint.
 *   **Structures Shown:** Humeral head directly superimposed over the junction of Y (normal shoulder). Anterior (subcoracoid) dislocations: humeral head is beneath coracoid process. Posterior (subacromial) dislocations: projected beneath acromion process.
 """,
+    quizQuestions: [
+      QuizQuestion(
+        question: 'What is the correct CR angle for an AP Shoulder?',
+        options: [
+          '15 degrees cephalad',
+          'Perpendicular',
+          '30 degrees caudad',
+          '45 degrees oblique',
+        ],
+        correctIndex: 1,
+        explanation:
+            'The Central Ray is perpendicular for a standard AP Shoulder projection.',
+      ),
+      QuizQuestion(
+        question:
+            'For AP External Rotation, how should the epicondyles be positioned?',
+        options: [
+          'Perpendicular to IR',
+          'Parallel to IR',
+          '45 degrees to IR',
+          'Vertical',
+        ],
+        correctIndex: 1,
+        explanation:
+            'For External Rotation, the epicondyles should be parallel to the plane of the IR.',
+      ),
+    ],
+    clinicalCriteria: [
+      'Superior scapula, clavicle, and proximal humerus shown',
+      'Soft tissue detail visible',
+      'Greater tubercle in profile laterally (External Rotation)',
+      'Lesser tubercle in profile medially (Internal Rotation)',
+    ],
   ),
 
   const Lesson(
-    id: 'humerus', // Matches BodyPart ID
+    id: 'humerus',
     title: 'Humerus Radiography',
     bodyRegion: 'Upper Extremity',
     projectionName: 'Various Projections',
-    // imageUrl: 'assets/images/practice/humerus.png', // General image
-    modelPath: 'assets/models/humerus.glb', // Placeholder
+    modelPath: 'assets/models/humerus.glb',
     content: """
 # Humerus Radiography Guide
 
@@ -96,15 +128,20 @@ This guide covers standard AP and Lateral projections of the humerus.
 *   **Reference Point:** Mid portion of humerus.
 *   **Structures Shown:** Lateral Projection of entire Humerus.
 """,
+    clinicalCriteria: [
+      'Entire humerus including shoulder and elbow joints',
+      'Epicondyles are parallel to IR (AP)',
+      'Epicondyles are perpendicular to IR (Lateral)',
+      'No rotation',
+    ],
   ),
 
   const Lesson(
-    id: 'elbow', // Matches BodyPart ID
+    id: 'elbow',
     title: 'Elbow Radiography',
     bodyRegion: 'Upper Extremity',
     projectionName: 'Various Projections',
-    // imageUrl: 'assets/images/practice/elbow.png', // General image
-    modelPath: 'assets/models/elbow.glb', // Placeholder
+    modelPath: 'assets/models/elbow.glb',
     content: """
 # Elbow Radiography Guide
 
@@ -147,15 +184,20 @@ This guide covers standard projections for the elbow joint.
 *   **Reference Point:** Elbow joint.
 *   **Structures Shown:** Radial head and neck projected free of superimposition of the ulna.
 """,
+    clinicalCriteria: [
+      'Distal humerus, proximal radius and ulna shown',
+      'Radial head, neck, and tuberosity slightly superimposed over proximal ulna (AP)',
+      'Elbow flexed 90 degrees (Lateral)',
+      'Olecranon process in profile (Lateral)',
+    ],
   ),
 
   const Lesson(
-    id: 'forearm', // Matches BodyPart ID
+    id: 'forearm',
     title: 'Forearm Radiography',
     bodyRegion: 'Upper Extremity',
     projectionName: 'Various Projections',
-    // imageUrl: 'assets/images/practice/forearm/forearm_ap.jpeg', // General image
-    modelPath: 'assets/models/forearm.glb', // Placeholder
+    modelPath: 'assets/models/forearm.glb',
     content: """
 # Forearm Radiography Guide
 
@@ -185,15 +227,20 @@ Standard forearm radiography includes AP and Lateral projections to visualize th
 *   **Reference Point:** Midpoint of the forearm.
 *   **Structures Shown:** Bones of the forearm. Elbow joint. Proximal row of carpal bones.
 """,
+    clinicalCriteria: [
+      'Entire radius and ulna shown',
+      'Proximal row of carpals and distal humerus included',
+      'No rotation of humeral epicondyles (AP)',
+      'Elbow flexed 90 degrees (Lateral)',
+    ],
   ),
 
   const Lesson(
-    id: 'wrist', // Matches BodyPart ID
+    id: 'wrist',
     title: 'Wrist Radiography',
     bodyRegion: 'Upper Extremity',
     projectionName: 'Various Projections',
-    // imageUrl: 'assets/images/practice/wrist.png', // General image
-    modelPath: 'assets/models/wrist.glb', // Placeholder
+    modelPath: 'assets/models/wrist.glb',
     content: """
 # Wrist Radiography Guide
 
@@ -260,15 +307,45 @@ This guide covers common projections for the wrist joint and carpal bones.
 *   **Reference Point:** Midcarpal area.
 *   **Structures Shown:** Open interspaces between the carpals on the medial side.
 """,
+    quizQuestions: [
+      QuizQuestion(
+        question: 'For a PA Scaphoid view, how should the hand be positioned?',
+        options: [
+          'Radial deviation',
+          'Ulnar deviation',
+          'Neutral',
+          'Flexed 90 degrees',
+        ],
+        correctIndex: 1,
+        explanation:
+            'Ulnar deviation corrects the foreshortening of the scaphoid.',
+      ),
+      QuizQuestion(
+        question: 'What is the CR centering point for a PA Wrist?',
+        options: [
+          'Midcarpal area',
+          'Third MCP joint',
+          'Radial styloid',
+          'Ulnar styloid',
+        ],
+        correctIndex: 0,
+        explanation: 'The CR is perpendicular to the midcarpal area.',
+      ),
+    ],
+    clinicalCriteria: [
+      'Distal radius, ulna, and carpals demonstrated',
+      'No rotation in PA (concavity of metacarpal shafts equal)',
+      'Superimposed distal radius and ulna in Lateral',
+      'Scaphoid clearly visualized in Ulnar Deviation',
+    ],
   ),
 
   const Lesson(
-    id: 'hand', // Matches BodyPart ID
+    id: 'hand',
     title: 'Hand Radiography',
     bodyRegion: 'Upper Extremity',
     projectionName: 'Various Projections',
-    // imageUrl: 'assets/images/practice/hand.png', // General image
-    modelPath: 'assets/models/hand.glb', // Placeholder
+    modelPath: 'assets/models/hand.glb',
     content: """
 # Hand Radiography Guide
 
@@ -311,6 +388,32 @@ This guide covers standard projections for the hand, including fingers and thumb
 *   **Reference Point:** MCP joint.
 *   **Structures Shown:** Shows AP 45-degree oblique projection of both hands.
 """,
+    quizQuestions: [
+      QuizQuestion(
+        question: 'Which projection best demonstrates the carpal interspaces?',
+        options: ['PA', 'Lateral', 'AP', 'Oblique'],
+        correctIndex: 2,
+        explanation:
+            'AP usually shows interspaces better than PA due to the divergence of the beam matching the interspaces.',
+      ),
+      QuizQuestion(
+        question: 'What is the CR centering point for a PA Hand?',
+        options: [
+          '3rd MCP joint',
+          '2nd MCP joint',
+          'Midcarpal area',
+          'PIP joints',
+        ],
+        correctIndex: 0,
+        explanation: 'The CR is perpendicular to the 3rd MCP joint.',
+      ),
+    ],
+    clinicalCriteria: [
+      'Entire hand, wrist, and distal forearm included',
+      'No rotation of hand in PA',
+      'Digits separated and not overlapping (Oblique)',
+      'Digits superimposed (Lateral)',
+    ],
   ),
 
   // --- Head & Neck ---
@@ -721,7 +824,6 @@ Rib exams are often divided into Upper and Lower ribs, and Anterior vs Posterior
 *   **Structures Shown:** Coccyx free of superimposition.
 """,
   ),
-
 ];
 
 /// Utility function to retrieve a lesson by its ID from the static list.

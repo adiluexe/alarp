@@ -6,7 +6,7 @@ class QuizWidget extends StatefulWidget {
   final String question;
   final List<String> options;
   final int correctIndex;
-  final VoidCallback? onComplete;
+  final void Function(bool isCorrect)? onComplete;
 
   const QuizWidget({
     super.key,
@@ -37,7 +37,7 @@ class _QuizWidgetState extends State<QuizWidget> {
       _isSubmitted = true;
     });
     if (widget.onComplete != null) {
-      widget.onComplete!();
+      widget.onComplete!(_selectedIndex == widget.correctIndex);
     }
   }
 
