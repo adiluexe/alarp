@@ -148,7 +148,7 @@ class ChallengeScreen extends ConsumerWidget {
                             icon: SolarIconsBold.stopwatch,
                             color: Colors.orange,
                             onTap: () {
-                              // TODO: Navigate to Speed Run
+                              context.push(AppRoutes.speedRun);
                             },
                           ),
                         ),
@@ -161,7 +161,7 @@ class ChallengeScreen extends ConsumerWidget {
                             icon: SolarIconsBold.shieldWarning,
                             color: Colors.redAccent,
                             onTap: () {
-                              // TODO: Navigate to Survival
+                              context.push(AppRoutes.survival);
                             },
                           ),
                         ),
@@ -178,7 +178,7 @@ class ChallengeScreen extends ConsumerWidget {
                             icon: SolarIconsBold.mapPoint,
                             color: Colors.purpleAccent,
                             onTap: () {
-                              // TODO: Navigate to Region Master
+                              context.push(AppRoutes.regionMaster);
                             },
                           ),
                         ),

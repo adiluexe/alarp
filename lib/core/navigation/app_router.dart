@@ -6,6 +6,9 @@ import 'package:alarp/features/learn/views/learn_screen.dart';
 import 'package:alarp/features/learn/views/learn_region_detail_screen.dart';
 import 'package:alarp/features/learn/views/learn_lesson_screen.dart'; // Ensure this points to the updated screen
 import 'package:alarp/features/learn/views/flashcard_screen.dart';
+import 'package:alarp/features/challenge/views/speed_run_screen.dart';
+import 'package:alarp/features/challenge/views/survival_screen.dart';
+import 'package:alarp/features/challenge/views/region_master_screen.dart';
 import 'package:alarp/features/practice/views/practice_screen.dart';
 import 'package:alarp/features/practice/views/region_detail_screen.dart';
 import 'package:alarp/features/practice/views/collimation_practice_screen.dart';
@@ -70,6 +73,15 @@ class AppRoutes {
   static const challengeHistory =
       '/challenge-history'; // New route for challenge history
   static const flashcards = '/flashcards'; // New route for flashcards
+  static const speedRun = '/speed-run'; // New route for speed run
+  static const survival = '/survival'; // New route for survival
+  static const regionMaster =
+      '/region-master'; // New route for region master selection
+  static const regionMasterGame =
+      '/region-master/:regionId'; // New route for region master game
+
+  static String regionMasterGameRoute(String regionId) =>
+      regionMasterGame.replaceFirst(':regionId', regionId);
 
   // Helper method to build the full path for challenge start
   static String challengeStartRoute(String challengeId) =>
@@ -232,6 +244,25 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.flashcards,
         builder: (context, state) => const FlashcardScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.speedRun,
+        builder: (context, state) => const SpeedRunScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.survival,
+        builder: (context, state) => const SurvivalScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.regionMaster,
+        builder: (context, state) => const RegionMasterScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.regionMasterGame,
+        builder: (context, state) {
+          final regionId = state.pathParameters['regionId'];
+          return SpeedRunScreen(regionId: regionId);
+        },
       ),
       // MOVED: Collimation Practice Screen (outside ShellRoute)
       GoRoute(
