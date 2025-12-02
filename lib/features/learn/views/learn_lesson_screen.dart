@@ -14,6 +14,7 @@ import 'package:alarp/features/learn/views/learn_region_detail_screen.dart'
 import 'package:alarp/features/practice/models/body_region.dart';
 import 'package:alarp/features/learn/widgets/quiz_widget.dart';
 import 'package:alarp/features/learn/widgets/clinical_checklist_widget.dart';
+import 'package:alarp/features/learn/controllers/bookmarks_provider.dart';
 
 class LearnLessonScreen extends ConsumerWidget {
   final String lessonId;
@@ -48,6 +49,36 @@ class LearnLessonScreen extends ConsumerWidget {
         // Use white for text/icons on colored background
         foregroundColor: Colors.white,
         elevation: 0, // Match region detail screen elevation
+        actions: [
+          Consumer(
+            builder: (context, ref, child) {
+              final bookmarks = ref.watch(bookmarksProvider);
+              final isBookmarked = bookmarks.contains(lessonId);
+              return IconButton(
+                icon: Icon(
+                  isBookmarked
+                      ? SolarIconsBold.bookmark
+                      : SolarIconsOutline.bookmark,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  ref.read(bookmarksProvider.notifier).toggleBookmark(lessonId);
+                  ScaffoldMessenger.of(context).clearSnackBars();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        isBookmarked
+                            ? 'Removed from bookmarks'
+                            : 'Added to bookmarks',
+                      ),
+                      duration: const Duration(seconds: 1),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ],
         leading: IconButton(
           icon: const Icon(SolarIconsOutline.altArrowLeft),
           // Use context.pop() for GoRouter navigation

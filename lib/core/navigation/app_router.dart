@@ -8,6 +8,9 @@ import 'package:alarp/features/learn/views/learn_lesson_screen.dart'; // Ensure 
 import 'package:alarp/features/learn/views/flashcard_screen.dart';
 import 'package:alarp/features/challenge/views/speed_run_screen.dart';
 import 'package:alarp/features/challenge/views/survival_screen.dart';
+
+import 'package:alarp/features/profile/views/bookmarks_screen.dart';
+import 'package:alarp/features/profile/views/edit_profile_screen.dart'; // Import EditProfileScreen
 import 'package:alarp/features/challenge/views/region_master_screen.dart';
 import 'package:alarp/features/practice/views/practice_screen.dart';
 import 'package:alarp/features/practice/views/region_detail_screen.dart';
@@ -65,20 +68,18 @@ class AppRoutes {
   static const challengeResults =
       '/challenge/results/:challengeId'; // Make absolute
   static const profile = '/profile';
+  static const settings = '/settings';
+  static const editProfile = '/profile/edit'; // Add edit profile route
   static const skeletonViewer = '/skeleton'; // New route for skeleton viewer
-  static const recentPracticeList =
-      '/recent-practice'; // Verify the constant path
-  static const leaderboard =
-      '/leaderboard'; // New route for the full leaderboard
-  static const challengeHistory =
-      '/challenge-history'; // New route for challenge history
-  static const flashcards = '/flashcards'; // New route for flashcards
-  static const speedRun = '/speed-run'; // New route for speed run
-  static const survival = '/survival'; // New route for survival
-  static const regionMaster =
-      '/region-master'; // New route for region master selection
-  static const regionMasterGame =
-      '/region-master/:regionId'; // New route for region master game
+  static const recentPracticeList = '/recent-practice';
+  static const leaderboard = '/profile/leaderboard';
+  static const challengeHistory = '/profile/challenge-history';
+  static const flashcards = '/flashcards';
+  static const bookmarks = '/profile/bookmarks';
+  static const speedRun = '/challenge/speed-run';
+  static const survival = '/challenge/survival';
+  static const regionMaster = '/challenge/region-master';
+  static const regionMasterGame = '/challenge/region-master/:regionId';
 
   static String regionMasterGameRoute(String regionId) =>
       regionMasterGame.replaceFirst(':regionId', regionId);
@@ -400,16 +401,10 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                 },
                 routes: [
                   GoRoute(
-                    path:
-                        AppRoutes
-                            .learnLesson, // Corrected relative path: part/:bodyPartId
+                    path: AppRoutes.learnLesson,
                     builder: (context, state) {
-                      final lessonId =
-                          state
-                              .pathParameters['bodyPartId']!; // Use bodyPartId as lessonId
-                      return LearnLessonScreen(
-                        lessonId: lessonId, // Pass the ID here
-                      );
+                      final lessonId = state.pathParameters['bodyPartId']!;
+                      return LearnLessonScreen(lessonId: lessonId);
                     },
                   ),
                 ],
@@ -423,12 +418,9 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                     const NoTransitionPage(child: PracticeScreen()),
             routes: [
               GoRoute(
-                path:
-                    AppRoutes
-                        .practiceRegionDetail, // e.g., /practice/region/upper_extremity
+                path: AppRoutes.practiceRegionDetail,
                 builder: (context, state) {
                   final regionId = state.pathParameters['regionId']!;
-                  // Assuming BodyRegions.getRegionById exists and is accessible
                   final region = BodyRegions.getRegionById(regionId);
                   return RegionDetailScreen(region: region);
                 },
@@ -436,7 +428,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             ],
           ),
           GoRoute(
-            path: AppRoutes.challenge, // Base challenge route remains in shell
+            path: AppRoutes.challenge,
             pageBuilder:
                 (context, state) =>
                     const NoTransitionPage(child: ChallengeScreen()),
@@ -447,22 +439,25 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                 (context, state) =>
                     const NoTransitionPage(child: ProfileScreen()),
           ),
+          GoRoute(
+            path: AppRoutes.bookmarks,
+            builder: (context, state) => const BookmarksScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.editProfile,
+            builder: (context, state) => const EditProfileScreen(),
+          ),
         ],
       ),
-      // Add other top-level routes if needed (e.g., login screen outside the shell)
     ],
-    // Optional: Add error handling
     errorBuilder:
         (context, state) => Scaffold(
-          appBar: AppBar(
-            title: const Text('Error'),
-          ), // Added AppBar for context
+          appBar: AppBar(title: const Text('Error')),
           body: Center(child: Text('Page not found: ${state.error}')),
         ),
   );
 });
 
-// Helper class to refresh GoRouter when stream emits
 class GoRouterRefreshStream extends ChangeNotifier {
   GoRouterRefreshStream(Stream<dynamic> stream) {
     notifyListeners();
@@ -479,6 +474,3 @@ class GoRouterRefreshStream extends ChangeNotifier {
     super.dispose();
   }
 }
-
-// You'll also need to update main.dart to use this router provider
-// and potentially modify the Navigation widget to accept the child parameter

@@ -5,15 +5,17 @@ import 'package:alarp/core/theme/app_theme.dart';
 import 'package:alarp/features/profile/widgets/stats_card.dart';
 import 'package:alarp/features/profile/widgets/leaderboard_card.dart';
 import 'package:alarp/features/profile/widgets/achievements_grid.dart';
+import 'package:alarp/features/profile/widgets/activity_heatmap_widget.dart';
 import 'package:go_router/go_router.dart';
 import 'package:alarp/features/auth/controllers/auth_controller.dart'; // Import AuthController for sign out
 import 'package:alarp/core/providers/supabase_providers.dart'; // Import userProvider
-import 'package:alarp/core/services/shared_preferences_service.dart';
+
 import 'package:alarp/features/profile/controllers/leaderboard_providers.dart';
 import 'package:alarp/core/navigation/app_router.dart';
 import 'package:alarp/features/profile/controllers/challenge_history_provider.dart';
 import 'package:intl/intl.dart';
 import 'package:alarp/data/repositories/practice_repository.dart'; // Import practice providers
+import 'package:alarp/features/learn/controllers/learn_progress_provider.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -63,12 +65,11 @@ class ProfileScreen extends ConsumerWidget {
                 profileData?['total_app_time_seconds'] as int? ?? 0;
             final totalAppTimeFormatted = _formatDuration(totalAppTimeSeconds);
 
-            final completedLessons = 0;
+            final completedLessons = ref.watch(learnProgressProvider).length;
             final totalLessons = 36;
             // Use the fetched overall accuracy, default to 0.0 if loading/error
             final averageAccuracy = overallAccuracyAsync.value ?? 0.0;
             final leaderboardRank = userRankAsync.asData?.value?.rank ?? 0;
-            final achievementsData = [];
 
             String displayName = username;
             if (firstName != null && firstName.isNotEmpty) {
@@ -82,6 +83,22 @@ class ProfileScreen extends ConsumerWidget {
 
             return CustomScrollView(
               slivers: [
+                SliverAppBar(
+                  backgroundColor: AppTheme.primaryColor,
+                  expandedHeight: 0,
+                  floating: true,
+                  pinned: false,
+                  elevation: 0,
+                  actions: [
+                    IconButton(
+                      icon: const Icon(
+                        SolarIconsOutline.settings,
+                        color: Colors.white,
+                      ),
+                      onPressed: () => context.push(AppRoutes.settings),
+                    ),
+                  ],
+                ),
                 SliverToBoxAdapter(
                   child: _buildProfileHeader(
                     context,
@@ -99,6 +116,23 @@ class ProfileScreen extends ConsumerWidget {
                       timeSpent: totalAppTimeFormatted,
                       lessonsCompleted: '$completedLessons/$totalLessons',
                       accuracy: averageAccuracy,
+                    ),
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
+                    child: ActivityHeatmapWidget(
+                      endDate: DateTime.now(),
+                      activityData: {
+                        // TODO: Connect to real activity data
+                        for (int i = 0; i < 90; i++)
+                          if (i % 3 != 0) // Simulate some activity
+                            DateUtils.dateOnly(
+                                  DateTime.now().subtract(Duration(days: i)),
+                                ):
+                                (i % 5) + 1,
+                      },
                     ),
                   ),
                 ),
@@ -161,11 +195,17 @@ class ProfileScreen extends ConsumerWidget {
                 ),
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
-                    child: _buildAchievements(context, achievementsData),
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: _buildAchievements(
+                      context,
+                      ref,
+                      currentStreak,
+                      completedLessons,
+                      averageAccuracy,
+                      totalAppTimeSeconds,
+                    ),
                   ),
                 ),
-                // --- Challenge History Preview Section ---
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
@@ -310,9 +350,7 @@ class ProfileScreen extends ConsumerWidget {
           const SizedBox(height: 16),
           OutlinedButton.icon(
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Edit Profile (Not Implemented)')),
-              );
+              context.push(AppRoutes.editProfile);
             },
             icon: const Icon(SolarIconsOutline.penNewSquare, size: 18),
             label: const Text('Edit Profile'),
@@ -324,6 +362,27 @@ class ProfileScreen extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               textStyle: Theme.of(context).textTheme.labelMedium,
             ),
+          ),
+          const SizedBox(height: 24),
+          // Quick Links Section inside the header for better visibility
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildHeaderAction(
+                context,
+                icon: SolarIconsBold.bookmark,
+                label: 'Saved',
+                onTap: () => context.push(AppRoutes.bookmarks),
+                color: contentColor,
+              ),
+              _buildHeaderAction(
+                context,
+                icon: SolarIconsBold.settings,
+                label: 'Settings',
+                onTap: () => context.push(AppRoutes.settings),
+                color: contentColor,
+              ),
+            ],
           ),
         ],
       ),
@@ -338,19 +397,16 @@ class ProfileScreen extends ConsumerWidget {
     required double accuracy,
   }) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Statistics', style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 12),
         Row(
           children: [
             Expanded(
               child: StatsCard(
-                label: 'Current Streak',
+                label: 'Streak',
                 value: '$streak',
                 unit: 'days',
-                icon: SolarIconsBold.fire,
-                color: AppTheme.primaryColor,
+                icon: SolarIconsBold.flame,
+                color: Colors.orange,
               ),
             ),
             const SizedBox(width: 12),
@@ -360,7 +416,7 @@ class ProfileScreen extends ConsumerWidget {
                 value: timeSpent,
                 unit: 'total',
                 icon: SolarIconsBold.clockCircle,
-                color: AppTheme.secondaryColor,
+                color: Colors.blue,
               ),
             ),
           ],
@@ -370,21 +426,21 @@ class ProfileScreen extends ConsumerWidget {
           children: [
             Expanded(
               child: StatsCard(
-                label: 'Lessons Done',
+                label: 'Lessons',
                 value: lessonsCompleted,
                 unit: 'completed',
-                icon: SolarIconsBold.notebook,
-                color: AppTheme.accentColor,
+                icon: SolarIconsBold.bookBookmark,
+                color: Colors.green,
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: StatsCard(
-                label: 'Avg. Accuracy',
+                label: 'Accuracy',
                 value: '${accuracy.toStringAsFixed(1)}%',
                 unit: 'overall',
                 icon: SolarIconsBold.target,
-                color: Colors.orange.shade700,
+                color: Colors.purple,
               ),
             ),
           ],
@@ -395,7 +451,11 @@ class ProfileScreen extends ConsumerWidget {
 
   Widget _buildAchievements(
     BuildContext context,
-    List<dynamic> achievementsData,
+    WidgetRef ref,
+    int streak,
+    int lessonsCompleted,
+    double accuracy,
+    int totalTimeSeconds,
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -403,39 +463,10 @@ class ProfileScreen extends ConsumerWidget {
         Text('Achievements', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 12),
         AchievementsGrid(
-          // TODO: Update AchievementsGrid widget to accept achievements
-          // achievements: const [
-          //   {
-          //     'name': 'Streak Starter',
-          //     'achieved': true,
-          //     'icon': SolarIconsBold.fire,
-          //   },
-          //   {
-          //     'name': 'Quick Learner',
-          //     'achieved': true,
-          //     'icon': SolarIconsBold.notebook,
-          //   },
-          //   {
-          //     'name': 'Sharp Shooter',
-          //     'achieved': false,
-          //     'icon': SolarIconsBold.target,
-          //   },
-          //   {
-          //     'name': 'Challenge Champ',
-          //     'achieved': false,
-          //     'icon': SolarIconsBold.medalStar,
-          //   },
-          //   {
-          //     'name': 'Time Master',
-          //     'achieved': true,
-          //     'icon': SolarIconsBold.clockCircle,
-          //   },
-          //   {
-          //     'name': 'Perfect Score',
-          //     'achieved': false,
-          //     'icon': SolarIconsBold.verifiedCheck,
-          //   },
-          // ],
+          streak: streak,
+          lessonsCompleted: lessonsCompleted,
+          accuracy: accuracy,
+          totalTimeSeconds: totalTimeSeconds,
         ),
       ],
     );
@@ -477,34 +508,7 @@ class ProfileScreen extends ConsumerWidget {
         backgroundColor: Colors.red[700],
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(vertical: 16),
-        textStyle: Theme.of(
-          context,
-        ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
       ),
-    );
-  }
-
-  // Helper widget for consistent link tiles
-  Widget _buildProfileLinkTile({
-    required BuildContext context,
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required VoidCallback onTap,
-  }) {
-    final textTheme = Theme.of(context).textTheme;
-    return ListTile(
-      leading: Icon(icon, color: AppTheme.primaryColor),
-      title: Text(title, style: textTheme.bodyLarge),
-      subtitle: Text(
-        subtitle,
-        style: textTheme.bodySmall?.copyWith(
-          color: AppTheme.textColor.withAlpha((255 * 0.6).round()),
-        ),
-      ),
-      trailing: const Icon(Icons.chevron_right, color: Colors.grey),
-      onTap: onTap,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
     );
   }
 
@@ -570,6 +574,39 @@ class ProfileScreen extends ConsumerWidget {
                   ),
                 ),
               ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeaderAction(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    required Color color,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.15),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: color, size: 24),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: color,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ],
         ),

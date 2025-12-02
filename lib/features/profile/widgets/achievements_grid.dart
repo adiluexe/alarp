@@ -3,53 +3,85 @@ import 'package:solar_icons/solar_icons.dart';
 import 'package:alarp/core/theme/app_theme.dart';
 
 class AchievementsGrid extends StatelessWidget {
-  const AchievementsGrid({Key? key}) : super(key: key);
+  final int streak;
+  final int lessonsCompleted;
+  final double accuracy;
+  final int totalTimeSeconds;
+
+  const AchievementsGrid({
+    Key? key,
+    required this.streak,
+    required this.lessonsCompleted,
+    required this.accuracy,
+    required this.totalTimeSeconds,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    // Mock achievements data
+    // Define achievements logic
     final achievements = [
+      // Streak Badges
       {
-        'title': 'Skull Master',
-        'description': 'Completed all head projections with 90%+ accuracy',
-        'icon': SolarIconsBold.boneCrack,
-        'color': const Color(0xFFEB6B9D),
-        'unlocked': true,
-      },
-      {
-        'title': 'Perfect Week',
-        'description': 'Completed at least one challenge every day for a week',
-        'icon': SolarIconsBold.calendar,
-        'color': AppTheme.primaryColor,
-        'unlocked': true,
-      },
-      {
-        'title': 'Accuracy Master',
-        'description': 'Achieved 95%+ accuracy on 10 consecutive challenges',
-        'icon': SolarIconsBold.target,
-        'color': AppTheme.accentColor,
-        'unlocked': true,
-      },
-      {
-        'title': 'Thorax Expert',
-        'description': 'Mastered all thorax projections',
-        'icon': SolarIconsBold.heart,
-        'color': const Color(0xFF5B93EB),
-        'unlocked': false,
-      },
-      {
-        'title': 'Speed Demon',
-        'description': 'Completed a challenge in under 30 seconds',
-        'icon': SolarIconsBold.stopwatch,
+        'title': 'Streak Starter',
+        'description': 'Reach a 3-day streak',
+        'icon': SolarIconsBold.fire,
         'color': const Color(0xFFFFAA33),
-        'unlocked': false,
+        'unlocked': streak >= 3,
       },
       {
-        'title': 'Full Mastery',
-        'description': 'Completed all projections with at least 85% accuracy',
+        'title': 'Week Warrior',
+        'description': 'Reach a 7-day streak',
+        'icon': SolarIconsBold.calendar,
+        'color': const Color(0xFFFF5500),
+        'unlocked': streak >= 7,
+      },
+
+      // Lesson Badges
+      {
+        'title': 'Novice',
+        'description': 'Complete 5 lessons',
+        'icon': SolarIconsBold.notebook,
+        'color': const Color(0xFF5B93EB),
+        'unlocked': lessonsCompleted >= 5,
+      },
+      {
+        'title': 'Scholar',
+        'description': 'Complete 10 lessons',
         'icon': SolarIconsBold.diploma,
+        'color': const Color(0xFF9474DE),
+        'unlocked': lessonsCompleted >= 10,
+      },
+
+      // Accuracy Badges
+      {
+        'title': 'Sharpshooter',
+        'description': 'Achieve 80% average accuracy',
+        'icon': SolarIconsBold.target,
         'color': const Color(0xFF53C892),
-        'unlocked': false,
+        'unlocked': accuracy >= 80.0,
+      },
+      {
+        'title': 'Precision Master',
+        'description': 'Achieve 90% average accuracy',
+        'icon': SolarIconsBold.verifiedCheck,
+        'color': const Color(0xFFEB6B9D),
+        'unlocked': accuracy >= 90.0,
+      },
+
+      // Time Badges
+      {
+        'title': 'Dedicated',
+        'description': 'Study for 1 hour total',
+        'icon': SolarIconsBold.clockCircle,
+        'color': const Color(0xFF4BC8EB),
+        'unlocked': totalTimeSeconds >= 3600,
+      },
+      {
+        'title': 'Expert',
+        'description': 'Study for 5 hours total',
+        'icon': SolarIconsBold.star,
+        'color': const Color(0xFFFFD700),
+        'unlocked': totalTimeSeconds >= 18000,
       },
     ];
 
