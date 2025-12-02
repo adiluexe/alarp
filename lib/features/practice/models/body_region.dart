@@ -186,7 +186,13 @@ class BodyRegions {
         projections: ['AP', 'Oblique', 'PA'],
         imageAsset: 'assets/images/practice/ribs.png',
       ),
-      // Add more body parts for this region
+      BodyPart(
+        id: 'sternum',
+        title: 'Sternum',
+        description: 'Positioning for sternum radiography',
+        projections: ['RAO', 'Lateral'],
+        imageAsset: 'assets/images/practice/sternum.png',
+      ),
     ],
   );
 
@@ -211,7 +217,6 @@ class BodyRegions {
         projections: ['AP', 'Lateral', 'Frog Leg'],
         imageAsset: 'assets/images/practice/pelvis.png',
       ),
-      // Add more body parts for this region
     ],
   );
 
@@ -236,7 +241,48 @@ class BodyRegions {
         projections: ['AP', 'Lateral'],
         imageAsset: 'assets/images/practice/femur.png',
       ),
-      // Add more body parts for this region
+      BodyPart(
+        id: 'knee',
+        title: 'Knee',
+        description: 'Positioning for knee radiography',
+        projections: ['AP', 'Lateral', 'AP Oblique (Medial)', 'AP Oblique (Lateral)'],
+        imageAsset: 'assets/images/practice/knee.png',
+      ),
+      BodyPart(
+        id: 'tibia_fibula',
+        title: 'Tibia & Fibula',
+        description: 'Positioning for lower leg radiography',
+        projections: ['AP', 'Lateral'],
+        imageAsset: 'assets/images/practice/tibia_fibula.png',
+      ),
+      BodyPart(
+        id: 'ankle',
+        title: 'Ankle',
+        description: 'Positioning for ankle radiography',
+        projections: ['AP', 'Lateral', 'AP Mortise'],
+        imageAsset: 'assets/images/practice/ankle.png',
+      ),
+      BodyPart(
+        id: 'foot',
+        title: 'Foot',
+        description: 'Positioning for foot radiography',
+        projections: ['AP', 'Oblique', 'Lateral'],
+        imageAsset: 'assets/images/practice/foot.png',
+      ),
+      BodyPart(
+        id: 'calcaneus',
+        title: 'Calcaneus',
+        description: 'Positioning for calcaneus radiography',
+        projections: ['Plantodorsal (Axial)', 'Lateral'],
+        imageAsset: 'assets/images/practice/calcaneus.png',
+      ),
+      BodyPart(
+        id: 'toes',
+        title: 'Toes',
+        description: 'Positioning for toe radiography',
+        projections: ['AP', 'Oblique', 'Lateral'],
+        imageAsset: 'assets/images/practice/toes.png',
+      ),
     ],
   );
 
@@ -251,17 +297,30 @@ class BodyRegions {
         id: 'cervical_spine',
         title: 'Cervical Spine',
         description: 'Positioning for cervical spine radiography',
-        projections: ['AP', 'Lateral', 'Oblique', 'Odontoid'],
+        projections: ['AP Axial', 'Lateral', 'AP Open Mouth', 'Oblique'],
         imageAsset: 'assets/images/practice/c_spine.png',
       ),
       BodyPart(
         id: 'thoracic_spine',
         title: 'Thoracic Spine',
         description: 'Positioning for thoracic spine radiography',
-        projections: ['AP', 'Lateral'],
+        projections: ['AP', 'Lateral', 'Swimmer\'s'],
         imageAsset: 'assets/images/practice/t_spine.png',
       ),
-      // Add more body parts for this region
+      BodyPart(
+        id: 'lumbar_spine',
+        title: 'Lumbar Spine',
+        description: 'Positioning for lumbar spine radiography',
+        projections: ['AP', 'Lateral', 'L5-S1 Spot', 'Oblique'],
+        imageAsset: 'assets/images/practice/l_spine.png',
+      ),
+      BodyPart(
+        id: 'sacrum_coccyx',
+        title: 'Sacrum & Coccyx',
+        description: 'Positioning for sacrum and coccyx radiography',
+        projections: ['AP Axial Sacrum', 'AP Axial Coccyx', 'Lateral'],
+        imageAsset: 'assets/images/practice/sacrum.png',
+      ),
     ],
   );
 

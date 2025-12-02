@@ -50,22 +50,22 @@ class LearnScreen extends StatelessWidget {
               ),
             ),
 
-            // Body regions list (Changed from Grid to List)
+            // Body regions grid
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              sliver: SliverList(
-                // Use map to generate cards from regions list
+              sliver: SliverGrid(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 16,
+                  crossAxisSpacing: 16,
+                  childAspectRatio: 0.85, // Taller cards
+                ),
                 delegate: SliverChildBuilderDelegate((context, index) {
                   final region = regions[index];
-                  // Add padding between list items
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 16.0),
-                    child: _buildBodyRegionCard(
-                      context,
-                      region: region,
-                      // Example progress data (replace with actual data later)
-                      completedPositions: 0,
-                    ),
+                  return _buildBodyRegionCard(
+                    context,
+                    region: region,
+                    completedPositions: 0, // Placeholder for progress
                   );
                 }, childCount: regions.length),
               ),
@@ -79,45 +79,32 @@ class LearnScreen extends StatelessWidget {
     );
   }
 
-  // Update card builder to include description and reduce padding
   Widget _buildBodyRegionCard(
     BuildContext context, {
     required BodyRegion region,
-    required int completedPositions, // Keep progress separate for now
+    required int completedPositions,
   }) {
     final progress =
         region.positionCount > 0
             ? completedPositions / region.positionCount
             : 0.0;
-    // Use white text for contrast on solid color
     const Color contentColor = Colors.white;
-    final Color secondaryContentColor = contentColor.withAlpha(
-      (255 * 0.8).round(),
-    );
-    final Color tertiaryContentColor = contentColor.withAlpha(
-      (255 * 0.7).round(), // Slightly more transparent for description
-    );
 
     return InkWell(
       onTap: () {
-        // Navigate using GoRouter with the region's ID
         context.go(
-          // Corrected: Use AppRoutes.learnRegionDetail constant
           '${AppRoutes.learn}/${AppRoutes.learnRegionDetail.replaceFirst(':regionId', region.id)}',
         );
       },
-      borderRadius: BorderRadius.circular(20), // Match practice card radius
+      borderRadius: BorderRadius.circular(24),
       child: Container(
-        // Reduce vertical padding slightly
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          // Use solid background color
           color: region.backgroundColor,
-          borderRadius: BorderRadius.circular(20), // Match practice card radius
+          borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              // Use withAlpha for opacity
-              color: region.backgroundColor.withAlpha((255 * 0.4).round()),
+              color: region.backgroundColor.withOpacity(0.4),
               blurRadius: 12,
               offset: const Offset(0, 6),
             ),
@@ -126,76 +113,52 @@ class LearnScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                // Emoji with semi-transparent white background
-                Container(
-                  width: 48, // Match practice card size
-                  height: 48,
-                  decoration: BoxDecoration(
-                    // Use withAlpha for opacity
-                    color: Colors.white.withAlpha((255 * 0.2).round()),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Center(
-                    child: Text(
-                      region.emoji,
-                      style: const TextStyle(fontSize: 28),
-                    ),
-                  ),
+            // Emoji Icon
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Center(
+                child: Text(
+                  region.emoji,
+                  style: const TextStyle(fontSize: 24),
                 ),
-                const Spacer(),
-                // Use altArrowRight icon
-                Icon(
-                  SolarIconsOutline.altArrowRight,
-                  color: secondaryContentColor,
-                  size: 20,
-                ),
-              ],
+              ),
             ),
-            // Reduce space slightly
-            const SizedBox(height: 12),
-            // Title from region data
+            const Spacer(),
+            // Title
             Text(
               region.title,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w700,
                 fontFamily: 'Chillax',
-                color: contentColor, // Use white text
+                color: contentColor,
+                height: 1.2,
               ),
-              maxLines: 1,
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
-            // Add Description
             const SizedBox(height: 4),
+            // Progress Text
             Text(
-              'Learn positioning for the ${region.title.toLowerCase()}',
+              '$completedPositions/${region.positionCount} Topics',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: tertiaryContentColor, // Use tertiary color
-              ),
-              maxLines: 2, // Allow two lines for description
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 8), // Space before progress info
-            // Positions count from region data
-            Text(
-              '$completedPositions of ${region.positionCount} topics learned', // Adjusted text
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: secondaryContentColor, // Use slightly transparent white
+                color: contentColor.withOpacity(0.8),
+                fontSize: 11,
               ),
             ),
-            const SizedBox(height: 8), // Reduced space before progress bar
-            // Progress bar
+            const SizedBox(height: 8),
+            // Progress Bar
             LinearProgressIndicator(
               value: progress,
-              // Use semi-transparent white for background
-              backgroundColor: Colors.white.withAlpha((255 * 0.2).round()),
-              // Use solid white for value color
+              backgroundColor: Colors.white.withOpacity(0.2),
               valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
               borderRadius: BorderRadius.circular(4),
-              minHeight: 6,
+              minHeight: 4,
             ),
-            // No extra bottom space needed here as Padding is used in parent list
           ],
         ),
       ),

@@ -152,16 +152,34 @@ class _ChallengeActiveScreenState extends ConsumerState<ChallengeActiveScreen> {
             padding: const EdgeInsets.only(right: 16.0),
             child: Consumer(
               builder: (context, ref, _) {
-                final remainingTime = ref.watch(
-                  challengeControllerProvider(
-                    challenge,
-                  ).select((s) => s.remainingTime),
-                );
+                final challengeState = ref.watch(challengeControllerProvider(challenge));
+                final remainingTime = challengeState.remainingTime;
+                final currentStreak = challengeState.currentStreak;
+
                 return Row(
                   children: [
+                    // Streak Indicator
+                    if (currentStreak > 0) ...[
+                      Icon(
+                        SolarIconsBold.flame,
+                        color: Colors.orangeAccent,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '$currentStreak',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                    ],
+                    
+                    // Timer
                     Icon(
                       SolarIconsOutline.clockCircle,
-                      color: Colors.white.withAlpha((255 * 0.8).round()),
+                      color: Colors.white.withOpacity(0.8),
                       size: 20,
                     ),
                     const SizedBox(width: 8),

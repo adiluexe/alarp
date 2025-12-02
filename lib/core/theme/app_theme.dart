@@ -22,11 +22,9 @@ class AppTheme {
       onTertiary: textColor,
       error: errorColor,
       onError: Colors.white,
-      background: backgroundColor,
-      onBackground: textColor,
-      surface: Colors.white, // Use white for cards for better contrast
+      surface: backgroundColor, // Use backgroundColor for surface
       onSurface: textColor,
-      shadow: Colors.black.withOpacity(0.1),
+      shadow: Colors.black.withValues(alpha: 0.1),
     );
 
     // Define TextTheme with custom fonts and specific sizes
@@ -117,7 +115,7 @@ class AppTheme {
         fontWeight: FontWeight.w400, // Regular
         letterSpacing: 0.4,
         height: 1.33,
-        color: textColor.withOpacity(0.7),
+        color: textColor.withValues(alpha: 0.7),
       ),
 
       // --- Button text ---
@@ -143,16 +141,6 @@ class AppTheme {
         height: 1.45,
       ),
     ).apply(bodyColor: textColor, displayColor: textColor);
-
-    // Define the gradient for reuse - Updated to match user request
-    final appBarGradient = LinearGradient(
-      colors: [
-        primaryColor.withAlpha((0.8 * 255).round()), // 80% opacity
-        accentColor.withAlpha((0.6 * 255).round()), // 60% opacity
-      ],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    );
 
     return ThemeData(
       useMaterial3: true,
@@ -180,7 +168,7 @@ class AppTheme {
           elevation: 0,
         ),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: Colors.white,
         elevation: 1,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -191,9 +179,9 @@ class AppTheme {
       ),
       sliderTheme: SliderThemeData(
         activeTrackColor: primaryColor,
-        inactiveTrackColor: primaryColor.withOpacity(0.3),
+        inactiveTrackColor: primaryColor.withValues(alpha: 0.3),
         thumbColor: primaryColor,
-        overlayColor: primaryColor.withOpacity(0.2),
+        overlayColor: primaryColor.withValues(alpha: 0.2),
       ),
     );
   }

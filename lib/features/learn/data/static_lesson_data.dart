@@ -313,7 +313,415 @@ This guide covers standard projections for the hand, including fingers and thumb
 """,
   ),
 
-  // --- Other Body Regions ---
+  // --- Head & Neck ---
+  const Lesson(
+    id: 'skull',
+    title: 'Skull Radiography',
+    bodyRegion: 'Head & Neck',
+    projectionName: 'Various Projections',
+    modelPath: 'assets/models/skull.glb',
+    content: """
+# Skull Radiography Guide
+
+## Overview
+Standard skull series typically includes PA (Caldwell), AP Axial (Towne), and Lateral projections.
+
+## PA Axial (Caldwell Method)
+*   **Patient Position:** Prone or seated facing Bucky.
+*   **Part Position:** Nose and forehead against IR. OML perpendicular to IR.
+*   **Central Ray:** 15° caudad, exiting nasion.
+*   **Structures Shown:** Frontal bone, greater and lesser sphenoid wings, superior orbital fissures, frontal and anterior ethmoid sinuses.
+
+## AP Axial (Towne Method)
+*   **Patient Position:** Supine or seated.
+*   **Part Position:** Depress chin, OML perpendicular to IR.
+*   **Central Ray:** 30° caudad to OML (or 37° to IOML), entering 2.5 inches above glabella.
+*   **Structures Shown:** Occipital bone, petrous pyramids, foramen magnum.
+
+## Lateral Projection
+*   **Patient Position:** Semiprone or seated oblique.
+*   **Part Position:** Head in true lateral position. IPL perpendicular to IR.
+*   **Central Ray:** Perpendicular to 2 inches superior to EAM.
+*   **Structures Shown:** Sella turcica, anterior and posterior clinoid processes, dorsum sellae.
+""",
+  ),
+  const Lesson(
+    id: 'facial_bones',
+    title: 'Facial Bones Radiography',
+    bodyRegion: 'Head & Neck',
+    projectionName: 'Various Projections',
+    modelPath: 'assets/models/skull.glb',
+    content: """
+# Facial Bones Radiography Guide
+
+## Overview
+Common projections include Waters (Parietoacanthial), Lateral, and Caldwell.
+
+## Parietoacanthial (Waters Method)
+*   **Patient Position:** Prone or seated facing Bucky.
+*   **Part Position:** Chin on IR, MML perpendicular to IR. OML forms 37° angle with IR.
+*   **Central Ray:** Perpendicular to exit acanthion.
+*   **Structures Shown:** Orbits, maxillae, zygomatic arches. Petrous ridges projected below maxillary sinuses.
+
+## Lateral Projection
+*   **Patient Position:** Semiprone or seated oblique.
+*   **Part Position:** True lateral position.
+*   **Central Ray:** Perpendicular to zygoma (midway between outer canthus and EAM).
+*   **Structures Shown:** Superimposed facial bones, greater wings of sphenoid, orbital roofs, sella turcica, mandible.
+""",
+  ),
+
+  // --- Thorax ---
+  const Lesson(
+    id: 'chest',
+    title: 'Chest Radiography',
+    bodyRegion: 'Thorax',
+    projectionName: 'Various Projections',
+    modelPath: 'assets/models/chest.glb',
+    content: """
+# Chest Radiography Guide
+
+## Overview
+The most common radiographic exam. Standard is PA and Lateral.
+
+## PA Projection
+*   **Patient Position:** Erect, facing IR.
+*   **Part Position:** Chin raised, hands on hips, shoulders rolled forward.
+*   **Central Ray:** Perpendicular to T7 (inferior angle of scapula).
+*   **Structures Shown:** Lungs, heart, trachea, diaphragm, bony thorax.
+
+## Lateral Projection
+*   **Patient Position:** Erect, left side against IR.
+*   **Part Position:** Arms raised above head.
+*   **Central Ray:** Perpendicular to T7.
+*   **Structures Shown:** Heart, aorta, lungs, thoracic spine.
+""",
+  ),
+  const Lesson(
+    id: 'ribs',
+    title: 'Ribs Radiography',
+    bodyRegion: 'Thorax',
+    projectionName: 'Various Projections',
+    modelPath: 'assets/models/ribs.glb',
+    content: """
+# Ribs Radiography Guide
+
+## Overview
+Rib exams are often divided into Upper and Lower ribs, and Anterior vs Posterior injury.
+
+## AP/PA Projection
+*   **Patient Position:** Erect (for upper ribs) or Supine (for lower ribs).
+*   **Part Position:** Center affected side to IR.
+*   **Central Ray:** Perpendicular to T7 (upper) or T12 (lower).
+*   **Structures Shown:** Ribs above or below diaphragm.
+
+## Oblique Projection
+*   **Patient Position:** 45° oblique.
+*   **Part Position:** Rotate spine away from site of injury for AP oblique (posterior injury) or towards for PA oblique (anterior injury).
+*   **Central Ray:** Perpendicular to midway between spine and lateral border.
+*   **Structures Shown:** Axillary portion of ribs.
+""",
+  ),
+  const Lesson(
+    id: 'sternum',
+    title: 'Sternum Radiography',
+    bodyRegion: 'Thorax',
+    projectionName: 'Various Projections',
+    modelPath: 'assets/models/sternum.glb',
+    content: """
+# Sternum Radiography Guide
+
+## RAO Projection
+*   **Patient Position:** Prone or erect RAO (15-20° rotation).
+*   **Part Position:** Align long axis of sternum to midline of IR.
+*   **Central Ray:** Perpendicular to mid-sternum.
+*   **Structures Shown:** Sternum projected over heart shadow.
+
+## Lateral Projection
+*   **Patient Position:** Erect lateral.
+*   **Part Position:** Shoulders drawn back, chest out.
+*   **Central Ray:** Perpendicular to mid-sternum.
+*   **Structures Shown:** Entire sternum in profile.
+""",
+  ),
+
+  // --- Abdomen & Pelvis ---
+  const Lesson(
+    id: 'abdomen',
+    title: 'Abdomen Radiography',
+    bodyRegion: 'Abdomen & Pelvis',
+    projectionName: 'Various Projections',
+    modelPath: 'assets/models/abdomen.glb',
+    content: """
+# Abdomen Radiography Guide
+
+## AP Supine (KUB)
+*   **Patient Position:** Supine.
+*   **Part Position:** Center IR to iliac crests.
+*   **Central Ray:** Perpendicular to iliac crests.
+*   **Structures Shown:** Liver, spleen, kidneys, psoas muscles, bowel gas patterns.
+
+## AP Upright
+*   **Patient Position:** Upright.
+*   **Part Position:** Center IR 2 inches above iliac crests.
+*   **Central Ray:** Horizontal to center of IR.
+*   **Structures Shown:** Air-fluid levels, free air under diaphragm.
+""",
+  ),
+  const Lesson(
+    id: 'pelvis',
+    title: 'Pelvis Radiography',
+    bodyRegion: 'Abdomen & Pelvis',
+    projectionName: 'Various Projections',
+    modelPath: 'assets/models/pelvis.glb',
+    content: """
+# Pelvis Radiography Guide
+
+## AP Projection
+*   **Patient Position:** Supine.
+*   **Part Position:** Rotate feet internally 15-20°.
+*   **Central Ray:** Perpendicular to midway between ASIS and symphysis pubis.
+*   **Structures Shown:** Pelvic girdle, L5, sacrum, coccyx, femoral heads and necks.
+""",
+  ),
+
+  // --- Lower Extremity ---
+  const Lesson(
+    id: 'hip',
+    title: 'Hip Radiography',
+    bodyRegion: 'Lower Extremity',
+    projectionName: 'Various Projections',
+    modelPath: 'assets/models/hip.glb',
+    content: """
+# Hip Radiography Guide
+
+## AP Projection
+*   **Patient Position:** Supine.
+*   **Part Position:** Rotate affected leg internally 15-20°.
+*   **Central Ray:** Perpendicular to femoral neck.
+*   **Structures Shown:** Proximal femur, hip joint, pelvis.
+
+## Lateral (Frog-Leg)
+*   **Patient Position:** Supine.
+*   **Part Position:** Flex knee, abduct thigh 45°.
+*   **Central Ray:** Perpendicular to mid-femoral neck.
+*   **Structures Shown:** Lateral view of femoral head and neck.
+""",
+  ),
+  const Lesson(
+    id: 'femur',
+    title: 'Femur Radiography',
+    bodyRegion: 'Lower Extremity',
+    projectionName: 'Various Projections',
+    modelPath: 'assets/models/femur.glb',
+    content: """
+# Femur Radiography Guide
+
+## AP Projection
+*   **Patient Position:** Supine.
+*   **Part Position:** Rotate leg internally 5°. Ensure knee and hip joints are included (may need two films).
+*   **Central Ray:** Perpendicular to midpoint of femur.
+*   **Structures Shown:** Femur, knee joint, hip joint.
+""",
+  ),
+  const Lesson(
+    id: 'knee',
+    title: 'Knee Radiography',
+    bodyRegion: 'Lower Extremity',
+    projectionName: 'Various Projections',
+    modelPath: 'assets/models/knee.glb',
+    content: """
+# Knee Radiography Guide
+
+## AP Projection
+*   **Patient Position:** Supine.
+*   **Part Position:** Leg extended, rotate internally 3-5°.
+*   **Central Ray:** Parallel to tibial plateau (angle varies with ASIS height).
+*   **Structures Shown:** Distal femur, proximal tibia/fibula, femorotibial joint.
+
+## Lateral Projection
+*   **Patient Position:** Lateral recumbent.
+*   **Part Position:** Flex knee 20-30°.
+*   **Central Ray:** 5-7° cephalad.
+*   **Structures Shown:** Patella in profile, open patellofemoral joint.
+""",
+  ),
+  const Lesson(
+    id: 'tibia_fibula',
+    title: 'Tibia & Fibula Radiography',
+    bodyRegion: 'Lower Extremity',
+    projectionName: 'Various Projections',
+    modelPath: 'assets/models/leg.glb',
+    content: """
+# Tibia & Fibula Radiography Guide
+
+## AP Projection
+*   **Patient Position:** Supine.
+*   **Part Position:** Leg extended.
+*   **Central Ray:** Perpendicular to midpoint of leg.
+*   **Structures Shown:** Tibia, fibula, knee and ankle joints.
+""",
+  ),
+  const Lesson(
+    id: 'ankle',
+    title: 'Ankle Radiography',
+    bodyRegion: 'Lower Extremity',
+    projectionName: 'Various Projections',
+    modelPath: 'assets/models/ankle.glb',
+    content: """
+# Ankle Radiography Guide
+
+## AP Projection
+*   **Patient Position:** Supine or seated.
+*   **Part Position:** Foot dorsiflexed.
+*   **Central Ray:** Perpendicular to midway between malleoli.
+*   **Structures Shown:** Ankle joint, distal tibia/fibula, talus.
+
+## AP Mortise
+*   **Part Position:** Rotate leg internally 15-20°.
+*   **Structures Shown:** Entire ankle mortise joint open.
+""",
+  ),
+  const Lesson(
+    id: 'foot',
+    title: 'Foot Radiography',
+    bodyRegion: 'Lower Extremity',
+    projectionName: 'Various Projections',
+    modelPath: 'assets/models/foot.glb',
+    content: """
+# Foot Radiography Guide
+
+## AP (Dorsoplantar)
+*   **Patient Position:** Supine or seated, knee flexed.
+*   **Part Position:** Plantar surface flat on IR.
+*   **Central Ray:** 10° posterior (toward heel) to base of 3rd metatarsal.
+*   **Structures Shown:** Metatarsals, phalanges, tarsals.
+
+## Oblique
+*   **Part Position:** Rotate foot medially 30-40°.
+*   **Structures Shown:** Cuboid, sinus tarsi, tuberosity of 5th metatarsal.
+""",
+  ),
+  const Lesson(
+    id: 'calcaneus',
+    title: 'Calcaneus Radiography',
+    bodyRegion: 'Lower Extremity',
+    projectionName: 'Various Projections',
+    modelPath: 'assets/models/foot.glb',
+    content: """
+# Calcaneus Radiography Guide
+
+## Plantodorsal (Axial)
+*   **Patient Position:** Seated, leg extended.
+*   **Part Position:** Dorsiflex foot.
+*   **Central Ray:** 40° cephalad to base of 3rd metatarsal.
+*   **Structures Shown:** Calcaneus, sustentaculum tali.
+""",
+  ),
+  const Lesson(
+    id: 'toes',
+    title: 'Toes Radiography',
+    bodyRegion: 'Lower Extremity',
+    projectionName: 'Various Projections',
+    modelPath: 'assets/models/foot.glb',
+    content: """
+# Toes Radiography Guide
+
+## AP Projection
+*   **Patient Position:** Supine or seated, knee flexed.
+*   **Part Position:** Plantar surface flat on IR.
+*   **Central Ray:** 10-15° posterior to MTP joint.
+*   **Structures Shown:** Phalanges, IP joints, MTP joints.
+""",
+  ),
+
+  // --- Spine ---
+  const Lesson(
+    id: 'cervical_spine',
+    title: 'Cervical Spine Radiography',
+    bodyRegion: 'Spine',
+    projectionName: 'Various Projections',
+    modelPath: 'assets/models/spine.glb',
+    content: """
+# Cervical Spine Radiography Guide
+
+## AP Axial
+*   **Patient Position:** Supine or erect.
+*   **Central Ray:** 15-20° cephalad to C4.
+*   **Structures Shown:** C3-C7 vertebral bodies.
+
+## Lateral
+*   **Patient Position:** Erect lateral.
+*   **Central Ray:** Horizontal to C4.
+*   **Structures Shown:** C1-C7, spinous processes, intervertebral disk spaces.
+
+## AP Open Mouth (Odontoid)
+*   **Patient Position:** Supine. Mouth open.
+*   **Central Ray:** Perpendicular to center of open mouth.
+*   **Structures Shown:** Dens (odontoid process), atlas, axis.
+""",
+  ),
+  const Lesson(
+    id: 'thoracic_spine',
+    title: 'Thoracic Spine Radiography',
+    bodyRegion: 'Spine',
+    projectionName: 'Various Projections',
+    modelPath: 'assets/models/spine.glb',
+    content: """
+# Thoracic Spine Radiography Guide
+
+## AP Projection
+*   **Patient Position:** Supine.
+*   **Central Ray:** Perpendicular to T7.
+*   **Structures Shown:** Thoracic vertebral bodies, intervertebral disk spaces.
+
+## Lateral
+*   **Patient Position:** Lateral recumbent.
+*   **Central Ray:** Perpendicular to T7.
+*   **Structures Shown:** Thoracic vertebral bodies, intervertebral foramina.
+""",
+  ),
+  const Lesson(
+    id: 'lumbar_spine',
+    title: 'Lumbar Spine Radiography',
+    bodyRegion: 'Spine',
+    projectionName: 'Various Projections',
+    modelPath: 'assets/models/spine.glb',
+    content: """
+# Lumbar Spine Radiography Guide
+
+## AP Projection
+*   **Patient Position:** Supine, knees flexed.
+*   **Central Ray:** Perpendicular to L4 (iliac crest).
+*   **Structures Shown:** Lumbar bodies, intervertebral joints, spinous processes.
+
+## Lateral
+*   **Patient Position:** Lateral recumbent.
+*   **Central Ray:** Perpendicular to L4.
+*   **Structures Shown:** Lumbar bodies, intervertebral foramina, L5-S1 junction.
+""",
+  ),
+  const Lesson(
+    id: 'sacrum_coccyx',
+    title: 'Sacrum & Coccyx Radiography',
+    bodyRegion: 'Spine',
+    projectionName: 'Various Projections',
+    modelPath: 'assets/models/spine.glb',
+    content: """
+# Sacrum & Coccyx Radiography Guide
+
+## AP Axial Sacrum
+*   **Patient Position:** Supine.
+*   **Central Ray:** 15° cephalad to midway between ASIS and symphysis pubis.
+*   **Structures Shown:** Sacrum free of foreshortening.
+
+## AP Axial Coccyx
+*   **Patient Position:** Supine.
+*   **Central Ray:** 10° caudad to 2 inches superior to symphysis pubis.
+*   **Structures Shown:** Coccyx free of superimposition.
+""",
+  ),
+
 ];
 
 /// Utility function to retrieve a lesson by its ID from the static list.

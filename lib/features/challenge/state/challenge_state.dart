@@ -30,6 +30,8 @@ class ChallengeState {
   // Collimation state is handled separately via collimationStateProvider
   final List<StepResult>
   stepResults; // Added: List to store results of each step
+  final int currentStreak; // Added: Track current streak of correct answers
+  final int bestStreak; // Added: Track best streak in this session
   final String? errorMessage; // Added error message field
 
   const ChallengeState({
@@ -38,14 +40,16 @@ class ChallengeState {
     this.currentStepIndex = 0,
     required this.remainingTime,
     this.score = 0,
-    this.stepStartTime, // Added
-    this.wasLastAnswerCorrect, // Added
+    this.stepStartTime,
+    this.wasLastAnswerCorrect,
     this.selectedPositioningIndex,
-    this.selectedIRSizeIndex, // New
-    this.selectedIROrientationIndex, // New
-    this.selectedPatientPositionIndex, // New
-    this.stepResults = const [], // Added: Initialize as empty list
-    this.errorMessage, // Added
+    this.selectedIRSizeIndex,
+    this.selectedIROrientationIndex,
+    this.selectedPatientPositionIndex,
+    this.stepResults = const [],
+    this.errorMessage,
+    this.currentStreak = 0, // Initialize streak
+    this.bestStreak = 0, // Initialize best streak
   });
 
   // Helper to get the current step object
@@ -61,18 +65,19 @@ class ChallengeState {
     int? currentStepIndex,
     Duration? remainingTime,
     int? score,
-    DateTime? stepStartTime, // Added
-    bool? wasLastAnswerCorrect, // Added
+    DateTime? stepStartTime,
+    bool? wasLastAnswerCorrect,
     int? selectedPositioningIndex,
-    int? selectedIRSizeIndex, // New
-    int? selectedIROrientationIndex, // New
-    int? selectedPatientPositionIndex, // New
-    List<StepResult>? stepResults, // Added
-    String? errorMessage, // Added
-    bool resetSelections = false, // Helper to clear selections on step change
-    bool clearLastAnswerStatus =
-        false, // Helper to explicitly clear wasLastAnswerCorrect
-    bool clearErrorMessage = false, // Helper to clear error message
+    int? selectedIRSizeIndex,
+    int? selectedIROrientationIndex,
+    int? selectedPatientPositionIndex,
+    List<StepResult>? stepResults,
+    String? errorMessage,
+    bool resetSelections = false,
+    bool clearLastAnswerStatus = false,
+    bool clearErrorMessage = false,
+    int? currentStreak, // Added
+    int? bestStreak, // Added
   }) {
     return ChallengeState(
       challenge: challenge,
@@ -80,13 +85,11 @@ class ChallengeState {
       currentStepIndex: currentStepIndex ?? this.currentStepIndex,
       remainingTime: remainingTime ?? this.remainingTime,
       score: score ?? this.score,
-      stepStartTime: stepStartTime ?? this.stepStartTime, // Added
-      // Handle resetting/updating wasLastAnswerCorrect
+      stepStartTime: stepStartTime ?? this.stepStartTime,
       wasLastAnswerCorrect:
           clearLastAnswerStatus
               ? null
               : (wasLastAnswerCorrect ?? this.wasLastAnswerCorrect),
-      // Reset specific selections if moving to a new step or explicitly requested
       selectedPositioningIndex:
           resetSelections
               ? null
@@ -104,10 +107,11 @@ class ChallengeState {
               ? null
               : (selectedPatientPositionIndex ??
                   this.selectedPatientPositionIndex),
-      stepResults: stepResults ?? this.stepResults, // Added
-      // Handle error message update/clearing
+      stepResults: stepResults ?? this.stepResults,
       errorMessage:
           clearErrorMessage ? null : (errorMessage ?? this.errorMessage),
+      currentStreak: currentStreak ?? this.currentStreak, // Added
+      bestStreak: bestStreak ?? this.bestStreak, // Added
     );
   }
 }

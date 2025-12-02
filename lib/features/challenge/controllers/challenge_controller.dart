@@ -51,21 +51,55 @@ class ChallengeController extends StateNotifier<ChallengeState> {
       resetChallenge();
     }
 
+    // Shuffle and limit steps to 10 (or fewer if not enough steps)
+    final allSteps = List<ChallengeStep>.from(initialChallenge.steps);
+    allSteps.shuffle();
+    final limitedSteps = allSteps.take(10).toList();
+    
+    // Create a new challenge instance with limited steps
+    // Assuming Challenge has a copyWith or we construct it manually
+    // Since we don't have copyWith in the snippet, we'll use the constructor if possible or assume copyWith exists
+    // If Challenge is simple data class:
+    final limitedChallenge = Challenge(
+      id: initialChallenge.id,
+      title: initialChallenge.title,
+      description: initialChallenge.description,
+      steps: limitedSteps,
+      timeLimit: initialChallenge.timeLimit,
+      regionId: initialChallenge.regionId,
+      bodyPartId: initialChallenge.bodyPartId,
+      projectionName: initialChallenge.projectionName,
+      backgroundColor: initialChallenge.backgroundColor,
+      isTodaysChallenge: initialChallenge.isTodaysChallenge,
+      difficulty: initialChallenge.difficulty,
+    );
+
     state = state.copyWith(
+      // We need to update the challenge in the state. 
+      // ChallengeState has 'final Challenge challenge'.
+      // But copyWith doesn't expose 'challenge'. 
+      // We need to recreate the state with the new challenge.
+    );
+    // Wait, ChallengeState.copyWith does NOT have 'challenge' parameter in the previous file view.
+    // I need to update ChallengeState.copyWith or just create a new ChallengeState.
+    
+    state = ChallengeState(
+      challenge: limitedChallenge,
       status: ChallengeStatus.inProgress,
       currentStepIndex: 0,
-      remainingTime: state.challenge.timeLimit,
+      remainingTime: limitedChallenge.timeLimit,
       score: 0,
-      stepStartTime:
-          DateTime.now(), // Added missing stepStartTime initialization
+      stepStartTime: DateTime.now(),
       selectedPositioningIndex: null,
       selectedIRSizeIndex: null,
       selectedIROrientationIndex: null,
       selectedPatientPositionIndex: null,
-      wasLastAnswerCorrect: null, // Ensure null at start
-      stepResults: [], // Ensure results list is empty at start
-      resetSelections: true,
+      wasLastAnswerCorrect: null,
+      stepResults: [],
+      currentStreak: 0,
+      bestStreak: 0,
     );
+    
     _startTimer();
 
     if (state.currentStep is CollimationStep) {
@@ -196,26 +230,31 @@ class ChallengeController extends StateNotifier<ChallengeState> {
     final correctIndex = getCorrectIndex(step);
     final isCorrect = index == correctIndex;
 
-    // Use a null-aware check for stepStartTime as a safety measure
     final startTime = state.stepStartTime ?? DateTime.now();
     final timeTaken = DateTime.now().difference(startTime);
     final scoreDelta = _calculateScore(step, isCorrect, timeTaken);
 
-    // Create the result for this step
     final stepResult = StepResult(
       stepId: step.id,
       isCorrect: isCorrect,
       scoreEarned: scoreDelta,
-      stepInstruction: step.instruction, // Store instruction for display
+      stepInstruction: step.instruction,
     );
 
-    // Update state immediately to show selection AND correctness
-    state = copyWithIndex(index).copyWith(wasLastAnswerCorrect: isCorrect);
+    // Update Streak
+    final newCurrentStreak = isCorrect ? state.currentStreak + 1 : 0;
+    final newBestStreak = max(state.bestStreak, newCurrentStreak);
+
+    // Update state
+    state = copyWithIndex(index).copyWith(
+      wasLastAnswerCorrect: isCorrect,
+      currentStreak: newCurrentStreak,
+      bestStreak: newBestStreak,
+    );
 
     Future.delayed(const Duration(milliseconds: 500), () {
       if (!mounted) return;
       if (state.currentStep == step) {
-        // Pass the result to _advanceStep
         _advanceStep(scoreDelta: scoreDelta, result: stepResult);
       }
     });
@@ -289,10 +328,8 @@ class ChallengeController extends StateNotifier<ChallengeState> {
         currentCollimationState,
         projectionData.targetCollimation!,
       );
-      // Define correctness threshold for collimation (e.g., 95% accuracy)
       isCorrect = accuracy >= 95.0;
     } else {
-      // Handle case where target data is missing
       isCorrect = false;
       accuracy = 0.0;
     }
@@ -304,22 +341,27 @@ class ChallengeController extends StateNotifier<ChallengeState> {
       collimationAccuracy: accuracy,
     );
 
-    // Create the result for this step, including accuracy
     final stepResult = StepResult(
       stepId: step.id,
       isCorrect: isCorrect,
       scoreEarned: scoreDelta,
       stepInstruction: step.instruction,
-      accuracy: accuracy, // Store accuracy for collimation
+      accuracy: accuracy,
     );
 
-    // Update state to show correctness before advancing
-    state = state.copyWith(wasLastAnswerCorrect: isCorrect);
+    // Update Streak
+    final newCurrentStreak = isCorrect ? state.currentStreak + 1 : 0;
+    final newBestStreak = max(state.bestStreak, newCurrentStreak);
+
+    state = state.copyWith(
+      wasLastAnswerCorrect: isCorrect,
+      currentStreak: newCurrentStreak,
+      bestStreak: newBestStreak,
+    );
 
     Future.delayed(const Duration(milliseconds: 100), () {
       if (!mounted) return;
       if (state.currentStep == step) {
-        // Pass the result to _advanceStep
         _advanceStep(scoreDelta: scoreDelta, result: stepResult);
       }
     });
