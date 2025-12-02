@@ -8,6 +8,8 @@ class AppTheme {
   static const Color secondaryColor = Color(0xFFa7a4db);
   static const Color accentColor = Color(0xFF9078c9); // Tertiary
   static const Color errorColor = Color(0xFFB3261E);
+  static const Color surfaceColor = Colors.white;
+  static const Color borderColor = Color(0xFFE0E0E0);
 
   // Material 3 text scaling for mobile devices
   static ThemeData get lightTheme {

@@ -1,4 +1,3 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -6,7 +5,6 @@ import 'package:alarp/features/auth/controllers/auth_controller.dart';
 import 'package:alarp/core/theme/app_theme.dart';
 import 'package:solar_icons/solar_icons.dart';
 import 'package:alarp/core/navigation/app_router.dart';
-import 'package:alarp/features/auth/views/check_email_screen.dart'; // Import the new screen
 
 class SignUpScreen extends ConsumerStatefulWidget {
   const SignUpScreen({super.key});

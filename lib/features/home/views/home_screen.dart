@@ -1,28 +1,27 @@
-import 'package:alarp/core/widgets/action_card.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart'; // Import Riverpod
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:solar_icons/solar_icons.dart';
 import 'package:alarp/core/theme/app_theme.dart';
 import 'package:alarp/core/navigation/app_router.dart';
 import 'package:alarp/features/challenge/models/challenge.dart';
-import 'package:alarp/core/providers/supabase_providers.dart'; // Import the profile provider
-import 'package:alarp/data/repositories/practice_repository.dart'; // Import practice providers
-import 'package:fl_chart/fl_chart.dart'; // Import fl_chart
-import 'package:alarp/features/practice/models/practice_attempt.dart'; // Import PracticeAttempt
+import 'package:alarp/core/providers/supabase_providers.dart';
+import 'package:alarp/data/repositories/practice_repository.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:alarp/features/practice/models/practice_attempt.dart';
 import 'package:intl/intl.dart';
+import 'package:alarp/features/home/widgets/daily_challenge_card.dart';
+import 'package:alarp/features/home/widgets/anatomy_fact_card.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Watch the user profile provider
     final userProfileAsync = ref.watch(userProfileProvider);
-    // Watch the weekly accuracy provider
     final weeklyAccuracyAsync = ref.watch(weeklyAccuracyProvider);
-    // Watch all practice attempts for the chart
     final allPracticeAttemptsAsync = ref.watch(allPracticeAttemptsProvider);
+    final dailyChallengeId = Challenge.upperExtremitiesChallenge.id;
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
@@ -32,10 +31,9 @@ class HomeScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Pass user profile data to header and stats
+              // Header
               userProfileAsync.when(
                 data: (profileData) {
-                  // Extract first name, fallback to username or 'User'
                   final firstName = profileData?['first_name'] as String?;
                   final userName =
                       profileData?['username'] as String? ?? 'User';
@@ -43,62 +41,57 @@ class HomeScreen extends ConsumerWidget {
                       (firstName != null && firstName.isNotEmpty)
                           ? firstName
                           : userName;
-
                   final streakDays =
                       profileData?['current_streak'] as int? ?? 0;
-                  final completedLessons =
-                      0; // TODO: Fetch actual completed lessons
-                  final totalLessons = 36; // TODO: Fetch actual total lessons
-                  // Use the fetched weekly accuracy, default to 0.0 if loading/error
-                  final weeklyAccuracy = weeklyAccuracyAsync.value ?? 0.0;
 
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildHeader(
-                        context,
-                        displayFirstName,
-                        streakDays,
-                      ), // Pass first name
-                      const SizedBox(height: 24),
-                      _buildStats(
-                        context,
-                        completedLessons,
-                        totalLessons,
-                        weeklyAccuracy,
-                      ),
-                    ],
-                  );
+                  return _buildHeader(context, displayFirstName, streakDays);
                 },
-                loading:
-                    () => Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildHeader(context, 'Loading...', 0),
-                        const SizedBox(height: 24),
-                        // Pass 0.0 during loading
-                        _buildStats(context, 0, 0, 0.0),
-                      ],
-                    ),
-                error:
-                    (error, stack) => Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildHeader(context, 'Error', 0),
-                        const SizedBox(height: 24),
-                        // Pass 0.0 on error, maybe show error message elsewhere
-                        _buildStats(context, 0, 0, 0.0),
-                        Center(child: Text('Error loading profile: $error')),
-                      ],
-                    ),
+                loading: () => _buildHeader(context, 'Loading...', 0),
+                error: (error, stack) => _buildHeader(context, 'User', 0),
               ),
               const SizedBox(height: 24),
-              _buildQuickActions(context),
+
+              // Hero Daily Challenge
+              DailyChallengeCard(challengeId: dailyChallengeId),
               const SizedBox(height: 24),
-              _buildSkeletonExplorer(context),
+
+              // Quick Actions Grid
+              Text(
+                'Quick Actions',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 16),
+              _buildQuickActionsGrid(context),
               const SizedBox(height: 24),
-              // Pass practice attempts data to the learning progress section
+
+              // Stats Overview
+              userProfileAsync.when(
+                data: (profileData) {
+                  final completedLessons = 0; // TODO: Fetch actual
+                  final totalLessons = 36; // TODO: Fetch actual
+                  final weeklyAccuracy = weeklyAccuracyAsync.value ?? 0.0;
+                  return _buildStats(
+                    context,
+                    completedLessons,
+                    totalLessons,
+                    weeklyAccuracy,
+                  );
+                },
+                loading: () => _buildStats(context, 0, 0, 0.0),
+                error: (e, s) => _buildStats(context, 0, 0, 0.0),
+              ),
+              const SizedBox(height: 24),
+
+              // Anatomy Fact
+              const AnatomyFactCard(),
+              const SizedBox(height: 24),
+
+              // Learning Progress Chart
               _buildLearningProgress(context, allPracticeAttemptsAsync),
+              const SizedBox(height: 24),
+
+              // Skeleton Explorer Link (Optional if not in grid)
+              // _buildSkeletonExplorer(context),
             ],
           ),
         ),
@@ -107,51 +100,47 @@ class HomeScreen extends ConsumerWidget {
   }
 
   Widget _buildHeader(BuildContext context, String firstName, int streakDays) {
-    // Changed userName to firstName
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.start, // Align items to the top
       children: [
-        // Wrap the name column in Expanded to handle long names
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Welcome back,',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: AppTheme.textColor.withAlpha((0.7 * 255).round()),
-                ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Good Morning,',
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: AppTheme.textColor.withOpacity(0.7),
               ),
-              Text(
-                firstName, // Use passed first name
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontFamily: 'Chillax',
-                  fontWeight: FontWeight.w700,
-                ),
-                maxLines: 1, // Ensure name stays on one line
-                overflow: TextOverflow.ellipsis, // Add ellipsis for long names
+            ),
+            Text(
+              firstName,
+              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                fontFamily: 'Chillax',
+                fontWeight: FontWeight.bold,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-        const SizedBox(width: 16), // Add spacing between name and streak
-        // Streak indicator (no changes needed here)
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: AppTheme.primaryColor.withAlpha((0.1 * 255).round()),
+            color: AppTheme.primaryColor.withOpacity(0.1),
             borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppTheme.primaryColor.withOpacity(0.2)),
           ),
           child: Row(
             children: [
-              Icon(SolarIconsBold.fire, color: AppTheme.primaryColor, size: 20),
+              const Icon(
+                SolarIconsBold.fire,
+                color: AppTheme.primaryColor,
+                size: 20,
+              ),
               const SizedBox(width: 6),
               Text(
-                '$streakDays day streak',
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                '$streakDays',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   color: AppTheme.primaryColor,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ],
@@ -161,70 +150,87 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildQuickActions(BuildContext context) {
-    final String dailyChallengeId = Challenge.upperExtremitiesChallenge.id;
-    const double cardWidth = 280.0;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildQuickActionsGrid(BuildContext context) {
+    return GridView.count(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      crossAxisCount: 2,
+      mainAxisSpacing: 12,
+      crossAxisSpacing: 12,
+      childAspectRatio: 1.5,
       children: [
-        Text('Quick Actions', style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 16),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: 4.0),
-          clipBehavior: Clip.none,
-          child: IntrinsicHeight(
-            child: Row(
-              children: [
-                SizedBox(
-                  width: cardWidth,
-                  child: ActionCard(
-                    title: 'Continue Learning',
-                    subtitle: 'AP Chest Projection',
-                    description: 'Continue where you left off',
-                    icon: SolarIconsBold.bookBookmark,
-                    color: AppTheme.primaryColor,
-                    onTap: () {
-                      context.go(AppRoutes.learn);
-                    },
-                  ),
-                ),
-                const SizedBox(width: 12),
-                SizedBox(
-                  width: cardWidth,
-                  child: ActionCard(
-                    title: 'Daily Challenge',
-                    subtitle: 'Upper Extremities',
-                    description: 'Complete today\'s challenge',
-                    icon: SolarIconsBold.medalStar,
-                    color: AppTheme.secondaryColor,
-                    onTap: () {
-                      context.push(
-                        AppRoutes.challengeStartRoute(dailyChallengeId),
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(width: 12),
-                SizedBox(
-                  width: cardWidth,
-                  child: ActionCard(
-                    title: 'Practice Session',
-                    subtitle: 'Hands-on positioning',
-                    description: 'Practice your skills',
-                    icon: SolarIconsBold.compassSquare,
-                    color: AppTheme.accentColor,
-                    onTap: () {
-                      context.go(AppRoutes.practice);
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
+        _buildGridActionCard(
+          context,
+          title: 'Learn',
+          icon: SolarIconsBold.bookBookmark,
+          color: AppTheme.primaryColor,
+          onTap: () => context.go(AppRoutes.learn),
+        ),
+        _buildGridActionCard(
+          context,
+          title: 'Practice',
+          icon: SolarIconsBold.compassSquare,
+          color: AppTheme.accentColor,
+          onTap: () => context.go(AppRoutes.practice),
+        ),
+        _buildGridActionCard(
+          context,
+          title: 'Flashcards',
+          icon: SolarIconsBold.card,
+          color: Colors.orange,
+          onTap: () => context.push(AppRoutes.flashcards),
+        ),
+        _buildGridActionCard(
+          context,
+          title: 'Leaderboard',
+          icon: SolarIconsBold.cup,
+          color: Colors.purple,
+          onTap: () => context.push(AppRoutes.leaderboard),
         ),
       ],
+    );
+  }
+
+  Widget _buildGridActionCard(
+    BuildContext context, {
+    required String title,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppTheme.surfaceColor,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppTheme.borderColor),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: color, size: 28),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                title,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -234,60 +240,33 @@ class HomeScreen extends ConsumerWidget {
     int totalLessons,
     double weeklyAccuracy,
   ) {
-    final statsGradient = LinearGradient(
-      colors: [
-        AppTheme.primaryColor.withAlpha((0.8 * 255).round()),
-        AppTheme.secondaryColor.withAlpha((0.7 * 255).round()),
-      ],
-      begin: Alignment.centerLeft,
-      end: Alignment.centerRight,
-    );
-    const Color contentColor = Colors.white;
-
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: statsGradient,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.primaryColor.withAlpha((0.3 * 255).round()),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        color: AppTheme.surfaceColor,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppTheme.borderColor),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Text(
-            'Your Progress',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              color: contentColor,
-              fontWeight: FontWeight.bold,
+          Expanded(
+            child: _buildStatItem(
+              context,
+              'Lessons',
+              '$completedLessons/$totalLessons',
+              SolarIconsBold.diploma,
+              AppTheme.primaryColor,
             ),
           ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              _buildStatItem(
-                context,
-                'Completed',
-                '$completedLessons/$totalLessons',
-                'lessons',
-                SolarIconsBold.diploma,
-                contentColor,
-              ),
-              const SizedBox(width: 24),
-              _buildStatItem(
-                context,
-                'Accuracy',
-                '${weeklyAccuracy.toStringAsFixed(1)}%',
-                'this week',
-                SolarIconsBold.target,
-                contentColor,
-              ),
-            ],
+          Container(width: 1, height: 40, color: AppTheme.borderColor),
+          Expanded(
+            child: _buildStatItem(
+              context,
+              'Accuracy',
+              '${weeklyAccuracy.toStringAsFixed(0)}%',
+              SolarIconsBold.target,
+              AppTheme.secondaryColor,
+            ),
           ),
         ],
       ),
@@ -298,66 +277,24 @@ class HomeScreen extends ConsumerWidget {
     BuildContext context,
     String label,
     String value,
-    String sublabel,
     IconData icon,
-    Color contentColor,
+    Color color,
   ) {
-    return Expanded(
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white.withAlpha((0.2 * 255).round()),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: contentColor, size: 24),
-          ),
-          const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: contentColor.withAlpha((0.8 * 255).round()),
-                ),
-              ),
-              Text(
-                value,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: contentColor,
-                ),
-              ),
-              Text(
-                sublabel,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: contentColor.withAlpha((0.8 * 255).round()),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSkeletonExplorer(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Anatomy Explorer', style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 16),
-        ActionCard(
-          title: '3D Skeleton Viewer',
-          subtitle: 'Interactive anatomical model',
-          description: 'Study bones and landmarks in detail',
-          icon: SolarIconsBold.bone,
-          color: AppTheme.primaryColor,
-          onTap: () {
-            context.go(AppRoutes.skeletonViewer);
-          },
+        Icon(icon, color: color, size: 24),
+        const SizedBox(height: 8),
+        Text(
+          value,
+          style: Theme.of(
+            context,
+          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+        ),
+        Text(
+          label,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: AppTheme.textColor.withOpacity(0.6),
+          ),
         ),
       ],
     );
@@ -370,8 +307,7 @@ class HomeScreen extends ConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
     final primaryColor = AppTheme.primaryColor;
     final secondaryColor = AppTheme.secondaryColor;
-    final dateFormat =
-        DateFormat.Md(); // Use a concise date format (e.g., '4/23')
+    final dateFormat = DateFormat.Md();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -379,20 +315,13 @@ class HomeScreen extends ConsumerWidget {
         Text('Practice Progress', style: textTheme.titleLarge),
         const SizedBox(height: 16),
         Container(
-          height: 220, // Increased height slightly for better visibility
-          padding: const EdgeInsets.fromLTRB(12, 20, 16, 12), // Adjust padding
+          height: 220,
+          padding: const EdgeInsets.fromLTRB(12, 20, 16, 12),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withAlpha((0.05 * 255).round()),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: AppTheme.borderColor),
           ),
-          // Use AsyncValue.when to handle loading/error/data states
           child: attemptsAsync.when(
             data: (attempts) {
               if (attempts.isEmpty) {
@@ -404,11 +333,9 @@ class HomeScreen extends ConsumerWidget {
                 );
               }
 
-              // Sort attempts by date (oldest first) for the chart
               final sortedAttempts = List<PracticeAttempt>.from(attempts)
                 ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
 
-              // Prepare data points (FlSpot)
               final spots =
                   sortedAttempts.asMap().entries.map((entry) {
                     final index = entry.key;
@@ -416,47 +343,42 @@ class HomeScreen extends ConsumerWidget {
                     return FlSpot(index.toDouble(), attempt.accuracy);
                   }).toList();
 
-              // Determine a reasonable interval for date labels
               double bottomTitleInterval = 1;
               if (spots.length > 5) {
-                // Aim for roughly 5-7 labels
                 bottomTitleInterval = (spots.length / 6).ceilToDouble();
               }
 
               return LineChart(
                 LineChartData(
                   minY: 0,
-                  maxY: 105, // Slightly above 100 for padding
+                  maxY: 105,
                   gridData: FlGridData(
                     show: true,
-                    drawVerticalLine: false, // Hide vertical grid lines
-                    horizontalInterval: 25, // Grid lines every 25%
+                    drawVerticalLine: false,
+                    horizontalInterval: 25,
                     getDrawingHorizontalLine: (value) {
                       return FlLine(
-                        color: Colors.grey.shade300,
-                        strokeWidth: 0.5,
+                        color: Colors.grey.shade200,
+                        strokeWidth: 1,
+                        dashArray: [5, 5],
                       );
                     },
                   ),
                   titlesData: FlTitlesData(
-                    // Hide top and right titles
                     topTitles: const AxisTitles(
                       sideTitles: SideTitles(showTitles: false),
                     ),
                     rightTitles: const AxisTitles(
                       sideTitles: SideTitles(showTitles: false),
                     ),
-                    // Configure bottom titles (attempt number or date)
                     bottomTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
                         reservedSize: 30,
-                        interval:
-                            bottomTitleInterval, // Use calculated interval
+                        interval: bottomTitleInterval,
                         getTitlesWidget: (value, meta) {
                           final index = value.toInt();
                           if (index >= 0 && index < sortedAttempts.length) {
-                            // Show labels based on the calculated interval
                             if (index % bottomTitleInterval.toInt() == 0 ||
                                 index == spots.length - 1 ||
                                 index == 0) {
@@ -467,7 +389,7 @@ class HomeScreen extends ConsumerWidget {
                                 child: Text(
                                   dateFormat.format(
                                     attempt.createdAt.toLocal(),
-                                  ), // Format date
+                                  ),
                                   style: textTheme.bodySmall?.copyWith(
                                     color: Colors.grey.shade600,
                                   ),
@@ -479,12 +401,11 @@ class HomeScreen extends ConsumerWidget {
                         },
                       ),
                     ),
-                    // Configure left titles (accuracy percentage)
                     leftTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
                         reservedSize: 40,
-                        interval: 25, // Show 0, 25, 50, 75, 100
+                        interval: 25,
                         getTitlesWidget: (value, meta) {
                           if (value == 0 ||
                               value == 25 ||
@@ -498,7 +419,7 @@ class HomeScreen extends ConsumerWidget {
                                 '${value.toInt()}%',
                                 style: textTheme.bodySmall?.copyWith(
                                   color: Colors.grey.shade600,
-                                  fontSize: 10, // Correctly set font size
+                                  fontSize: 10,
                                 ),
                               ),
                             );
@@ -508,13 +429,7 @@ class HomeScreen extends ConsumerWidget {
                       ),
                     ),
                   ),
-                  borderData: FlBorderData(
-                    show: true,
-                    border: Border(
-                      bottom: BorderSide(color: Colors.grey.shade300, width: 1),
-                      left: BorderSide(color: Colors.grey.shade300, width: 1),
-                    ),
-                  ),
+                  borderData: FlBorderData(show: false),
                   lineBarsData: [
                     LineChartBarData(
                       spots: spots,
@@ -522,34 +437,25 @@ class HomeScreen extends ConsumerWidget {
                       gradient: LinearGradient(
                         colors: [primaryColor, secondaryColor],
                       ),
-                      barWidth: 3,
+                      barWidth: 4,
                       isStrokeCapRound: true,
                       dotData: FlDotData(
-                        show:
-                            spots.length <
-                            20, // Show dots only for fewer points
+                        show: spots.length < 20,
                         getDotPainter:
                             (spot, percent, barData, index) =>
                                 FlDotCirclePainter(
-                                  radius: 3,
-                                  color:
-                                      Color.lerp(
-                                        primaryColor,
-                                        secondaryColor,
-                                        spot.x / spots.length,
-                                      ) ??
-                                      primaryColor,
-                                  strokeWidth: 1,
-                                  strokeColor: Colors.white,
+                                  radius: 4,
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                  strokeColor: primaryColor,
                                 ),
                       ),
                       belowBarData: BarAreaData(
                         show: true,
                         gradient: LinearGradient(
                           colors: [
-                            primaryColor.withAlpha((0.3 * 255).round()),
-                            secondaryColor.withAlpha((0.1 * 255).round()),
-                            secondaryColor.withAlpha((0.0 * 255).round()),
+                            primaryColor.withOpacity(0.2),
+                            primaryColor.withOpacity(0.0),
                           ],
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
@@ -557,52 +463,6 @@ class HomeScreen extends ConsumerWidget {
                       ),
                     ),
                   ],
-                  // Tooltip customization
-                  lineTouchData: LineTouchData(
-                    touchTooltipData: LineTouchTooltipData(
-                      getTooltipColor:
-                          (spot) => Colors.blueGrey.shade800.withAlpha(
-                            (0.9 * 255).round(),
-                          ),
-                      getTooltipItems: (touchedSpots) {
-                        return touchedSpots.map((LineBarSpot touchedSpot) {
-                          final index = touchedSpot.spotIndex;
-                          final attempt = sortedAttempts[index];
-                          final dateStr = DateFormat.yMd().add_jm().format(
-                            attempt.createdAt.toLocal(),
-                          );
-                          return LineTooltipItem(
-                            '${touchedSpot.y.toStringAsFixed(1)}%\n',
-                            TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
-                            children: [
-                              TextSpan(
-                                text:
-                                    '${_capitalize(attempt.bodyPartId)} - ${attempt.projectionName}\n',
-                                style: TextStyle(
-                                  color: Colors.grey.shade300,
-                                  fontSize: 10,
-                                ),
-                              ),
-                              TextSpan(
-                                text: dateStr,
-                                style: TextStyle(
-                                  color: Colors.grey.shade400,
-                                  fontSize: 10,
-                                  fontStyle: FontStyle.italic,
-                                ),
-                              ),
-                            ],
-                            textAlign: TextAlign.left,
-                          );
-                        }).toList();
-                      },
-                    ),
-                    handleBuiltInTouches: true,
-                  ),
                 ),
               );
             },
@@ -610,7 +470,7 @@ class HomeScreen extends ConsumerWidget {
             error:
                 (error, stack) => Center(
                   child: Text(
-                    'Could not load practice data: $error',
+                    'Could not load practice data',
                     style: textTheme.bodyMedium?.copyWith(color: Colors.red),
                   ),
                 ),
@@ -619,17 +479,4 @@ class HomeScreen extends ConsumerWidget {
       ],
     );
   }
-}
-
-// Helper function to capitalize (assuming it's defined elsewhere or copy it here if needed)
-String _capitalize(String s) {
-  if (s.isEmpty) return s;
-  // Simple capitalization for example, adjust as needed
-  return s
-      .split(' ')
-      .map((word) {
-        if (word.isEmpty) return '';
-        return '${word[0].toUpperCase()}${word.substring(1).toLowerCase()}';
-      })
-      .join(' ');
 }
