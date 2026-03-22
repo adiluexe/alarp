@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:solar_icons/solar_icons.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:alarp/core/theme/app_theme.dart';
 import 'package:alarp/features/profile/controllers/bookmarks_provider.dart';
 import 'package:alarp/features/learn/data/static_lesson_data.dart';
@@ -38,24 +39,32 @@ class BookmarksScreen extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
-                      SolarIconsOutline.bookmark,
+                      SolarIconsBold.bookmark,
                       size: 64,
                       color: Colors.grey[300],
-                    ),
-                    const SizedBox(height: 16),
+                    )
+                        .animate(onPlay: (c) => c.repeat(reverse: true))
+                        .scaleXY(
+                          begin: 1.0,
+                          end: 1.1,
+                          duration: 1600.ms,
+                          curve: Curves.easeInOut,
+                        ),
+                    const SizedBox(height: 20),
                     Text(
                       'No saved lessons yet',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         color: Colors.grey[500],
                       ),
-                    ),
+                    ).animate().fadeIn(delay: 200.ms),
                     const SizedBox(height: 8),
                     Text(
-                      'Bookmark lessons to access them quickly here',
-                      style: Theme.of(
-                        context,
-                      ).textTheme.bodyMedium?.copyWith(color: Colors.grey[400]),
-                    ),
+                      'Tap the bookmark icon on any lesson to save it here',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Colors.grey[400],
+                      ),
+                      textAlign: TextAlign.center,
+                    ).animate().fadeIn(delay: 300.ms),
                   ],
                 ),
               )

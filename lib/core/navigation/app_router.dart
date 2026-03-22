@@ -97,6 +97,36 @@ class AppRoutes {
       challengeResults.replaceFirst(':challengeId', challengeId);
 }
 
+// Helper: slide-from-right transition for drill-down navigation
+CustomTransitionPage<T> _slidePage<T>(
+  GoRouterState state,
+  Widget child,
+) {
+  return CustomTransitionPage<T>(
+    key: state.pageKey,
+    child: child,
+    transitionDuration: const Duration(milliseconds: 280),
+    reverseTransitionDuration: const Duration(milliseconds: 250),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      final tween = Tween(
+        begin: const Offset(1.0, 0.0),
+        end: Offset.zero,
+      ).chain(CurveTween(curve: Curves.easeOutCubic));
+      final reverseTween = Tween(
+        begin: Offset.zero,
+        end: const Offset(-0.25, 0.0),
+      ).chain(CurveTween(curve: Curves.easeInCubic));
+      return SlideTransition(
+        position: animation.drive(tween),
+        child: SlideTransition(
+          position: secondaryAnimation.drive(reverseTween),
+          child: child,
+        ),
+      );
+    },
+  );
+}
+
 // Private navigator keys
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
@@ -224,139 +254,154 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       // Routes accessible without bottom nav bar
       GoRoute(
         path: AppRoutes.skeletonViewer,
-        builder: (context, state) => const SkeletonViewerScreen(),
+        pageBuilder: (context, state) =>
+            _slidePage(state, const SkeletonViewerScreen()),
       ),
       GoRoute(
-        path: AppRoutes.recentPracticeList, // Verify path uses the constant
-        builder:
-            (context, state) =>
-                const RecentPracticeListScreen(), // Verify builder points to the correct screen
+        path: AppRoutes.recentPracticeList,
+        pageBuilder: (context, state) =>
+            _slidePage(state, const RecentPracticeListScreen()),
       ),
       GoRoute(
         path: AppRoutes.leaderboard,
-        builder: (context, state) => const LeaderboardScreen(),
+        pageBuilder: (context, state) =>
+            _slidePage(state, const LeaderboardScreen()),
       ),
-      // Add the new Challenge History route here (outside the ShellRoute)
       GoRoute(
         path: AppRoutes.challengeHistory,
-        builder: (context, state) => const ChallengeHistoryScreen(),
+        pageBuilder: (context, state) =>
+            _slidePage(state, const ChallengeHistoryScreen()),
       ),
-      // Flashcard Screen (outside ShellRoute)
       GoRoute(
         path: AppRoutes.flashcards,
-        builder: (context, state) => const FlashcardScreen(),
+        pageBuilder: (context, state) =>
+            _slidePage(state, const FlashcardScreen()),
       ),
       GoRoute(
         path: AppRoutes.speedRun,
-        builder: (context, state) => const SpeedRunScreen(),
+        pageBuilder: (context, state) =>
+            _slidePage(state, const SpeedRunScreen()),
       ),
       GoRoute(
         path: AppRoutes.survival,
-        builder: (context, state) => const SurvivalScreen(),
+        pageBuilder: (context, state) =>
+            _slidePage(state, const SurvivalScreen()),
       ),
       GoRoute(
         path: AppRoutes.regionMaster,
-        builder: (context, state) => const RegionMasterScreen(),
+        pageBuilder: (context, state) =>
+            _slidePage(state, const RegionMasterScreen()),
       ),
       GoRoute(
         path: AppRoutes.regionMasterGame,
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final regionId = state.pathParameters['regionId'];
-          return SpeedRunScreen(regionId: regionId);
+          return _slidePage(state, SpeedRunScreen(regionId: regionId));
         },
       ),
       // MOVED: Collimation Practice Screen (outside ShellRoute)
       GoRoute(
-        // Define the full path
         path:
             '${AppRoutes.practice}/${AppRoutes.practiceRegionDetail}/${AppRoutes.practicePositioning}',
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final regionId = state.pathParameters['regionId']!;
           final bodyPartId = state.pathParameters['bodyPartId']!;
           final projectionName = state.pathParameters['projectionName']!;
-          return CollimationPracticeScreen(
-            regionId: regionId,
-            bodyPartId: bodyPartId,
-            initialProjectionName: projectionName,
+          return _slidePage(
+            state,
+            CollimationPracticeScreen(
+              regionId: regionId,
+              bodyPartId: bodyPartId,
+              initialProjectionName: projectionName,
+            ),
           );
         },
       ),
-      // Challenge Start Screen (outside ShellRoute) - Use absolute path
+      // Challenge Start Screen (outside ShellRoute)
       GoRoute(
-        path: AppRoutes.challengeStart, // Use the absolute path constant
-        builder: (context, state) {
+        path: AppRoutes.challengeStart,
+        pageBuilder: (context, state) {
           final challengeId = state.pathParameters['challengeId']!;
           final challenge = Challenge.getChallengeById(challengeId);
-
-          // Handle case where challenge is not found
           if (challenge == null) {
-            return Scaffold(
-              appBar: AppBar(title: const Text('Error')),
-              body: Center(
-                child: Text('Challenge with ID \'$challengeId\' not found.'),
+            return _slidePage(
+              state,
+              Scaffold(
+                appBar: AppBar(title: const Text('Error')),
+                body: Center(
+                  child:
+                      Text('Challenge with ID \'$challengeId\' not found.'),
+                ),
               ),
             );
           }
-
-          // Override the provider for this specific route
-          return ProviderScope(
-            overrides: [
-              currentChallengeProvider.overrideWithValue(challenge),
-            ], // Now safe
-            child: ChallengeStartScreen(challengeId: challengeId),
+          return _slidePage(
+            state,
+            ProviderScope(
+              overrides: [
+                currentChallengeProvider.overrideWithValue(challenge),
+              ],
+              child: ChallengeStartScreen(challengeId: challengeId),
+            ),
           );
         },
       ),
-      // Challenge Active Screen (outside ShellRoute) - Use absolute path
+      // Challenge Active Screen (outside ShellRoute)
       GoRoute(
-        path: AppRoutes.challengeActivePath, // Use the absolute path constant
-        builder: (context, state) {
+        path: AppRoutes.challengeActivePath,
+        pageBuilder: (context, state) {
           final challengeId = state.pathParameters['challengeId']!;
           final challenge = Challenge.getChallengeById(challengeId);
-
-          // Handle case where challenge is not found
           if (challenge == null) {
-            return Scaffold(
-              appBar: AppBar(title: const Text('Error')),
-              body: Center(
-                child: Text('Challenge with ID \'$challengeId\' not found.'),
+            return _slidePage(
+              state,
+              Scaffold(
+                appBar: AppBar(title: const Text('Error')),
+                body: Center(
+                  child:
+                      Text('Challenge with ID \'$challengeId\' not found.'),
+                ),
               ),
             );
           }
-
-          // Override the provider for this specific route
-          return ProviderScope(
-            overrides: [
-              activeChallengeProvider.overrideWithValue(challenge),
-            ], // Now safe
-            child: ChallengeActiveScreen(challengeId: challengeId),
+          return _slidePage(
+            state,
+            ProviderScope(
+              overrides: [
+                activeChallengeProvider.overrideWithValue(challenge),
+              ],
+              child: ChallengeActiveScreen(challengeId: challengeId),
+            ),
           );
         },
       ),
-      // NEW: Challenge Results Screen (Top-Level)
+      // Challenge Results Screen (Top-Level)
       GoRoute(
-        path: AppRoutes.challengeResults, // Use absolute path
-        name: AppRoutes.challengeResults, // Assign name for goNamed
-        builder: (context, state) {
+        path: AppRoutes.challengeResults,
+        name: AppRoutes.challengeResults,
+        pageBuilder: (context, state) {
           final challengeId = state.pathParameters['challengeId']!;
           final challenge = Challenge.getChallengeById(challengeId);
-
-          // Handle case where challenge is not found
           if (challenge == null) {
-            return Scaffold(
-              appBar: AppBar(title: const Text('Error')),
-              body: Center(
-                child: Text('Challenge with ID \'$challengeId\' not found.'),
+            return _slidePage(
+              state,
+              Scaffold(
+                appBar: AppBar(title: const Text('Error')),
+                body: Center(
+                  child:
+                      Text('Challenge with ID \'$challengeId\' not found.'),
+                ),
               ),
             );
           }
-
-          // Override the provider for this specific route
-          // The results screen needs this to get challenge details like title
-          // and to access the correct controller instance via challengeControllerProvider(challenge)
-          return ProviderScope(
-            overrides: [activeChallengeProvider.overrideWithValue(challenge)],
-            child: const ChallengeResultsScreen(),
+          return _slidePage(
+            state,
+            ProviderScope(
+              overrides: [
+                activeChallengeProvider.overrideWithValue(challenge),
+              ],
+              child: const ChallengeResultsScreen(),
+            ),
           );
         },
       ),
@@ -392,19 +437,23 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                     const NoTransitionPage(child: LearnScreen()),
             routes: [
               GoRoute(
-                path:
-                    AppRoutes
-                        .learnRegionDetail, // e.g., /learn/region/upper_extremity
-                builder: (context, state) {
+                path: AppRoutes.learnRegionDetail,
+                pageBuilder: (context, state) {
                   final regionId = state.pathParameters['regionId']!;
-                  return LearnRegionDetailScreen(regionId: regionId);
+                  return _slidePage(
+                    state,
+                    LearnRegionDetailScreen(regionId: regionId),
+                  );
                 },
                 routes: [
                   GoRoute(
                     path: AppRoutes.learnLesson,
-                    builder: (context, state) {
+                    pageBuilder: (context, state) {
                       final lessonId = state.pathParameters['bodyPartId']!;
-                      return LearnLessonScreen(lessonId: lessonId);
+                      return _slidePage(
+                        state,
+                        LearnLessonScreen(lessonId: lessonId),
+                      );
                     },
                   ),
                 ],
@@ -419,10 +468,10 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: AppRoutes.practiceRegionDetail,
-                builder: (context, state) {
+                pageBuilder: (context, state) {
                   final regionId = state.pathParameters['regionId']!;
                   final region = BodyRegions.getRegionById(regionId);
-                  return RegionDetailScreen(region: region);
+                  return _slidePage(state, RegionDetailScreen(region: region));
                 },
               ),
             ],
@@ -441,11 +490,13 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: AppRoutes.bookmarks,
-            builder: (context, state) => const BookmarksScreen(),
+            pageBuilder: (context, state) =>
+                _slidePage(state, const BookmarksScreen()),
           ),
           GoRoute(
             path: AppRoutes.editProfile,
-            builder: (context, state) => const EditProfileScreen(),
+            pageBuilder: (context, state) =>
+                _slidePage(state, const EditProfileScreen()),
           ),
         ],
       ),

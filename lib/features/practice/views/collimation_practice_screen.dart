@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:solar_icons/solar_icons.dart';
@@ -162,8 +163,8 @@ class _CollimationPracticeScreenState
           'Practice attempt saved successfully!',
           name: 'CollimationPractice',
         );
+        HapticFeedback.mediumImpact();
         if (mounted) {
-          // Check if widget is still in the tree
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Practice attempt saved!')),
           );

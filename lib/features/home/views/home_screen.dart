@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:solar_icons/solar_icons.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:alarp/core/theme/app_theme.dart';
 import 'package:alarp/core/navigation/app_router.dart';
 import 'package:alarp/features/challenge/models/challenge.dart';
@@ -15,6 +18,13 @@ import 'package:alarp/features/home/widgets/anatomy_fact_card.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
+
+  String _getGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) return 'Good Morning,';
+    if (hour < 17) return 'Good Afternoon,';
+    return 'Good Evening,';
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -43,25 +53,38 @@ class HomeScreen extends ConsumerWidget {
                           : userName;
                   final streakDays =
                       profileData?['current_streak'] as int? ?? 0;
-
-                  return _buildHeader(context, displayFirstName, streakDays);
+                  return _buildHeader(
+                    context,
+                    displayFirstName,
+                    streakDays,
+                  );
                 },
-                loading: () => _buildHeader(context, 'Loading...', 0),
-                error: (error, stack) => _buildHeader(context, 'User', 0),
-              ),
+                loading: () => _buildHeaderShimmer(context),
+                error: (error, stack) =>
+                    _buildHeader(context, 'User', 0),
+              ).animate().fadeIn(duration: 400.ms),
+
               const SizedBox(height: 24),
 
               // Hero Daily Challenge
-              DailyChallengeCard(challengeId: dailyChallengeId),
+              DailyChallengeCard(challengeId: dailyChallengeId)
+                  .animate()
+                  .fadeIn(delay: 100.ms, duration: 400.ms)
+                  .slideY(begin: 0.05, end: 0),
+
               const SizedBox(height: 24),
 
               // Quick Actions Grid
               Text(
                 'Quick Actions',
                 style: Theme.of(context).textTheme.titleLarge,
-              ),
+              ).animate().fadeIn(delay: 200.ms, duration: 400.ms),
               const SizedBox(height: 16),
-              _buildQuickActionsGrid(context),
+              _buildQuickActionsGrid(context)
+                  .animate()
+                  .fadeIn(delay: 250.ms, duration: 400.ms)
+                  .slideY(begin: 0.05, end: 0),
+
               const SizedBox(height: 24),
 
               // Stats Overview
@@ -77,21 +100,28 @@ class HomeScreen extends ConsumerWidget {
                     weeklyAccuracy,
                   );
                 },
-                loading: () => _buildStats(context, 0, 0, 0.0),
+                loading: () => _buildStatsShimmer(context),
                 error: (e, s) => _buildStats(context, 0, 0, 0.0),
-              ),
+              )
+                  .animate()
+                  .fadeIn(delay: 350.ms, duration: 400.ms)
+                  .slideY(begin: 0.05, end: 0),
+
               const SizedBox(height: 24),
 
               // Anatomy Fact
-              const AnatomyFactCard(),
+              const AnatomyFactCard()
+                  .animate()
+                  .fadeIn(delay: 450.ms, duration: 400.ms),
+
               const SizedBox(height: 24),
 
               // Learning Progress Chart
-              _buildLearningProgress(context, allPracticeAttemptsAsync),
-              const SizedBox(height: 24),
+              _buildLearningProgress(context, allPracticeAttemptsAsync)
+                  .animate()
+                  .fadeIn(delay: 550.ms, duration: 400.ms),
 
-              // Skeleton Explorer Link (Optional if not in grid)
-              // _buildSkeletonExplorer(context),
+              const SizedBox(height: 24),
             ],
           ),
         ),
@@ -99,7 +129,11 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context, String firstName, int streakDays) {
+  Widget _buildHeader(
+    BuildContext context,
+    String firstName,
+    int streakDays,
+  ) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -107,7 +141,7 @@ class HomeScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Good Morning,',
+              _getGreeting(),
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 color: AppTheme.textColor.withOpacity(0.7),
               ),
@@ -121,32 +155,103 @@ class HomeScreen extends ConsumerWidget {
             ),
           ],
         ),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            color: AppTheme.primaryColor.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppTheme.primaryColor.withOpacity(0.2)),
-          ),
-          child: Row(
-            children: [
-              const Icon(
-                SolarIconsBold.fire,
-                color: AppTheme.primaryColor,
-                size: 20,
+        GestureDetector(
+          onTap: () {
+            HapticFeedback.lightImpact();
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: streakDays > 0
+                  ? Colors.orange.withOpacity(0.12)
+                  : AppTheme.primaryColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: streakDays > 0
+                    ? Colors.orange.withOpacity(0.3)
+                    : AppTheme.primaryColor.withOpacity(0.2),
               ),
-              const SizedBox(width: 6),
-              Text(
-                '$streakDays',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: AppTheme.primaryColor,
-                  fontWeight: FontWeight.bold,
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  SolarIconsBold.fire,
+                  color: streakDays > 0
+                      ? Colors.orange.shade600
+                      : AppTheme.primaryColor,
+                  size: 20,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  '$streakDays',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: streakDays > 0
+                        ? Colors.orange.shade600
+                        : AppTheme.primaryColor,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildHeaderShimmer(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey.shade200,
+      highlightColor: Colors.grey.shade100,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 100,
+                height: 16,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              const SizedBox(height: 6),
+              Container(
+                width: 140,
+                height: 28,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
                 ),
               ),
             ],
           ),
+          Container(
+            width: 72,
+            height: 36,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatsShimmer(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey.shade200,
+      highlightColor: Colors.grey.shade100,
+      child: Container(
+        height: 90,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
         ),
-      ],
+      ),
     );
   }
 
@@ -164,28 +269,40 @@ class HomeScreen extends ConsumerWidget {
           title: 'Learn',
           icon: SolarIconsBold.bookBookmark,
           color: AppTheme.primaryColor,
-          onTap: () => context.go(AppRoutes.learn),
+          onTap: () {
+            HapticFeedback.lightImpact();
+            context.go(AppRoutes.learn);
+          },
         ),
         _buildGridActionCard(
           context,
           title: 'Practice',
           icon: SolarIconsBold.compassSquare,
           color: AppTheme.accentColor,
-          onTap: () => context.go(AppRoutes.practice),
+          onTap: () {
+            HapticFeedback.lightImpact();
+            context.go(AppRoutes.practice);
+          },
         ),
         _buildGridActionCard(
           context,
           title: 'Flashcards',
           icon: SolarIconsBold.card,
           color: Colors.orange,
-          onTap: () => context.push(AppRoutes.flashcards),
+          onTap: () {
+            HapticFeedback.lightImpact();
+            context.push(AppRoutes.flashcards);
+          },
         ),
         _buildGridActionCard(
           context,
           title: 'Leaderboard',
           icon: SolarIconsBold.cup,
           color: Colors.purple,
-          onTap: () => context.push(AppRoutes.leaderboard),
+          onTap: () {
+            HapticFeedback.lightImpact();
+            context.push(AppRoutes.leaderboard);
+          },
         ),
       ],
     );
@@ -223,9 +340,9 @@ class HomeScreen extends ConsumerWidget {
               const SizedBox(height: 12),
               Text(
                 title,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ],
           ),
@@ -326,9 +443,30 @@ class HomeScreen extends ConsumerWidget {
             data: (attempts) {
               if (attempts.isEmpty) {
                 return Center(
-                  child: Text(
-                    'No practice data available yet.',
-                    style: textTheme.bodyMedium,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        SolarIconsOutline.chartSquare,
+                        size: 40,
+                        color: Colors.grey.shade300,
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'No practice data yet.',
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: Colors.grey.shade500,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Start practicing to see your progress here.',
+                        style: textTheme.bodySmall?.copyWith(
+                          color: Colors.grey.shade400,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                   ),
                 );
               }
@@ -336,12 +474,11 @@ class HomeScreen extends ConsumerWidget {
               final sortedAttempts = List<PracticeAttempt>.from(attempts)
                 ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
 
-              final spots =
-                  sortedAttempts.asMap().entries.map((entry) {
-                    final index = entry.key;
-                    final attempt = entry.value;
-                    return FlSpot(index.toDouble(), attempt.accuracy);
-                  }).toList();
+              final spots = sortedAttempts.asMap().entries.map((entry) {
+                final index = entry.key;
+                final attempt = entry.value;
+                return FlSpot(index.toDouble(), attempt.accuracy);
+              }).toList();
 
               double bottomTitleInterval = 1;
               if (spots.length > 5) {
@@ -441,14 +578,13 @@ class HomeScreen extends ConsumerWidget {
                       isStrokeCapRound: true,
                       dotData: FlDotData(
                         show: spots.length < 20,
-                        getDotPainter:
-                            (spot, percent, barData, index) =>
-                                FlDotCirclePainter(
-                                  radius: 4,
-                                  color: Colors.white,
-                                  strokeWidth: 2,
-                                  strokeColor: primaryColor,
-                                ),
+                        getDotPainter: (spot, percent, barData, index) =>
+                            FlDotCirclePainter(
+                          radius: 4,
+                          color: Colors.white,
+                          strokeWidth: 2,
+                          strokeColor: primaryColor,
+                        ),
                       ),
                       belowBarData: BarAreaData(
                         show: true,
@@ -466,14 +602,22 @@ class HomeScreen extends ConsumerWidget {
                 ),
               );
             },
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error:
-                (error, stack) => Center(
-                  child: Text(
-                    'Could not load practice data',
-                    style: textTheme.bodyMedium?.copyWith(color: Colors.red),
-                  ),
+            loading: () => Shimmer.fromColors(
+              baseColor: Colors.grey.shade200,
+              highlightColor: Colors.grey.shade100,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
                 ),
+              ),
+            ),
+            error: (error, stack) => Center(
+              child: Text(
+                'Could not load practice data',
+                style: textTheme.bodyMedium?.copyWith(color: Colors.red),
+              ),
+            ),
           ),
         ),
       ],

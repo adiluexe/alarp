@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math'; // Added for max()
 import 'package:flutter/material.dart'; // Added for WidgetsBinding
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/challenge.dart';
 import '../models/challenge_step.dart';
@@ -233,6 +234,12 @@ class ChallengeController extends StateNotifier<ChallengeState> {
     final startTime = state.stepStartTime ?? DateTime.now();
     final timeTaken = DateTime.now().difference(startTime);
     final scoreDelta = _calculateScore(step, isCorrect, timeTaken);
+
+    if (isCorrect) {
+      HapticFeedback.mediumImpact();
+    } else {
+      HapticFeedback.lightImpact();
+    }
 
     final stepResult = StepResult(
       stepId: step.id,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart'; // For date formatting
+import 'package:intl/intl.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:alarp/core/theme/app_theme.dart';
 import 'package:alarp/features/challenge/models/challenge_attempt.dart';
 import 'package:alarp/features/profile/controllers/challenge_history_provider.dart';
@@ -40,30 +41,33 @@ class ChallengeHistoryScreen extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
-                      SolarIconsOutline.history,
-                      size: 60,
-                      color: AppTheme.textColor.withAlpha((0.5 * 255).round()),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'No challenge attempts found yet!',
-                      style: textTheme.bodyLarge?.copyWith(
-                        color: AppTheme.textColor.withAlpha(
-                          (0.7 * 255).round(),
+                      SolarIconsBold.cupStar,
+                      size: 64,
+                      color: Colors.grey.shade300,
+                    )
+                        .animate(onPlay: (c) => c.repeat(reverse: true))
+                        .scaleXY(
+                          begin: 1.0,
+                          end: 1.08,
+                          duration: 1800.ms,
+                          curve: Curves.easeInOut,
                         ),
+                    const SizedBox(height: 20),
+                    Text(
+                      'No challenge attempts yet!',
+                      style: textTheme.titleMedium?.copyWith(
+                        color: Colors.grey.shade600,
                       ),
                       textAlign: TextAlign.center,
-                    ),
+                    ).animate().fadeIn(delay: 200.ms),
                     const SizedBox(height: 8),
                     Text(
-                      'Complete some challenges to see your history here.',
+                      'Complete a challenge and your results will appear here.',
                       style: textTheme.bodyMedium?.copyWith(
-                        color: AppTheme.textColor.withAlpha(
-                          (0.5 * 255).round(),
-                        ),
+                        color: Colors.grey.shade400,
                       ),
                       textAlign: TextAlign.center,
-                    ),
+                    ).animate().fadeIn(delay: 300.ms),
                   ],
                 ),
               );
