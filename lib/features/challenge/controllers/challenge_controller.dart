@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math'; // Added for max()
 import 'package:flutter/material.dart'; // Added for WidgetsBinding
 import 'package:flutter/services.dart';
+import 'package:alarp/core/providers/guest_mode_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/challenge.dart';
 import '../models/challenge_step.dart';
@@ -420,13 +421,16 @@ class ChallengeController extends StateNotifier<ChallengeState> {
   Future<void> _submitScore(int score) async {
     if (score < 0) {
       state = state.copyWith(
-        status: ChallengeStatus.error, // Set error status
+        status: ChallengeStatus.error,
         errorMessage:
             "Attempted to submit negative score ($score) for ${initialChallenge.id}. Skipping.",
-        clearErrorMessage: false, // Ensure error message is set
+        clearErrorMessage: false,
       );
       return;
     }
+
+    // Skip Supabase submission in guest/demo mode
+    if (ref.read(guestModeProvider)) return;
 
     try {
       final profileRepo = ref.read(profileRepositoryProvider);

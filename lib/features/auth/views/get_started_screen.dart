@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:alarp/core/theme/app_theme.dart';
-import 'package:alarp/core/navigation/app_router.dart'; // Import AppRoutes
+import 'package:alarp/core/navigation/app_router.dart';
+import 'package:alarp/core/providers/guest_mode_provider.dart';
 
-class GetStartedScreen extends StatelessWidget {
-  const GetStartedScreen({Key? key}) : super(key: key);
+class GetStartedScreen extends ConsumerWidget {
+  const GetStartedScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
@@ -21,7 +23,6 @@ class GetStartedScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Top Section (ALARP Title)
               Padding(
                 padding: EdgeInsets.only(top: screenHeight * 0.05),
                 child: Text(
@@ -36,25 +37,18 @@ class GetStartedScreen extends StatelessWidget {
                 ),
               ),
 
-              // Middle Section (Hero Image Only) - Emphasized
-              // Remove Padding wrapper, let spaceBetween handle vertical distribution
               Image.asset(
                 'assets/images/alarp_hero.webp',
-                // Significantly increase height, adjust width accordingly
-                height: screenHeight * 0.45, // Increased height
-                width: screenWidth, // Span full width
-                fit: BoxFit.cover, // Contain ensures aspect ratio is maintained
+                height: screenHeight * 0.45,
+                width: screenWidth,
+                fit: BoxFit.cover,
               ),
 
-              // Bottom Section (Welcome Text & Buttons)
               Padding(
-                padding: EdgeInsets.only(
-                  bottom: screenHeight * 0.04,
-                ), // Adjust bottom padding
+                padding: EdgeInsets.only(bottom: screenHeight * 0.04),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Welcome Text (Moved Here)
                     Text(
                       'Welcome to ALARP',
                       style: theme.textTheme.headlineMedium?.copyWith(
@@ -64,16 +58,16 @@ class GetStartedScreen extends StatelessWidget {
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 4), // Reduced spacing slightly
+                    const SizedBox(height: 4),
                     Text(
                       'A Learning Aid in Radiographic Positioning',
                       style: theme.textTheme.titleMedium?.copyWith(
-                        color: AppTheme.primaryColor.withOpacity(0.8),
+                        color: AppTheme.primaryColor.withValues(alpha: 0.8),
                         fontFamily: 'Satoshi',
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 16), // Spacing before buttons
+                    const SizedBox(height: 16),
                     // Get Started Button
                     SizedBox(
                       width: double.infinity,
@@ -87,9 +81,7 @@ class GetStartedScreen extends StatelessWidget {
                           ),
                           elevation: 2,
                         ),
-                        onPressed: () {
-                          context.push(AppRoutes.signUp);
-                        },
+                        onPressed: () => context.push(AppRoutes.signUp),
                         child: Text(
                           'Get Started',
                           style: theme.textTheme.titleMedium?.copyWith(
@@ -100,8 +92,37 @@ class GetStartedScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 12), // Adjusted spacing
-                    // Log In Link
+                    const SizedBox(height: 10),
+                    // Continue as Guest Button
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppTheme.primaryColor,
+                          side: const BorderSide(
+                            color: AppTheme.primaryColor,
+                            width: 1.5,
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onPressed: () {
+                          ref.read(guestModeProvider.notifier).state = true;
+                          context.go(AppRoutes.home);
+                        },
+                        child: Text(
+                          'Continue as Guest',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: AppTheme.primaryColor,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Satoshi',
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [

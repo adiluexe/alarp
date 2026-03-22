@@ -4,7 +4,8 @@ import 'package:alarp/features/practice/models/practice_attempt.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:alarp/core/error/exceptions.dart';
-import 'dart:developer' as developer; // Use developer log
+import 'package:alarp/core/providers/guest_mode_provider.dart';
+import 'dart:developer' as developer;
 
 // Interface for the Practice Repository
 abstract class PracticeRepository {
@@ -113,9 +114,10 @@ final practiceRepositoryProvider = Provider<PracticeRepository>((ref) {
 // Provider to fetch recent practice attempts
 final recentPracticeAttemptsProvider =
     FutureProvider.autoDispose<List<PracticeAttempt>>((ref) async {
-      // Use autoDispose
+      if (ref.watch(guestModeProvider)) {
+        return DemoData.practiceAttempts.take(10).toList();
+      }
       final repository = ref.watch(practiceRepositoryProvider);
-      // Fetch slightly more for the "view all" case, can be limited in UI
       final result = await repository.getRecentPracticeAttempts(limit: 10);
       return result.fold((failure) {
         developer.log(
@@ -123,7 +125,6 @@ final recentPracticeAttemptsProvider =
           error: failure,
           name: 'recentPracticeAttemptsProvider',
         );
-        // Propagate the failure; UI should handle AsyncError
         throw failure;
       }, (attempts) => attempts);
     });
@@ -131,7 +132,9 @@ final recentPracticeAttemptsProvider =
 // Provider to fetch all practice attempts
 final allPracticeAttemptsProvider =
     FutureProvider.autoDispose<List<PracticeAttempt>>((ref) async {
-      // Use autoDispose
+      if (ref.watch(guestModeProvider)) {
+        return DemoData.practiceAttempts;
+      }
       final repository = ref.watch(practiceRepositoryProvider);
       final result = await repository.getAllPracticeAttempts();
       return result.fold((failure) {
@@ -140,13 +143,13 @@ final allPracticeAttemptsProvider =
           error: failure,
           name: 'allPracticeAttemptsProvider',
         );
-        throw failure; // Propagate the failure
+        throw failure;
       }, (attempts) => attempts);
     });
 
 // Provider to fetch weekly average accuracy
 final weeklyAccuracyProvider = FutureProvider.autoDispose<double>((ref) async {
-  // Use autoDispose
+  if (ref.watch(guestModeProvider)) return DemoData.weeklyAccuracy;
   final repository = ref.watch(practiceRepositoryProvider);
   final result = await repository.getWeeklyAverageAccuracy();
   return result.fold((failure) {
@@ -155,13 +158,13 @@ final weeklyAccuracyProvider = FutureProvider.autoDispose<double>((ref) async {
       error: failure,
       name: 'weeklyAccuracyProvider',
     );
-    return 0.0; // Default to 0 on failure for display
+    return 0.0;
   }, (avg) => avg);
 });
 
 // Provider to fetch overall average accuracy
 final overallAccuracyProvider = FutureProvider.autoDispose<double>((ref) async {
-  // Use autoDispose
+  if (ref.watch(guestModeProvider)) return DemoData.overallAccuracy;
   final repository = ref.watch(practiceRepositoryProvider);
   final result = await repository.getOverallAverageAccuracy();
   return result.fold((failure) {
@@ -170,6 +173,6 @@ final overallAccuracyProvider = FutureProvider.autoDispose<double>((ref) async {
       error: failure,
       name: 'overallAccuracyProvider',
     );
-    return 0.0; // Default to 0 on failure for display
+    return 0.0;
   }, (avg) => avg);
 });

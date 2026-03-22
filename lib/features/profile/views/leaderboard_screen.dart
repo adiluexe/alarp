@@ -5,6 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:alarp/core/theme/app_theme.dart';
 import 'package:alarp/data/repositories/profile_repository.dart';
 import 'package:alarp/features/profile/widgets/leaderboard_card.dart';
+import 'package:alarp/core/providers/guest_mode_provider.dart';
 import 'package:go_router/go_router.dart';
 
 final fullLeaderboardProvider =
@@ -12,6 +13,7 @@ final fullLeaderboardProvider =
   ref,
   challengeId,
 ) async {
+  if (ref.watch(guestModeProvider)) return DemoData.leaderboardToday;
   final repository = ref.watch(profileRepositoryProvider);
   return repository.getDailyLeaderboard(challengeId, limit: 25);
 }, name: 'fullLeaderboardProvider');
@@ -21,6 +23,7 @@ final allTimeLeaderboardProvider =
   ref,
   challengeId,
 ) async {
+  if (ref.watch(guestModeProvider)) return DemoData.leaderboardAllTime;
   final repository = ref.watch(profileRepositoryProvider);
   return repository.getAllTimeLeaderboard(challengeId);
 }, name: 'allTimeLeaderboardProvider');

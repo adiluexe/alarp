@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:alarp/core/providers/guest_mode_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:solar_icons/solar_icons.dart';
 import '../../../core/theme/app_theme.dart';
@@ -128,6 +129,20 @@ class _CollimationPracticeScreenState
     BuildContext context,
     CollimationController controller,
   ) async {
+    // Skip Supabase save in guest/demo mode
+    if (ref.read(guestModeProvider)) {
+      HapticFeedback.mediumImpact();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Demo mode — attempt not saved'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+      return;
+    }
+
     developer.log(
       'Attempting to save practice attempt...',
       name: 'CollimationPractice',

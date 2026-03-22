@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:alarp/core/providers/supabase_providers.dart';
+import 'package:alarp/core/providers/guest_mode_provider.dart';
 
 // Provider for the AuthController
 final authControllerProvider =
@@ -17,13 +18,13 @@ final authStateChangesProvider = StreamProvider<AuthState>((ref) {
 
 // Simple boolean provider for logged-in status
 final authStatusProvider = Provider<bool>((ref) {
-  // Watch the stream provider
+  // Guest mode counts as authenticated
+  if (ref.watch(guestModeProvider)) return true;
   final authState = ref.watch(authStateChangesProvider);
-  // Return true if there's a user session, false otherwise
   return authState.when(
     data: (state) => state.session?.user != null,
-    loading: () => false, // Assume not logged in while loading
-    error: (_, __) => false, // Assume not logged in on error
+    loading: () => false,
+    error: (_, __) => false,
   );
 });
 

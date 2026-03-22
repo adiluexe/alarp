@@ -5,6 +5,7 @@ import 'package:alarp/features/auth/controllers/auth_controller.dart';
 import 'package:alarp/core/theme/app_theme.dart';
 import 'package:solar_icons/solar_icons.dart';
 import 'package:alarp/core/navigation/app_router.dart';
+import 'package:alarp/core/providers/guest_mode_provider.dart';
 
 class SignInScreen extends ConsumerStatefulWidget {
   const SignInScreen({super.key});
@@ -192,7 +193,20 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                             )
                             : const Text('Login'),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
+                  TextButton(
+                    onPressed: () {
+                      ref.read(guestModeProvider.notifier).state = true;
+                      context.go(AppRoutes.home);
+                    },
+                    child: Text(
+                      'Continue as Guest',
+                      style: textTheme.bodyMedium?.copyWith(
+                        color: AppTheme.primaryColor.withValues(alpha: 0.7),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:alarp/core/providers/guest_mode_provider.dart';
 
 // Provider for the Supabase client instance
 final supabaseClientProvider = Provider<SupabaseClient>((ref) {
@@ -25,28 +26,24 @@ final userIdProvider = Provider<String?>((ref) {
 // --- NEW: Provider to fetch the current user's profile ---
 // We use a StreamProvider to listen for real-time changes to the profile
 final userProfileProvider = StreamProvider<Map<String, dynamic>?>((ref) {
+  // Return demo profile when in guest mode
+  if (ref.watch(guestModeProvider)) {
+    return Stream.value(DemoData.userProfile);
+  }
+
   final supabaseClient = ref.watch(supabaseClientProvider);
   final userId = ref.watch(userIdProvider);
 
-  // If no user is logged in, return an empty stream
   if (userId == null) {
     return Stream.value(null);
   }
 
-  // Fetch the user's profile row from the 'profiles' table
-  // Call .stream() immediately after .from()
-  // Then apply filters and transformations to the stream
   final stream = supabaseClient
       .from('profiles')
-      .stream(primaryKey: ['id']) // Call stream() directly on the table query
-      .eq('id', userId) // Filter the stream
-      .limit(1) // Limit the stream results
-      // The stream returns a List<Map<String, dynamic>>, map it to a single Map or null
+      .stream(primaryKey: ['id'])
+      .eq('id', userId)
+      .limit(1)
       .map((list) => list.isNotEmpty ? list.first : null);
-
-  // Note: .select() is implicitly applied when fetching the stream unless specified otherwise.
-  // If you only need specific columns, you could add .select('username, first_name, ...')
-  // *before* .stream(), but fetching all columns is often fine for a single profile row.
 
   return stream;
 });

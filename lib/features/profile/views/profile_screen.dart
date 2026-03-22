@@ -16,6 +16,7 @@ import 'package:alarp/features/profile/controllers/challenge_history_provider.da
 import 'package:intl/intl.dart';
 import 'package:alarp/data/repositories/practice_repository.dart'; // Import practice providers
 import 'package:alarp/features/learn/controllers/learn_progress_provider.dart';
+import 'package:alarp/core/providers/guest_mode_provider.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -473,39 +474,44 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   Widget _buildSignOutButton(BuildContext context, WidgetRef ref) {
+    final isGuest = ref.watch(guestModeProvider);
     return ElevatedButton.icon(
       onPressed: () async {
+        if (isGuest) {
+          // Guest mode: just exit demo, no Supabase sign-out needed
+          ref.read(guestModeProvider.notifier).state = false;
+          if (context.mounted) context.go(AppRoutes.getStarted);
+          return;
+        }
+
         final confirm = await showDialog<bool>(
           context: context,
-          builder:
-              (context) => AlertDialog(
-                title: const Text('Confirm Sign Out'),
-                content: const Text('Are you sure you want to sign out?'),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(false),
-                    child: const Text('Cancel'),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(true),
-                    style: TextButton.styleFrom(foregroundColor: Colors.red),
-                    child: const Text('Sign Out'),
-                  ),
-                ],
+          builder: (context) => AlertDialog(
+            title: const Text('Confirm Sign Out'),
+            content: const Text('Are you sure you want to sign out?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
               ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                style: TextButton.styleFrom(foregroundColor: Colors.red),
+                child: const Text('Sign Out'),
+              ),
+            ],
+          ),
         );
 
         if (confirm == true) {
           await ref.read(authControllerProvider.notifier).signOut();
-          if (context.mounted) {
-            context.go(AppRoutes.getStarted);
-          }
+          if (context.mounted) context.go(AppRoutes.getStarted);
         }
       },
       icon: const Icon(SolarIconsOutline.logout),
-      label: const Text('Sign Out'),
+      label: Text(isGuest ? 'Exit Demo Mode' : 'Sign Out'),
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.red[700],
+        backgroundColor: isGuest ? Colors.orange[700] : Colors.red[700],
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(vertical: 16),
       ),
